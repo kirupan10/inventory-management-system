@@ -26,33 +26,45 @@
                         </a>
                     </li>
 
+                    <li class="nav-item {{ request()->is('products*') ? 'active' : null }}">
+                        <a class="nav-link" href="{{ route('orders.create') }}" >
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-packages" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 16.5l-5 -3l5 -3l5 3v5.5l-5 3z" /><path d="M2 13.5v5.5l5 3" /><path d="M7 16.545l5 -3.03" /><path d="M17 16.5l-5 -3l5 -3l5 3v5.5l-5 3z" /><path d="M12 19l5 3" /><path d="M17 16.5l5 -3" /><path d="M12 13.5v-5.5l-5 -3l5 -3l5 3v5.5" /><path d="M7 5.03v5.455" /><path d="M12 8l5 -3" /></svg>
+                            </span>
+                            <span class="nav-link-title">
+                                {{ __('POS') }}
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="nav-item dropdown {{ request()->is('orders*') ? 'active' : null }}">
-                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+                        <a class="nav-link" href="{{ route('orders.index') }}" >
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package-export" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M15 18h7" /><path d="M19 15l3 3l-3 3" /></svg>
                             </span>
                             <span class="nav-link-title">
-                                {{ __('Orders') }}
+                                {{ __('Sales') }}
                             </span>
                         </a>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-menu-columns">
-                                <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="{{ route('orders.index') }}">
-                                        {{ __('All') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('orders.complete') }}">
-                                        {{ __('Completed') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('orders.pending') }}">
-                                        {{ __('Pending') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('due.index') }}">
-                                        {{ __('Due') }}
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                    </li>
+
+                    <li class="nav-item {{ request()->is('customers*') ? 'active' : null }}">
+                        <a class="nav-link" href="{{ route('customers.index') }}">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-package-export" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5"/>
+                                    <path d="M12 12l8 -4.5"/>
+                                    <path d="M12 12v9"/>
+                                    <path d="M12 12l-8 -4.5"/>
+                                    <path d="M15 18h7"/>
+                                    <path d="M19 15l3 3l-3 3"/>
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                {{ __('Customers') }}
+                            </span>
+                        </a>
                     </li>
 
                     <li class="nav-item dropdown {{ request()->is('purchases*') ? 'active' : null }}">

@@ -24,7 +24,7 @@
 {{--            @endphp--}}
 
             @foreach ($invoiceProducts as $index => $invoiceProduct)
-            <tr>
+            <tr wire:key="product-row-{{ $index }}">
                 <td class="align-middle">
                     @if($invoiceProduct['is_saved'])
                         <input type="hidden" name="invoiceProducts[{{$index}}][product_id]" value="{{ $invoiceProduct['product_id'] }}">
@@ -32,20 +32,84 @@
                         {{ $invoiceProduct['product_name'] }}
                     @else
 
-                        <select wire:model.live="invoiceProducts.{{$index}}.product_id"
-                                id="invoiceProducts[{{$index}}][product_id]"
-                                class="form-control text-center @error('invoiceProducts.' . $index . '.product_id') is-invalid @enderror"
-                        >
+                        <div class="position-relative">
+                            <input type="text"
+                                   wire:model.live.debounce.300ms="invoiceProducts.{{$index}}.product_search"
+                                   id="product_search_{{$index}}"
+                                   class="product-search-input form-control @error('invoiceProducts.' . $index . '.product_id') is-invalid @enderror"
+                                   placeholder="Start typing to search products..."
+                                   autocomplete="off"
+                            >
 
-                            <option value="" class="text-center">-- choose product --</option>
+                            <input type="hidden"
+                                   wire:model="invoiceProducts.{{$index}}.product_id"
+                                   id="product_id_{{$index}}"
+                            >
 
-                            @foreach ($allProducts as $product)
-                                <option value="{{ $product->id }}" class="text-center">
-                                    {{ $product->name }}
-{{--                                    (${{ number_format($product->buying_price, 2) }})--}}
-                                </option>
-                            @endforeach
-                        </select>
+                            <!-- Hot Search Results Dropdown -->
+                            <div class="product-search-results position-absolute w-100"
+                                 id="search_results_{{$index}}"
+                                 style="top: 100%; z-index: 1000; max-height: 350px; overflow-y: auto; display: {{ (isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0) ? 'block' : 'none' }};"
+                                 >
+
+                                @php
+                                    $filteredProducts = $this->getFilteredProducts($index);
+                                @endphp
+
+                                @if(isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0)
+                                    @if($filteredProducts->count() > 0)
+                                        <div class="bg-white border border-top-0 rounded-bottom shadow">
+                                            @foreach($filteredProducts as $product)
+                                                <div class="product-search-item p-3 border-bottom cursor-pointer hover-bg-light"
+                                                     data-product-id="{{ $product->id }}"
+                                                     data-product-name="{{ $product->name }}"
+                                                     data-product-code="{{ $product->code }}"
+                                                     data-product-price="{{ $product->selling_price }}"
+                                                     data-product-stock="{{ $product->quantity }}"
+                                                     wire:click="selectProduct({{$index}}, {{$product->id}}, '{{ addslashes($product->name) }}')"
+                                                     onclick="hideSearchResults({{$index}})">
+
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <div class="fw-bold text-dark">
+                                                                {!! $this->highlightSearch($product->name, $invoiceProducts[$index]['product_search'] ?? '') !!}
+                                                            </div>
+                                                            <small class="text-muted">
+                                                                Code: {!! $this->highlightSearch($product->code, $invoiceProducts[$index]['product_search'] ?? '') !!}
+                                                            </small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <div class="fw-bold text-success">${{ number_format($product->selling_price, 2) }}</div>
+                                                            <small class="text-muted">Stock: {{ $product->quantity }}</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+
+                                            <!-- Quick stats at bottom -->
+                                            <div class="p-2 bg-light border-top">
+                                                <small class="text-muted">
+                                                    Showing {{ $filteredProducts->count() }} results
+                                                    @if($this->allProducts->count() > $filteredProducts->count())
+                                                        of {{ $this->allProducts->count() }} total products
+                                                    @endif
+                                                </small>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="bg-white border border-top-0 rounded-bottom shadow">
+                                            <div class="p-3 text-center">
+                                                <div class="text-muted">
+                                                    <i class="ti ti-search"></i>
+                                                    No products found for "{{ $invoiceProducts[$index]['product_search'] }}"
+                                                </div>
+                                                <small class="text-muted">Try a different search term</small>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
 
                         @error('invoiceProducts.' . $index)
                             <em class="text-danger">
@@ -158,3 +222,269 @@
         </tbody>
     </table>
 </div>
+
+@push('page-styles')
+    <style>
+        .product-search-input {
+            min-width: 300px;
+            position: relative;
+        }
+
+        .product-search-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .product-search-results {
+            background: white;
+            border: 1px solid #0d6efd;
+            border-top: none;
+            border-radius: 0 0 0.375rem 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+
+        .product-search-item {
+            cursor: pointer;
+            transition: all 0.15s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+
+        .product-search-item:hover {
+            background-color: #f8f9fa !important;
+            border-left-color: #0d6efd;
+            transform: translateX(2px);
+        }
+
+        .product-search-item.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+            border-left-color: #0a58ca;
+        }
+
+        .product-search-item.active .text-success {
+            color: #90ee90 !important;
+        }
+
+        .product-search-item.active .text-muted {
+            color: #e9ecef !important;
+        }
+
+        .product-search-item:last-child {
+            border-bottom: none !important;
+        }
+
+        .hover-bg-light:hover {
+            background-color: #f8f9fa;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        /* Highlight search matches */
+        mark.bg-warning {
+            background-color: #fff3cd !important;
+            color: #664d03 !important;
+            padding: 1px 2px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+
+        .product-search-item.active mark.bg-warning {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
+
+        /* Loading spinner */
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* Smooth animations */
+        .product-search-results {
+            animation: fadeIn 0.15s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Focus ring for better accessibility */
+        .product-search-input:focus + .product-search-results {
+            border-color: #0d6efd;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .product-search-input {
+                min-width: 200px;
+            }
+
+            .product-search-results {
+                max-height: 250px;
+            }
+
+            .product-search-item {
+                padding: 0.75rem !important;
+            }
+        }
+    </style>
+@endpush
+
+@push('page-scripts')
+    <script>
+        let searchTimeouts = {};
+
+        // Hide search results for a specific index
+        function hideSearchResults(index) {
+            const searchResults = document.getElementById('search_results_' + index);
+            if (searchResults) {
+                setTimeout(() => {
+                    searchResults.style.display = 'none';
+                }, 150);
+            }
+        }
+
+        // Handle search input focus and blur events
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeHotSearch();
+        });
+
+        function initializeHotSearch() {
+            const searchInputs = document.querySelectorAll('.product-search-input');
+
+            searchInputs.forEach(function(input) {
+                const index = input.id.replace('product_search_', '');
+
+                // Clear any existing timeout for this input
+                if (searchTimeouts[index]) {
+                    clearTimeout(searchTimeouts[index]);
+                }
+
+                // Show results on focus if there's text
+                input.addEventListener('focus', function() {
+                    const searchResults = document.getElementById('search_results_' + index);
+                    if (searchResults && this.value.length > 0) {
+                        searchResults.style.display = 'block';
+                    }
+                });
+
+                // Hide results on blur (with delay to allow clicks)
+                input.addEventListener('blur', function() {
+                    setTimeout(() => {
+                        const searchResults = document.getElementById('search_results_' + index);
+                        if (searchResults) {
+                            searchResults.style.display = 'none';
+                        }
+                    }, 200);
+                });
+
+                // Don't interfere with input - let Livewire handle it
+                // Just manage the display visibility based on content
+                input.addEventListener('input', function() {
+                    // Livewire will handle the update automatically with wire:model.live.debounce
+                });
+
+                // Handle keyboard navigation
+                input.addEventListener('keydown', function(e) {
+                    const searchResults = document.getElementById('search_results_' + index);
+                    if (!searchResults || searchResults.style.display === 'none') return;
+
+                    const items = searchResults.querySelectorAll('.product-search-item');
+                    const activeItem = searchResults.querySelector('.product-search-item.active');
+                    let activeIndex = activeItem ? Array.from(items).indexOf(activeItem) : -1;
+
+                    switch(e.key) {
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            activeIndex = (activeIndex + 1) % items.length;
+                            updateActiveItem(items, activeIndex);
+                            break;
+
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
+                            updateActiveItem(items, activeIndex);
+                            break;
+
+                        case 'Enter':
+                            e.preventDefault();
+                            if (activeItem) {
+                                activeItem.click();
+                            } else if (items.length > 0) {
+                                items[0].click();
+                            }
+                            break;
+
+                        case 'Escape':
+                            searchResults.style.display = 'none';
+                            break;
+                    }
+                });
+            });
+        }
+
+        function updateActiveItem(items, activeIndex) {
+            items.forEach((item, index) => {
+                if (index === activeIndex) {
+                    item.classList.add('active', 'bg-primary', 'text-white');
+                } else {
+                    item.classList.remove('active', 'bg-primary', 'text-white');
+                }
+            });
+        }
+
+        // Reinitialize when Livewire updates
+        document.addEventListener('livewire:updated', function() {
+            setTimeout(function() {
+                initializeHotSearch();
+            }, 100);
+        });
+
+        // Handle Livewire morphing
+        document.addEventListener('livewire:morph', function() {
+            setTimeout(function() {
+                initializeHotSearch();
+            }, 100);
+        });
+
+        // Handle clicks outside to close dropdowns
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.position-relative')) {
+                const searchResults = document.querySelectorAll('.product-search-results');
+                searchResults.forEach(function(result) {
+                    result.style.display = 'none';
+                });
+            }
+        });
+
+        // Performance optimization: Throttle Livewire updates
+        let livewireUpdateThrottle = {};
+
+        function throttledLivewireUpdate(component, method, ...args) {
+            const key = method + JSON.stringify(args);
+
+            if (livewireUpdateThrottle[key]) {
+                clearTimeout(livewireUpdateThrottle[key]);
+            }
+
+            livewireUpdateThrottle[key] = setTimeout(() => {
+                if (window.Livewire && component) {
+                    component.call(method, ...args);
+                }
+                delete livewireUpdateThrottle[key];
+            }, 100);
+        }
+    </script>
+@endpush
