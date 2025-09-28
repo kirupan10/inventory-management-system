@@ -64,24 +64,27 @@
                             </div>
 
                             <!-- Products Grid -->
-                            <div class="flex-1 overflow-auto">
-                                <h4 class="mb-3">Products</h4>
-                                <div class="row g-3">
+                            <div class="flex-1" style="overflow-y: auto; overflow-x: hidden; max-height: 500px;">
+                                <h4 class="mb-3">Products ({{ $products->count() }} items)</h4>
+                                <div class="row g-2" style="margin: 0;">
                                     @foreach($products as $product)
-                                    <div class="col-md-6 col-lg-4">
-                                        <div class="card card-sm cursor-pointer hover-shadow product-card" data-product-id="{{ $product->id }}">
-                                            <div class="card-body text-center p-3">
-                                                <div class="mb-2">
-                                                    <strong class="text-dark">{{ Str::limit($product->name, 20) }}</strong>
+                                    <div class="col-md-6 col-lg-4" style="padding: 0.25rem;">
+                                        <div class="card cursor-pointer hover-shadow product-card" data-product-id="{{ $product->id }}" style="border: 1px solid #e9ecef; border-radius: 8px; min-height: 50px; width: 100%;">
+                                            <div class="card-body p-3">
+                                                <div class="text-start">
+                                                    <div class="fw-bold text-dark mb-1" style="font-size: 14px; line-height: 1.2; word-wrap: break-word;">
+                                                        {{ Str::limit($product->name, 25) }}
+                                                    </div>
+                                                    <div class="text-muted small mb-2" style="font-size: 11px;">
+                                                        PRD-{{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}
+                                                    </div>
                                                 </div>
-                                                <div class="mb-2">
-                                                    <span class="h4 text-primary">LKR {{ number_format($product->selling_price, 0) }}</span>
-                                                </div>
-                                                <div class="mb-2">
+                                                <div class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap;">
+                                                    <span class="fw-bold text-success" style="font-size: 14px; white-space: nowrap;">LKR {{ number_format($product->selling_price, 0) }}</span>
                                                     @if($product->quantity > 0)
-                                                        <span class="badge bg-success">Stock: {{ $product->quantity }}</span>
+                                                        <span class="badge rounded-pill" style="background-color: #3b82f6; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Stock: {{ $product->quantity }}</span>
                                                     @else
-                                                        <span class="badge bg-danger">Stock: 0</span>
+                                                        <span class="badge rounded-pill" style="background-color: #ef4444; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Stock: 0</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -141,7 +144,7 @@
                             </div>
 
                             <!-- Cart Items -->
-                            <div class="flex-1 overflow-auto mb-4">
+                            <div class="mb-4" style="height: 240px; min-height: 240px;">
                                 <div class="text-center py-5" id="empty-cart">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-muted mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -153,7 +156,7 @@
                                     <p class="text-muted">Cart is empty</p>
                                 </div>
                                 <!-- Cart items will be dynamically added here -->
-                                <div id="cart-items" style="display: none;">
+                                <div id="cart-items" style="display: none; max-height: 240px; overflow-y: auto; overflow-x: hidden;">
                                     <!-- Dynamic cart items -->
                                 </div>
                             </div>
@@ -290,13 +293,32 @@
         .cursor-pointer { cursor: pointer; }
         .hover-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; }
         .product-card:hover { transform: translateY(-2px); transition: all 0.2s ease-in-out; }
-        .cart-item { border-bottom: 1px solid #e9ecef; padding: 12px 0; }
+        .cart-item {
+            border-bottom: 1px solid #e9ecef;
+            padding: 12px 0;
+            min-height: 75px;
+            max-height: 75px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
         .cart-item:last-child { border-bottom: none; }
         .quantity-btn { width: 32px; height: 32px; padding: 0; font-size: 14px; }
         .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
         .overflow-auto { max-height: 400px; }
         .flex-1 { flex: 1; }
         .btn-icon { display: inline-flex; align-items: center; justify-content: center; }
+
+        /* Prevent horizontal scrollbar in product section */
+        .product-card {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card-body {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
 
         /* Make the POS layout responsive */
         @media (max-width: 991px) {
@@ -307,9 +329,15 @@
 
         /* Product grid responsiveness */
         .product-card {
-            min-height: 140px;
-            display: flex;
-            align-items: center;
+            min-height: 120px;
+            transition: all 0.2s ease-in-out;
+            background: white;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            border-color: #3b82f6 !important;
         }
 
         /* Cart item styling */
@@ -478,8 +506,8 @@
         }
 
         function addToCart(productId, productElement) {
-            const productName = productElement.querySelector('strong').textContent;
-            const productPrice = parseFloat(productElement.querySelector('.text-primary').textContent.replace('LKR ', '').replace(',', ''));
+            const productName = productElement.querySelector('.fw-bold.text-dark').textContent;
+            const productPrice = parseFloat(productElement.querySelector('.text-success').textContent.replace('LKR ', '').replace(',', ''));
             const stockElement = productElement.querySelector('.badge');
             const stock = parseInt(stockElement.textContent.replace('Stock: ', ''));
 
@@ -620,7 +648,7 @@
             const productCards = document.querySelectorAll('.product-card');
 
             productCards.forEach(card => {
-                const productName = card.querySelector('strong').textContent.toLowerCase();
+                const productName = card.querySelector('.fw-bold.text-dark').textContent.toLowerCase();
 
                 if (productName.includes(searchTerm)) {
                     card.parentElement.style.display = 'block';
