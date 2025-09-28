@@ -46,7 +46,7 @@ class SupplierController extends Controller
 
     public function show(Supplier $supplier)
     {
-        $supplier->loadMissing('purchases')->get();
+        $supplier->get();
 
         return view('suppliers.show', [
             'supplier' => $supplier

@@ -47,7 +47,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $customer->loadMissing(['quotations', 'orders'])->get();
+        $customer->loadMissing(['orders'])->get();
 
         return view('customers.show', [
             'customer' => $customer

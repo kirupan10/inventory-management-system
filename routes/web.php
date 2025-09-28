@@ -11,10 +11,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\DueOrderController;
 use App\Http\Controllers\Product\ProductController;
-use App\Http\Controllers\Purchase\PurchaseController;
 use App\Http\Controllers\Order\OrderPendingController;
 use App\Http\Controllers\Order\OrderCompleteController;
-use App\Http\Controllers\Quotation\QuotationController;
 use App\Http\Controllers\Dashboards\DashboardController;
 use App\Http\Controllers\Product\ProductExportController;
 use App\Http\Controllers\Product\ProductImportController;
@@ -51,7 +49,6 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('/quotations', QuotationController::class);
     Route::resource('/customers', CustomerController::class);
     Route::resource('/suppliers', SupplierController::class);
     Route::resource('/categories', CategoryController::class);
@@ -86,20 +83,7 @@ Route::middleware(['auth'])->group(function () {
     // TODO: Remove from OrderController
     Route::get('/orders/details/{order_id}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
 
-    // Route Purchases
-    Route::get('/purchases/approved', [PurchaseController::class, 'approvedPurchases'])->name('purchases.approvedPurchases');
-    Route::get('/purchases/report', [PurchaseController::class, 'dailyPurchaseReport'])->name('purchases.dailyPurchaseReport');
-    Route::get('/purchases/report/export', [PurchaseController::class, 'getPurchaseReport'])->name('purchases.getPurchaseReport');
-    Route::post('/purchases/report/export', [PurchaseController::class, 'exportPurchaseReport'])->name('purchases.exportPurchaseReport');
 
-    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
-    Route::get('/purchases/create', [PurchaseController::class, 'create'])->name('purchases.create');
-    Route::post('/purchases', [PurchaseController::class, 'store'])->name('purchases.store');
-
-    Route::get('/purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
-    Route::get('/purchases/{purchase}/edit', [PurchaseController::class, 'edit'])->name('purchases.edit');
-    Route::put('/purchases/{purchase}/edit', [PurchaseController::class, 'update'])->name('purchases.update');
-    Route::delete('/purchases/{purchase}', [PurchaseController::class, 'destroy'])->name('purchases.delete');
 });
 
 require __DIR__.'/auth.php';

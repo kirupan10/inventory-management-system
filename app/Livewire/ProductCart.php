@@ -139,7 +139,7 @@ class ProductCart extends Component
 
     public function updateQuantity($row_id, $product_id): void
     {
-        if ($this->cart_instance == 'sale' || $this->cart_instance == 'purchase_return' || $this->cart_instance == 'quotation') {
+        if ($this->cart_instance == 'sale' || $this->cart_instance == 'purchase_return') {
             if ($this->check_quantity[$product_id] < $this->quantity[$product_id]) {
                 session()->flash('message', 'The requested quantity is not available in stock.');
 
@@ -232,7 +232,7 @@ class ProductCart extends Component
         } else {
             $this->unit_price[$product['id']] = $product['selling_price']; // selling price?
 
-            if ($this->cart_instance == 'purchase' || $this->cart_instance == 'purchase_return') {
+            if ($this->cart_instance == 'purchase_return') {
                 $this->unit_price[$product['id']] = $product['product_cost'];
             }
 

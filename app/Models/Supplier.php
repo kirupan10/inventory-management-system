@@ -34,11 +34,6 @@ class Supplier extends Model
         'type' => SupplierType::class
     ];
 
-    public function purchases(): HasMany
-    {
-        return $this->hasMany(Purchase::class);
-    }
-
     public function scopeSearch($query, $value): void
     {
         $query->where('name', 'like', "%{$value}%")

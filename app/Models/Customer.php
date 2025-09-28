@@ -35,11 +35,6 @@ class Customer extends Model
         return $this->hasMany(Order::class);
     }
 
-    public function quotations(): HasMany
-    {
-        return $this->HasMany(Quotation::class);
-    }
-
     public function scopeSearch($query, $value): void
     {
         $query->where('name', 'like', "%{$value}%")
