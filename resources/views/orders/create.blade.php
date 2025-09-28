@@ -252,7 +252,7 @@
                                 <!-- Action Buttons -->
                                 <div class="row g-2">
                                     <div class="col">
-                                        <button type="button" id="complete-payment-btn" class="btn btn-primary w-100 btn-lg">
+                                        <button type="button" id="complete-payment-btn" class="btn btn-primary w-100 btn-lg" data-bs-toggle="modal" data-bs-target="#paymentModal">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                 <path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2"/>
@@ -260,15 +260,6 @@
                                                 <path d="M19 16v6"/>
                                             </svg>
                                             Complete Payment
-                                        </button>
-
-                                        <!-- Hidden Confirm Payment Button -->
-                                        <button type="submit" id="confirm-payment-btn" class="btn btn-success w-100 btn-lg" style="display: none;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                <path d="M5 12l5 5l10 -10"/>
-                                            </svg>
-                                            Confirm Payment
                                         </button>
                                     </div>
                                 </div>
@@ -285,6 +276,25 @@
         </form>
     </div>
 </div>
+
+<!-- Payment Modal -->
+<div class="modal modal-lg fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Process Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="payment-processor-container">
+                    <!-- Payment processor will be loaded here -->
+                    <livewire:payment.payment-processor />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('page-styles')
@@ -660,10 +670,7 @@
 
         // Payment validation handler
         const completePaymentBtn = document.getElementById('complete-payment-btn');
-        const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
-        const paymentAmountSection = document.getElementById('payment-amount-section');
-        const paymentAmountInput = document.getElementById('payment-amount-input');
-        const requiredAmountSpan = document.getElementById('required-amount');
+        const paymentModal = document.getElementById('paymentModal');
 
         if (completePaymentBtn) {
             completePaymentBtn.addEventListener('click', function() {
@@ -672,70 +679,96 @@
 
                 if (totalAmount <= 0 || cart.length === 0) {
                     alert('Please add items to cart before completing payment.');
-                    return;
+                    return false;
                 }
 
-                // Show payment amount section
-                paymentAmountSection.style.display = 'block';
-                requiredAmountSpan.textContent = `LKR ${totalAmount.toFixed(2)}`;
-                paymentAmountInput.focus();
-
-                // Hide complete payment button, show confirm button
-                completePaymentBtn.style.display = 'none';
-                confirmPaymentBtn.style.display = 'block';
-            });
-        }
-
-        // Payment amount input validation
-        if (paymentAmountInput) {
-            paymentAmountInput.addEventListener('input', function() {
-                const enteredAmount = parseFloat(this.value) || 0;
-                const totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('LKR ', ''));
-
-                // Visual feedback for amount matching
-                if (Math.abs(enteredAmount - totalAmount) < 0.01) {
-                    this.classList.remove('is-invalid');
-                    this.classList.add('is-valid');
-                    confirmPaymentBtn.disabled = false;
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                    confirmPaymentBtn.disabled = true;
-                }
-            });
-        }
-
-        // Form submission handler
-        const form = document.querySelector('form');
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                if (cart.length === 0) {
-                    e.preventDefault();
-                    alert('Please add items to cart before completing the order.');
-                    return;
-                }
-
+                // Get selected customer
                 const customerId = document.getElementById('customer_id').value;
                 if (!customerId) {
-                    e.preventDefault();
-                    alert('Please select a customer.');
-                    return;
+                    alert('Please select a customer before proceeding with payment.');
+                    return false;
                 }
 
-                // Validate payment amount if payment section is visible
-                if (paymentAmountSection.style.display !== 'none') {
-                    const enteredAmount = parseFloat(paymentAmountInput.value) || 0;
-                    const totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('LKR ', ''));
+                // Load payment processor component
+                loadPaymentProcessor();
+            });
+        }
 
-                    if (Math.abs(enteredAmount - totalAmount) >= 0.01) {
-                        e.preventDefault();
-                        alert(`Insufficient payment amount. Please enter at least LKR ${totalAmount.toFixed(2)}`);
-                        paymentAmountInput.focus();
-                        return;
-                    }
+        function loadPaymentProcessor() {
+            const customerId = document.getElementById('customer_id').value;
+
+            // Dispatch Livewire event to load payment data
+            if (window.Livewire) {
+                Livewire.emit('load-payment-data', {
+                    cartItems: cart,
+                    customerId: customerId
+                });
+            }
+        }
+
+        // Listen for payment completion events
+        document.addEventListener('livewire:load', function () {
+            Livewire.on('payment-completed', function (data) {
+                // Hide the payment modal
+                const modal = bootstrap.Modal.getInstance(paymentModal);
+                if (modal) {
+                    modal.hide();
                 }
 
-                console.log('Order submitted:', { cart, customerId });
+                // Clear the cart
+                cart = [];
+                updateCartDisplay();
+
+                // Show success notification
+                showSuccessNotification(`Payment completed successfully! Invoice: ${data[0].invoice_no}`);
+
+                // Redirect to order details after 3 seconds
+                setTimeout(() => {
+                    window.location.href = `{{ route('orders.show', '') }}/${data[0].order_id}`;
+                }, 3000);
+            });
+        });
+
+        function showSuccessNotification(message) {
+            // Create a nice success notification
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success alert-dismissible position-fixed top-0 start-50 translate-middle-x';
+            notification.style.zIndex = '9999';
+            notification.style.marginTop = '20px';
+            notification.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-success" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M5 12l5 5l10 -10"/>
+                    </svg>
+                    <div>
+                        <strong>Success!</strong> ${message}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        // Make cart data available globally for Livewire component
+        window.getCartData = function() {
+            return cart;
+        };
+
+        // Reset payment processor when modal is closed
+        if (paymentModal) {
+            paymentModal.addEventListener('hidden.bs.modal', function () {
+                if (window.Livewire) {
+                    Livewire.emit('reset-payment');
+                }
             });
         }
     </script>

@@ -54,6 +54,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('/categories', CategoryController::class);
     Route::resource('/units', UnitController::class);
 
+    // Payment routes
+    Route::post('/payment/modal', [\App\Http\Controllers\PaymentController::class, 'modal'])->name('payment.modal');
+
     // Route Products
     Route::get('/products/import', [ProductImportController::class, 'create'])->name('products.import.view');
     Route::post('/products/import', [ProductImportController::class, 'store'])->name('products.import.store');

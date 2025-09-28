@@ -47,6 +47,11 @@ class Order extends Model
         return $this->hasMany(OrderDetails::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(\App\Models\Payment::class);
+    }
+
     public function scopeSearch($query, $value): void
     {
         $query->where('invoice_no', 'like', "%{$value}%")
