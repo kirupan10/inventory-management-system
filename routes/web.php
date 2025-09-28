@@ -7,7 +7,6 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\Order\OrderController;
 use App\Http\Controllers\Order\DueOrderController;
 use App\Http\Controllers\Product\ProductController;
@@ -50,7 +49,6 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('/customers', CustomerController::class);
-    Route::resource('/suppliers', SupplierController::class);
     Route::resource('/categories', CategoryController::class);
     Route::resource('/units', UnitController::class);
 

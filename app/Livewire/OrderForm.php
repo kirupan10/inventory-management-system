@@ -20,6 +20,8 @@ class OrderForm extends Component
 
     public array $invoiceProducts = [];
 
+    public array $searchFocused = [];
+
     #[Validate('required', message: 'Please select products')]
     public Collection $allProducts;
 
@@ -28,6 +30,9 @@ class OrderForm extends Component
         $this->cart_instance = $cartInstance;
 
         $this->allProducts = Product::all();
+
+        // Initialize searchFocused array
+        $this->searchFocused = [];
 
         //$cart_items = Cart::instance($this->cart_instance)->content();
     }
@@ -61,6 +66,8 @@ class OrderForm extends Component
             }
         }
 
+        $newIndex = count($this->invoiceProducts);
+
         $this->invoiceProducts[] = [
             'product_id' => '',
             'product_search' => '',
@@ -69,6 +76,9 @@ class OrderForm extends Component
             'product_name' => '',
             'product_price' => 0,
         ];
+
+        // Initialize focus state for new product
+        $this->searchFocused[$newIndex] = false;
     }
 
     public function selectProduct($index, $productId, $productName): void
@@ -80,14 +90,30 @@ class OrderForm extends Component
             $this->invoiceProducts[$index]['product_search'] = $productName;
             $this->invoiceProducts[$index]['product_name'] = $productName;
             $this->invoiceProducts[$index]['product_price'] = $product->selling_price;
+
+            // Clear focus state after selection
+            $this->searchFocused[$index] = false;
         }
+    }
+
+    public function focusSearch($index): void
+    {
+        $this->searchFocused[$index] = true;
+    }
+
+    public function blurSearch($index): void
+    {
+        // Use a small delay to allow click events to register before hiding
+        $this->dispatch('hide-search-results', ['index' => $index]);
+        $this->searchFocused[$index] = false;
     }
 
     public function getFilteredProducts($index)
     {
+        // If no search term or empty search, show first 5 products
         if (!isset($this->invoiceProducts[$index]['product_search']) ||
             strlen($this->invoiceProducts[$index]['product_search']) < 1) {
-            return collect();
+            return $this->allProducts->take(5);
         }
 
         $searchTerm = strtolower($this->invoiceProducts[$index]['product_search']);

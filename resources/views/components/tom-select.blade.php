@@ -51,30 +51,4 @@
     </script>
 @endpushonce
 
-{{--- ---}}
-{{---
-<div class="col-md-4">
-    <label class="small my-1" for="supplier_id">
-        {{ __('Supplier') }}
-        <span class="text-danger">*</span>
-    </label>
 
-    <select class="form-select @error('supplier_id') is-invalid @enderror" id="supplier_id" name="supplier_id" required>
-        <option selected disabled>
-            {{ __('Select a supplier:') }}
-        </option>
-
-        @foreach ($suppliers as $supplier)
-            <option value="{{ $supplier->id }}" @selected(old('supplier_id', ) == $supplier->id)>
-                {{ $supplier->name }}
-            </option>
-        @endforeach
-    </select>
-
-    @error('supplier_id')
-    <div class="invalid-feedback">
-        {{ $message }}
-    </div>
-    @enderror
-</div>
----}}

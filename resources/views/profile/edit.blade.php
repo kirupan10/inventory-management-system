@@ -46,7 +46,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title">
-                            {{ __('Supplier Details') }}
+                            {{ __('User Details') }}
                         </h3>
 
                         <x-input name="name" value="{{ old('name', $user->name) }}" :required="true" />
