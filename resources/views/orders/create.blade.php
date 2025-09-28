@@ -12,7 +12,6 @@
                     <h1 class="page-title">
                         {{ __('Point of Sale') }}
                     </h1>
-                    <p class="text-muted mb-0">Process new transactions</p>
                     <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -58,28 +57,8 @@
                             <!-- Product Search Section -->
                             <div class="mb-4">
                                 <div class="row g-3">
-                                    <div class="col-md-8">
-                                        <label class="form-label">Search products by name, SKU, or scan barcode...</label>
+                                    <div class="col-12">
                                         <input type="text" class="form-control form-control-lg" placeholder="Search products by name, SKU, or scan barcode..." autocomplete="off">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Barcode</label>
-                                        <button type="button" class="btn btn-primary btn-lg w-100">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                <path d="M4 7v-1a2 2 0 0 1 2 -2h2"/>
-                                                <path d="M4 17v1a2 2 0 0 0 2 2h2"/>
-                                                <path d="M16 4h2a2 2 0 0 1 2 2v1"/>
-                                                <path d="M16 20h2a2 2 0 0 0 2 -2v-1"/>
-                                                <path d="M8 11l0 .01"/>
-                                                <path d="M12 11l0 .01"/>
-                                                <path d="M16 11l0 .01"/>
-                                                <path d="M8 15l0 .01"/>
-                                                <path d="M12 15l0 .01"/>
-                                                <path d="M16 15l0 .01"/>
-                                            </svg>
-                                            Scan
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -94,9 +73,6 @@
                                             <div class="card-body text-center p-3">
                                                 <div class="mb-2">
                                                     <strong class="text-dark">{{ Str::limit($product->name, 20) }}</strong>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <small class="text-muted">{{ $product->code }}</small>
                                                 </div>
                                                 <div class="mb-2">
                                                     <span class="h4 text-primary">LKR {{ number_format($product->selling_price, 0) }}</span>
@@ -203,18 +179,77 @@
                                     </select>
                                 </div>
 
-                                <!-- Amount Received -->
-                                <div class="row g-2 mb-3">
+                                <script>
+                                    // Show/hide amount received field based on payment method
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const paymentTypeSelect = document.querySelector('select[name="payment_type"]');
+                                        const paymentAmountSection = document.getElementById('payment-amount-section');
+                                        const paymentAmountInput = document.getElementById('payment-amount-input');
+
+                                        // Create feedback element for balance/shortage
+                                        let balanceFeedback = document.getElementById('balance-feedback');
+                                        if (!balanceFeedback) {
+                                            balanceFeedback = document.createElement('div');
+                                            balanceFeedback.id = 'balance-feedback';
+                                            balanceFeedback.style.marginTop = '0.5rem';
+                                            paymentAmountInput && paymentAmountInput.parentNode.appendChild(balanceFeedback);
+                                        }
+
+                                        function updateBalanceFeedback() {
+                                            const enteredAmount = parseFloat(paymentAmountInput.value) || 0;
+                                            const totalAmount = parseFloat(document.getElementById('total-amount')?.textContent.replace('LKR ', '').replace(',', '')) || 0;
+                                            const diff = enteredAmount - totalAmount;
+
+                                            if (enteredAmount === 0) {
+                                                balanceFeedback.innerHTML = '';
+                                                return;
+                                            }
+
+                                            if (diff < 0) {
+                                                balanceFeedback.innerHTML = `<span style="color: #dc2626; font-weight: 500;">Insufficient amount: LKR ${Math.abs(diff).toFixed(2)}</span>`;
+                                            } else if (diff > 0) {
+                                                balanceFeedback.innerHTML = `<span style="color: #2563eb; font-weight: 500;">Change to give: LKR ${diff.toFixed(2)}</span>`;
+                                            } else {
+                                                balanceFeedback.innerHTML = '';
+                                            }
+                                        }
+
+                                        if (paymentAmountInput) {
+                                            paymentAmountInput.addEventListener('input', updateBalanceFeedback);
+                                        }
+
+                                        if (paymentTypeSelect) {
+                                            paymentTypeSelect.addEventListener('change', function() {
+                                                if (this.value === 'Cash') {
+                                                    paymentAmountSection.style.display = 'block';
+                                                } else {
+                                                    paymentAmountSection.style.display = 'none';
+                                                    if (balanceFeedback) balanceFeedback.innerHTML = '';
+                                                }
+                                            });
+                                            // Trigger change on load
+                                            if (paymentTypeSelect.value === 'Cash') {
+                                                paymentAmountSection.style.display = 'block';
+                                            } else {
+                                                paymentAmountSection.style.display = 'none';
+                                                if (balanceFeedback) balanceFeedback.innerHTML = '';
+                                            }
+                                        }
+                                    });
+                                </script>
+
+                                <!-- Amount Received (Initially Hidden) -->
+                                <div class="row g-2 mb-3" id="payment-amount-section" style="display: none;">
                                     <div class="col">
-                                        <label class="form-label">Amount received (LKR)</label>
-                                        <input type="number" class="form-control" step="0.01" min="0" placeholder="0.00">
+                                        <label class="form-label fw-bold text-primary">Amount (LKR)</label>
+                                        <input type="number" id="payment-amount-input" class="form-control form-control-lg" step="0.01" min="0" placeholder="0.00" name="amount_received">
                                     </div>
                                 </div>
 
                                 <!-- Action Buttons -->
                                 <div class="row g-2">
                                     <div class="col">
-                                        <button type="submit" class="btn btn-primary w-100">
+                                        <button type="button" id="complete-payment-btn" class="btn btn-primary w-100 btn-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                 <path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2"/>
@@ -222,6 +257,15 @@
                                                 <path d="M19 16v6"/>
                                             </svg>
                                             Complete Payment
+                                        </button>
+
+                                        <!-- Hidden Confirm Payment Button -->
+                                        <button type="submit" id="confirm-payment-btn" class="btn btn-success w-100 btn-lg" style="display: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M5 12l5 5l10 -10"/>
+                                            </svg>
+                                            Confirm Payment
                                         </button>
                                     </div>
                                 </div>
@@ -435,7 +479,6 @@
 
         function addToCart(productId, productElement) {
             const productName = productElement.querySelector('strong').textContent;
-            const productCode = productElement.querySelector('.text-muted').textContent;
             const productPrice = parseFloat(productElement.querySelector('.text-primary').textContent.replace('LKR ', '').replace(',', ''));
             const stockElement = productElement.querySelector('.badge');
             const stock = parseInt(stockElement.textContent.replace('Stock: ', ''));
@@ -459,7 +502,6 @@
                 cart.push({
                     id: productId,
                     name: productName,
-                    code: productCode,
                     price: productPrice,
                     quantity: 1,
                     stock: stock,
@@ -504,7 +546,6 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div class="flex-1">
                                     <div class="cart-item-name">${item.name}</div>
-                                    <small class="text-muted">${item.code}</small>
                                 </div>
                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFromCart('${item.id}')">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -580,12 +621,58 @@
 
             productCards.forEach(card => {
                 const productName = card.querySelector('strong').textContent.toLowerCase();
-                const productCode = card.querySelector('.text-muted').textContent.toLowerCase();
 
-                if (productName.includes(searchTerm) || productCode.includes(searchTerm)) {
+                if (productName.includes(searchTerm)) {
                     card.parentElement.style.display = 'block';
                 } else {
                     card.parentElement.style.display = 'none';
+                }
+            });
+        }
+
+        // Payment validation handler
+        const completePaymentBtn = document.getElementById('complete-payment-btn');
+        const confirmPaymentBtn = document.getElementById('confirm-payment-btn');
+        const paymentAmountSection = document.getElementById('payment-amount-section');
+        const paymentAmountInput = document.getElementById('payment-amount-input');
+        const requiredAmountSpan = document.getElementById('required-amount');
+
+        if (completePaymentBtn) {
+            completePaymentBtn.addEventListener('click', function() {
+                // Calculate total amount
+                const totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('LKR ', ''));
+
+                if (totalAmount <= 0 || cart.length === 0) {
+                    alert('Please add items to cart before completing payment.');
+                    return;
+                }
+
+                // Show payment amount section
+                paymentAmountSection.style.display = 'block';
+                requiredAmountSpan.textContent = `LKR ${totalAmount.toFixed(2)}`;
+                paymentAmountInput.focus();
+
+                // Hide complete payment button, show confirm button
+                completePaymentBtn.style.display = 'none';
+                confirmPaymentBtn.style.display = 'block';
+            });
+        }
+
+        // Payment amount input validation
+        if (paymentAmountInput) {
+            paymentAmountInput.addEventListener('input', function() {
+                const enteredAmount = parseFloat(this.value) || 0;
+                const totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('LKR ', ''));
+
+                // Visual feedback for amount matching
+                if (Math.abs(enteredAmount - totalAmount) < 0.01) {
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                    confirmPaymentBtn.disabled = false;
+                } else {
+                    this.classList.remove('is-valid');
+                    this.classList.add('is-invalid');
+                    confirmPaymentBtn.disabled = true;
                 }
             });
         }
@@ -605,6 +692,19 @@
                     e.preventDefault();
                     alert('Please select a customer.');
                     return;
+                }
+
+                // Validate payment amount if payment section is visible
+                if (paymentAmountSection.style.display !== 'none') {
+                    const enteredAmount = parseFloat(paymentAmountInput.value) || 0;
+                    const totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('LKR ', ''));
+
+                    if (Math.abs(enteredAmount - totalAmount) >= 0.01) {
+                        e.preventDefault();
+                        alert(`Insufficient payment amount. Please enter at least LKR ${totalAmount.toFixed(2)}`);
+                        paymentAmountInput.focus();
+                        return;
+                    }
                 }
 
                 console.log('Order submitted:', { cart, customerId });
