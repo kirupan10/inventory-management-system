@@ -147,7 +147,7 @@
                                         <option value="">Search customer by name, phone, or email</option>
                                         @foreach($customers as $customer)
                                             <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>
-                                                {{ $customer->name }} - {{ $customer->phone }}
+                                                {{ $customer->name }}@if($customer->phone) - {{ $customer->phone }}@endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -278,6 +278,34 @@
             color: #059669;
             font-weight: 600;
         }
+
+        /* Customer dropdown styling */
+        .ts-dropdown .option {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .ts-dropdown .option:last-child {
+            border-bottom: none;
+        }
+
+        .ts-dropdown .option:hover {
+            background-color: #f8fafc;
+        }
+
+        .ts-dropdown .option.active {
+            background-color: #e0f2fe;
+        }
+
+        .ts-control {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+        }
+
+        .ts-control.focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
     </style>
 @endpush
 
@@ -359,15 +387,27 @@
             maxOptions: null,
             render: {
                 option: function(data, escape) {
-                    return '<div>' +
-                        '<span class="fw-bold">' + escape(data.text.split(' - ')[0]) + '</span>' +
-                        (data.text.includes(' - ') ? '<br><small class="text-muted">📞 ' + escape(data.text.split(' - ')[1]) + '</small>' : '') +
+                    const parts = data.text.split(' - ');
+                    const name = parts[0] || '';
+                    const phone = parts[1] || '';
+
+                    return '<div class="p-2">' +
+                        '<div class="fw-bold text-dark">' + escape(name) + '</div>' +
+                        (phone ? '<div class="small text-muted mt-1">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="14" height="14" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+                        '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+                        '<path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"/>' +
+                        '</svg>' + escape(phone) + '</div>' : '') +
                         '</div>';
                 },
                 item: function(data, escape) {
-                    return '<div>' + 
-                        '<span class="fw-bold">' + escape(data.text.split(' - ')[0]) + '</span>' +
-                        (data.text.includes(' - ') ? ' <small class="text-muted">(' + escape(data.text.split(' - ')[1]) + ')</small>' : '') +
+                    const parts = data.text.split(' - ');
+                    const name = parts[0] || '';
+                    const phone = parts[1] || '';
+
+                    return '<div>' +
+                        '<span class="fw-bold">' + escape(name) + '</span>' +
+                        (phone ? ' <small class="text-muted">(' + escape(phone) + ')</small>' : '') +
                         '</div>';
                 }
             }
