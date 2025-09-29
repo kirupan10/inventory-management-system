@@ -12,6 +12,7 @@ use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Gloudemans\Shoppingcart\Facades\Cart;
 
 class OrderController extends Controller
 {
@@ -185,6 +186,12 @@ class OrderController extends Controller
 
             // Check if this is an AJAX request
             if ($request->ajax() || $request->wantsJson()) {
+                // Clear the server-side cart instance if used
+                try {
+                    Cart::instance('sale')->destroy();
+                } catch (\Throwable $e) {
+                    // ignore if cart not set
+                }
                 // Load the order with relationships for the receipt
                 $order->load(['customer', 'details.product']);
 

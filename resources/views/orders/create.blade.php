@@ -1389,10 +1389,20 @@
                     console.log('� Server response:', jsonResponse);
 
                     if (jsonResponse.success) {
+                        // Clear cart and reset UI
+                        cart = [];
+                        updateCartDisplay();
+                        const payInput = document.getElementById('payment-amount-input');
+                        const feedback = document.getElementById('balance-feedback');
+                        if (payInput) {
+                            payInput.value = '';
+                            payInput.classList.remove('is-invalid','is-valid','border-danger','border-info');
+                        }
+                        if (feedback) feedback.innerHTML = '';
+                        document.getElementById('cart-items-input').value = '[]';
+
                         // Show success message briefly, then show receipt modal
                         showSuccessNotification('Order created successfully!');
-
-                        // Show receipt modal after a brief delay with actual order data
                         setTimeout(() => {
                             showReceiptModal(jsonResponse.order);
                         }, 800);
