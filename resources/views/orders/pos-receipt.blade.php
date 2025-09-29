@@ -238,7 +238,7 @@
                 background: white;
                 padding: 0;
             }
-            
+
             .receipt-container {
                 box-shadow: none;
                 border-radius: 0;
@@ -247,7 +247,7 @@
                 margin: 0;
                 padding: 10px;
             }
-            
+
             .close-btn,
             .print-actions {
                 display: none !important;
@@ -265,7 +265,7 @@
 <body>
     <div class="receipt-container" id="receipt">
         <button class="close-btn" onclick="window.close()" title="Close">&times;</button>
-        
+
         <div class="receipt-header">
             <div class="company-logo">A</div>
             <div class="company-name">Aura PC Factory</div>
@@ -306,11 +306,13 @@
                 <div class="item-details">
                     <div class="item-name">{{ $index + 1 }}. {{ $item->product->name }}</div>
                     <div class="item-meta">
-                        @if($item->product->code)
+                        @if($item->serial_number)
+                            S/N: {{ $item->serial_number }}<br>
+                        @elseif($item->product->code)
                             S/N: {{ $item->product->code }}<br>
                         @endif
-                        @if($item->product->category)
-                            <span class="warranty">Warranty: 3 years</span>
+                        @if(!is_null($item->warranty_years) && $item->warranty_years > 0)
+                            <span class="warranty">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</span>
                         @endif
                     </div>
                 </div>

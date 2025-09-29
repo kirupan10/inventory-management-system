@@ -122,6 +122,8 @@ class OrderController extends Controller
                 $orderDetails[] = [
                     'order_id' => $order->id,
                     'product_id' => $item['id'],
+                    'serial_number' => $item['serial_number'] ?? null,
+                    'warranty_years' => isset($item['warranty_years']) ? (int) $item['warranty_years'] : null,
                     'quantity' => $item['quantity'],
                     'unitcost' => (int) round($item['price'] * 100), // Convert to cents
                     'total' => (int) round($item['total'] * 100), // Convert to cents
@@ -176,7 +178,7 @@ class OrderController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 // Load the order with relationships for the receipt
                 $order->load(['customer', 'details.product']);
-                
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Order has been created successfully!',
@@ -194,6 +196,8 @@ class OrderController extends Controller
                             return [
                                 'name' => $detail->product->name,
                                 'code' => $detail->product->code,
+                                'serial_number' => $detail->serial_number,
+                                'warranty_years' => $detail->warranty_years,
                                 'quantity' => $detail->quantity,
                                 'price' => $detail->unitcost / 100,
                                 'total' => $detail->total / 100,

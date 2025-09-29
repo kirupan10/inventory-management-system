@@ -624,36 +624,36 @@
                 position: static !important;
                 display: block !important;
             }
-            
+
             .modal-dialog {
                 margin: 0 !important;
                 max-width: none !important;
                 width: 80mm !important;
             }
-            
+
             .modal-content {
                 border: none !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
             }
-            
+
             .receipt-container {
                 padding: 10px !important;
             }
-            
+
             .close-btn,
             .print-actions {
                 display: none !important;
             }
-            
+
             body * {
                 visibility: hidden;
             }
-            
+
             #receiptModal, #receiptModal * {
                 visibility: visible;
             }
-            
+
             #receiptModal {
                 position: absolute;
                 left: 0;
@@ -831,7 +831,9 @@
                     price: productPrice,
                     quantity: 1,
                     stock: stock,
-                    total: productPrice
+                    total: productPrice,
+                    serial_number: '',
+                    warranty_years: null
                 });
             }
 
@@ -881,13 +883,22 @@
                                     </svg>
                                 </button>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
                                     <button type="button" class="btn btn-outline-secondary quantity-btn me-2" onclick="updateQuantity('${item.id}', -1)">-</button>
                                     <span class="me-2">${item.quantity}</span>
                                     <button type="button" class="btn btn-outline-secondary quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
                                 </div>
                                 <div class="cart-item-price">LKR ${item.total.toLocaleString()}</div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <input type="text" class="form-control form-control-sm me-2" placeholder="Serial number" value="${item.serial_number || ''}" oninput="updateSerial('${item.id}', this.value)" style="max-width: 55%;">
+                                <select class="form-select form-select-sm" onchange="updateWarranty('${item.id}', this.value)" style="max-width: 45%;">
+                                    <option value="" ${item.warranty_years == null ? 'selected' : ''}>No warranty</option>
+                                    <option value="1" ${item.warranty_years == 1 ? 'selected' : ''}>1 year</option>
+                                    <option value="2" ${item.warranty_years == 2 ? 'selected' : ''}>2 years</option>
+                                    <option value="3" ${item.warranty_years == 3 ? 'selected' : ''}>3 years</option>
+                                </select>
                             </div>
                         </div>
                     `).join('');
@@ -916,6 +927,20 @@
         function removeFromCart(productId) {
             cart = cart.filter(item => item.id !== productId);
             updateCartDisplay();
+        }
+
+        function updateSerial(productId, serial) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.serial_number = serial;
+            }
+        }
+
+        function updateWarranty(productId, years) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.warranty_years = years ? parseInt(years) : null;
+            }
         }
 
         function updateQuantity(productId, change) {
@@ -1060,7 +1085,7 @@
             // Generate receipt HTML
             const receiptHTML = `
                 <button class="close-btn" onclick="closeReceiptModal()" title="Close">&times;</button>
-                
+
                 <div class="receipt-header">
                     <div class="company-logo">A</div>
                     <div class="company-name">Aura PC Factory</div>
@@ -1136,7 +1161,7 @@
 
             // Insert receipt content and show modal
             document.getElementById('receipt-content').innerHTML = receiptHTML;
-            
+
             // Try multiple approaches to show the modal
             const receiptModalElement = document.getElementById('receiptModal');
             if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -1153,14 +1178,14 @@
                 receiptModalElement.setAttribute('aria-hidden', 'false'); // Fix accessibility issue
                 receiptModalElement.setAttribute('aria-modal', 'true');
                 document.body.classList.add('modal-open');
-                
+
                 // Create backdrop
                 const backdrop = document.createElement('div');
                 backdrop.className = 'modal-backdrop fade show';
                 backdrop.id = 'receipt-modal-backdrop';
                 document.body.appendChild(backdrop);
             }
-            
+
             // Ensure aria-hidden is properly set for all approaches
             receiptModalElement.setAttribute('aria-hidden', 'false');
             receiptModalElement.setAttribute('aria-modal', 'true');
@@ -1169,7 +1194,7 @@
         // Close receipt modal
         function closeReceiptModal() {
             const receiptModalElement = document.getElementById('receiptModal');
-            
+
             if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                 // Bootstrap 5 approach
                 const receiptModal = bootstrap.Modal.getInstance(receiptModalElement);
@@ -1186,7 +1211,7 @@
                 receiptModalElement.setAttribute('aria-hidden', 'true');
                 receiptModalElement.removeAttribute('aria-modal');
                 document.body.classList.remove('modal-open');
-                
+
                 // Remove backdrop
                 const backdrop = document.getElementById('receipt-modal-backdrop');
                 if (backdrop) {
@@ -1205,25 +1230,25 @@
             // Clear cart and reset form
             cart = [];
             updateCartDisplay();
-            
+
             // Reset customer selection
             const customerSelect = document.getElementById('customer_id');
             if (customerSelect.tomselect) {
                 customerSelect.tomselect.clear();
             }
-            
+
             // Reset payment method
             document.querySelector('select[name="payment_type"]').value = 'Cash';
-            
+
             // Reset payment amount
             const paymentAmountInput = document.getElementById('payment-amount-input');
             if (paymentAmountInput) {
                 paymentAmountInput.value = '';
             }
-            
+
             // Close modal
             closeReceiptModal();
-            
+
             // Show success message
             showSuccessNotification('Ready for new order!');
         }
@@ -1334,7 +1359,7 @@
                     if (jsonResponse.success) {
                         // Show success message briefly, then show receipt modal
                         showSuccessNotification('Order created successfully!');
-                        
+
                         // Show receipt modal after a brief delay with actual order data
                         setTimeout(() => {
                             showReceiptModal(jsonResponse.order);

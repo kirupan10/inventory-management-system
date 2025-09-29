@@ -21,6 +21,8 @@
                 <thead class="thead-dark">
                 <tr>
                     <th class="align-middle">Product</th>
+                    <th class="align-middle text-center" style="min-width:160px;">Serial Number</th>
+                    <th class="align-middle text-center" style="min-width:140px;">Warranty</th>
                     <th class="align-middle text-center">Net Unit Price</th>
                     <th class="align-middle text-center">Stock</th>
                     <th class="align-middle text-center">Quantity</th>
@@ -40,6 +42,25 @@
                                         {{ $cart_item->options->code }}
                                     </span>
                                     @include('livewire.includes.product-cart-modal')
+                                </td>
+
+                                <td class="align-middle text-center">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Enter serial"
+                                           wire:change="$dispatch('cart-serial-updated', { rowId: '{{ $cart_item->rowId }}', serial: $event.target.value })"
+                                           value="{{ $cart_item->options->serial_number ?? '' }}"
+                                    >
+                                </td>
+
+                                <td class="align-middle text-center">
+                                    <select class="form-control form-control-sm"
+                                            wire:change="$dispatch('cart-warranty-updated', { rowId: '{{ $cart_item->rowId }}', years: parseInt($event.target.value) })">
+                                        <option value="">No warranty</option>
+                                        <option value="1" @selected(($cart_item->options->warranty_years ?? null) == 1)>1 year</option>
+                                        <option value="2" @selected(($cart_item->options->warranty_years ?? null) == 2)>2 years</option>
+                                        <option value="3" @selected(($cart_item->options->warranty_years ?? null) == 3)>3 years</option>
+                                    </select>
                                 </td>
 
                                 <td x-data="{ open{{ $cart_item->id }}: false }" class="align-middle text-center">

@@ -8,7 +8,7 @@ use Livewire\Component;
 
 class ProductCart extends Component
 {
-    public $listeners = ['productSelected', 'discountModalRefresh'];
+    public $listeners = ['productSelected', 'discountModalRefresh', 'cart-serial-updated' => 'updateSerialNumber', 'cart-warranty-updated' => 'updateWarrantyYears'];
 
     public $cart_instance;
 
@@ -113,6 +113,8 @@ class ProductCart extends Component
                 'unit' => $product['unit_id'],
                 'product_tax' => $this->calculate($product)['tax'],
                 'unit_price' => $this->calculate($product)['unit_price'],
+                'serial_number' => null,
+                'warranty_years' => null,
             ],
         ]);
 
@@ -161,6 +163,8 @@ class ProductCart extends Component
                 'unit_price' => $cart_item->options->unit_price,
                 'product_discount' => $cart_item->options->product_discount,
                 'product_discount_type' => $cart_item->options->product_discount_type,
+                'serial_number' => $cart_item->options->serial_number ?? null,
+                'warranty_years' => $cart_item->options->warranty_years ?? null,
             ],
         ]);
     }
@@ -221,6 +225,8 @@ class ProductCart extends Component
                 'unit_price' => $this->calculate($product, $this->unit_price[$product['id']])['unit_price'],
                 'product_discount' => $cart_item->options->product_discount,
                 'product_discount_type' => $cart_item->options->product_discount_type,
+                'serial_number' => $cart_item->options->serial_number ?? null,
+                'warranty_years' => $cart_item->options->warranty_years ?? null,
             ],
         ]);
     }
@@ -277,6 +283,44 @@ class ProductCart extends Component
             'unit_price' => $cart_item->options->unit_price,
             'product_discount' => $discount_amount,
             'product_discount_type' => $this->discount_type[$product_id],
+            'serial_number' => $cart_item->options->serial_number ?? null,
+            'warranty_years' => $cart_item->options->warranty_years ?? null,
         ]]);
+    }
+
+    public function updateSerialNumber($payload): void
+    {
+        $rowId = $payload['rowId'] ?? null;
+        $serial = $payload['serial'] ?? null;
+        if (!$rowId) {
+            return;
+        }
+        $cart_item = Cart::instance($this->cart_instance)->get($rowId);
+        if (!$cart_item) {
+            return;
+        }
+        Cart::instance($this->cart_instance)->update($rowId, [
+            'options' => array_merge($cart_item->options->toArray(), [
+                'serial_number' => $serial,
+            ]),
+        ]);
+    }
+
+    public function updateWarrantyYears($payload): void
+    {
+        $rowId = $payload['rowId'] ?? null;
+        $years = $payload['years'] ?? null;
+        if (!$rowId) {
+            return;
+        }
+        $cart_item = Cart::instance($this->cart_instance)->get($rowId);
+        if (!$cart_item) {
+            return;
+        }
+        Cart::instance($this->cart_instance)->update($rowId, [
+            'options' => array_merge($cart_item->options->toArray(), [
+                'warranty_years' => $years,
+            ]),
+        ]);
     }
 }

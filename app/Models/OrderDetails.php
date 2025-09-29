@@ -14,6 +14,8 @@ class OrderDetails extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'serial_number',
+        'warranty_years',
         'quantity',
         'unitcost',
         'total',
@@ -22,6 +24,7 @@ class OrderDetails extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'warranty_years' => 'integer',
     ];
 
     // Accessors to convert integer cents back to decimal currency
