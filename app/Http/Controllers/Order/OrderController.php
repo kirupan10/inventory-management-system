@@ -326,17 +326,6 @@ class OrderController extends Controller
         }
     }
 
-    public function downloadInvoice($order)
-    {
-        $order = Order::with(['customer', 'details'])
-            ->where('id', $order)
-            ->first();
-
-        return view('orders.print-invoice', [
-            'order' => $order,
-        ]);
-    }
-
     public function downloadPdfBill(Order $order)
     {
         // Load the order with its relationships

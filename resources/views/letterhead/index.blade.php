@@ -202,7 +202,8 @@
 
                                             <!-- Test PDF Button -->
                                             <div class="mt-3">
-                                                <a href="{{ route('orders.download-pdf-bill', 61) }}" class="btn btn-info w-100" target="_blank">
+                                                @if($testOrderId)
+                                                <a href="{{ route('orders.download-pdf-bill', $testOrderId) }}" class="btn btn-info w-100" target="_blank">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                         <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
@@ -211,8 +212,15 @@
                                                         <path d="M9 13l6 0"/>
                                                         <path d="M9 17l6 0"/>
                                                     </svg>
-                                                    Test PDF with Current Settings
+                                                    Test PDF with Current Settings (Order #{{ $testOrderId }})
                                                 </a>
+                                                @else
+                                                <div class="alert alert-warning">
+                                                    <strong>No orders available for testing.</strong><br>
+                                                    Create an order first to test PDF generation.
+                                                    <a href="{{ route('orders.create') }}" class="btn btn-sm btn-primary mt-2">Create Order</a>
+                                                </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -285,6 +293,20 @@
                                                     </svg>
                                                     Save Element Positions
                                                 </button>
+
+                                                @if($testOrderId)
+                                                <a href="{{ route('orders.download-pdf-bill', $testOrderId) }}" class="btn btn-info w-100 mt-2" target="_blank">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                        <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+                                                        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>
+                                                        <path d="M9 9l1 0"/>
+                                                        <path d="M9 13l6 0"/>
+                                                        <path d="M9 17l6 0"/>
+                                                    </svg>
+                                                    Test PDF (Order #{{ $testOrderId }})
+                                                </a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

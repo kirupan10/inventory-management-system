@@ -97,6 +97,9 @@
                                     <a class="dropdown-item" href="{{ route('units.index') }}">
                                         {{ __('Units') }}
                                     </a>
+                                    <a class="dropdown-item" href="{{ route('letterhead.index') }}">
+                                        {{ __('Letterhead') }}
+                                    </a>
                                 </div>
                             </div>
                         </div>

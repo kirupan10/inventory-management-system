@@ -12,7 +12,12 @@ class LetterheadController extends Controller
     public function index()
     {
         $config = $this->getLetterheadConfig();
-        return view('letterhead.index', compact('config'));
+
+        // Get the latest order for testing
+        $latestOrder = \App\Models\Order::latest()->first();
+        $testOrderId = $latestOrder ? $latestOrder->id : null;
+
+        return view('letterhead.index', compact('config', 'testOrderId'));
     }
 
     public function uploadLetterhead(Request $request)
