@@ -1126,8 +1126,8 @@
                             <div class="item-details">
                                 <div class="item-name">${index + 1}. ${item.name}</div>
                                 <div class="item-meta">
-                                    ${item.code ? `S/N: ${item.code}<br>` : ''}
-                                    <span class="warranty">Warranty: 3 years</span>
+                                    ${item.serial_number ? `S/N: ${item.serial_number}<br>` : (item.code ? `S/N: ${item.code}<br>` : '')}
+                                    ${item.warranty_years && Number(item.warranty_years) > 0 ? `<span class="warranty">Warranty: ${item.warranty_years} ${Number(item.warranty_years) === 1 ? 'year' : 'years'}</span>` : ''}
                                 </div>
                             </div>
                             <div style="text-align: center;">${item.quantity}</div>

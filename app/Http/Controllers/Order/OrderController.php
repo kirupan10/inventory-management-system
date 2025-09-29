@@ -122,7 +122,7 @@ class OrderController extends Controller
                 $orderDetails[] = [
                     'order_id' => $order->id,
                     'product_id' => $item['id'],
-                    'serial_number' => $item['serial_number'] ?? null,
+                    'serial_number' => array_key_exists('serial_number', $item) && $item['serial_number'] !== '' ? (string) $item['serial_number'] : null,
                     'warranty_years' => isset($item['warranty_years']) ? (int) $item['warranty_years'] : null,
                     'quantity' => $item['quantity'],
                     'unitcost' => (int) round($item['price'] * 100), // Convert to cents

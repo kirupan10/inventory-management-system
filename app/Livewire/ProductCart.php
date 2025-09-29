@@ -301,7 +301,7 @@ class ProductCart extends Component
         }
         Cart::instance($this->cart_instance)->update($rowId, [
             'options' => array_merge($cart_item->options->toArray(), [
-                'serial_number' => $serial,
+                'serial_number' => is_null($serial) ? null : (string) $serial,
             ]),
         ]);
     }

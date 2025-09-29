@@ -48,14 +48,14 @@
                                     <input type="text"
                                            class="form-control form-control-sm"
                                            placeholder="Enter serial"
-                                           wire:change="$dispatch('cart-serial-updated', { rowId: '{{ $cart_item->rowId }}', serial: $event.target.value })"
+                                           wire:change="$emit('cart-serial-updated', { rowId: '{{ $cart_item->rowId }}', serial: $event.target.value })"
                                            value="{{ $cart_item->options->serial_number ?? '' }}"
                                     >
                                 </td>
 
                                 <td class="align-middle text-center">
                                     <select class="form-control form-control-sm"
-                                            wire:change="$dispatch('cart-warranty-updated', { rowId: '{{ $cart_item->rowId }}', years: parseInt($event.target.value) })">
+                                            wire:change="$emit('cart-warranty-updated', { rowId: '{{ $cart_item->rowId }}', years: parseInt($event.target.value) })">
                                         <option value="">No warranty</option>
                                         <option value="1" @selected(($cart_item->options->warranty_years ?? null) == 1)>1 year</option>
                                         <option value="2" @selected(($cart_item->options->warranty_years ?? null) == 2)>2 years</option>
