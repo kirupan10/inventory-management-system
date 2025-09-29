@@ -667,6 +667,18 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
     <script>
+        // Check Bootstrap availability and provide debug info
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+            console.log('jQuery available:', typeof $ !== 'undefined');
+            if (typeof bootstrap !== 'undefined') {
+                console.log('Bootstrap version:', bootstrap);
+            }
+            if (typeof $ !== 'undefined' && $.fn.modal) {
+                console.log('jQuery modal available');
+            }
+        });
+
         // Function to get current date and time
         function getCurrentDateTime() {
             const now = new Date();
@@ -963,9 +975,18 @@
         document.addEventListener('livewire:load', function () {
             Livewire.on('payment-completed', function (data) {
                 // Hide the payment modal
-                const modal = bootstrap.Modal.getInstance(paymentModal);
-                if (modal) {
-                    modal.hide();
+                const paymentModalElement = document.getElementById('paymentModal');
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    const modal = bootstrap.Modal.getInstance(paymentModalElement);
+                    if (modal) {
+                        modal.hide();
+                    }
+                } else if (typeof $ !== 'undefined' && $.fn.modal) {
+                    $('#paymentModal').modal('hide');
+                } else {
+                    // Fallback
+                    paymentModalElement.style.display = 'none';
+                    paymentModalElement.classList.remove('show');
                 }
 
                 // Clear the cart
@@ -1115,15 +1136,62 @@
 
             // Insert receipt content and show modal
             document.getElementById('receipt-content').innerHTML = receiptHTML;
-            const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
-            receiptModal.show();
+            
+            // Try multiple approaches to show the modal
+            const receiptModalElement = document.getElementById('receiptModal');
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                // Bootstrap 5 approach
+                const receiptModal = new bootstrap.Modal(receiptModalElement);
+                receiptModal.show();
+            } else if (typeof $ !== 'undefined' && $.fn.modal) {
+                // jQuery/Bootstrap 4 approach
+                $('#receiptModal').modal('show');
+            } else {
+                // Fallback: manually show modal
+                receiptModalElement.style.display = 'block';
+                receiptModalElement.classList.add('show');
+                receiptModalElement.setAttribute('aria-hidden', 'false'); // Fix accessibility issue
+                receiptModalElement.setAttribute('aria-modal', 'true');
+                document.body.classList.add('modal-open');
+                
+                // Create backdrop
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.id = 'receipt-modal-backdrop';
+                document.body.appendChild(backdrop);
+            }
+            
+            // Ensure aria-hidden is properly set for all approaches
+            receiptModalElement.setAttribute('aria-hidden', 'false');
+            receiptModalElement.setAttribute('aria-modal', 'true');
         }
 
         // Close receipt modal
         function closeReceiptModal() {
-            const receiptModal = bootstrap.Modal.getInstance(document.getElementById('receiptModal'));
-            if (receiptModal) {
-                receiptModal.hide();
+            const receiptModalElement = document.getElementById('receiptModal');
+            
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                // Bootstrap 5 approach
+                const receiptModal = bootstrap.Modal.getInstance(receiptModalElement);
+                if (receiptModal) {
+                    receiptModal.hide();
+                }
+            } else if (typeof $ !== 'undefined' && $.fn.modal) {
+                // jQuery/Bootstrap 4 approach
+                $('#receiptModal').modal('hide');
+            } else {
+                // Fallback: manually hide modal
+                receiptModalElement.style.display = 'none';
+                receiptModalElement.classList.remove('show');
+                receiptModalElement.setAttribute('aria-hidden', 'true');
+                receiptModalElement.removeAttribute('aria-modal');
+                document.body.classList.remove('modal-open');
+                
+                // Remove backdrop
+                const backdrop = document.getElementById('receipt-modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
+                }
             }
         }
 
@@ -1163,8 +1231,9 @@
         // Handle escape key to close modal
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                const receiptModal = bootstrap.Modal.getInstance(document.getElementById('receiptModal'));
-                if (receiptModal) {
+                const receiptModalElement = document.getElementById('receiptModal');
+                // Check if modal is visible (has show class or display block)
+                if (receiptModalElement.classList.contains('show') || receiptModalElement.style.display === 'block') {
                     closeReceiptModal();
                 }
             }
