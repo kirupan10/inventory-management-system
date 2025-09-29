@@ -24,7 +24,7 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.4;
             color: #333;
             background: transparent; /* Transparent background for overlay */
@@ -50,16 +50,16 @@
         .items-table th {
             background: rgba(245, 245, 245, 0.9); /* Semi-transparent background */
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
             font-weight: bold;
-            font-size: 11px;
+            font-size: 13px;
         }
 
         .items-table td {
             border: 1px solid #ddd;
-            padding: 6px;
-            font-size: 11px;
+            padding: 8px;
+            font-size: 12px;
             background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
         }
 
@@ -84,8 +84,8 @@
         }
 
         .warranty-text {
-            font-size: 9px;
-            line-height: 1.3;
+            font-size: 11px;
+            line-height: 1.4;
             width: 500px;
             background: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
             padding: 5px;
@@ -107,7 +107,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['company_name']['x'] ?? 50 }}px;
             top: {{ $positionMap['company_name']['y'] ?? 50 }}px;
-            font-size: {{ $positionMap['company_name']['font_size'] ?? 16 }}px;
+            font-size: {{ $positionMap['company_name']['font_size'] ?? 18 }}px;
             font-weight: {{ $positionMap['company_name']['font_weight'] ?? 'bold' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -121,7 +121,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['company_address']['x'] ?? 50 }}px;
             top: {{ $positionMap['company_address']['y'] ?? 80 }}px;
-            font-size: {{ $positionMap['company_address']['font_size'] ?? 12 }}px;
+            font-size: {{ $positionMap['company_address']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['company_address']['font_weight'] ?? 'normal' }};
             line-height: 1.3;
             background: rgba(255, 255, 255, 0.8);
@@ -139,7 +139,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['company_contact']['x'] ?? 50 }}px;
             top: {{ $positionMap['company_contact']['y'] ?? 110 }}px;
-            font-size: {{ $positionMap['company_contact']['font_size'] ?? 10 }}px;
+            font-size: {{ $positionMap['company_contact']['font_size'] ?? 12 }}px;
             font-weight: {{ $positionMap['company_contact']['font_weight'] ?? 'normal' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -153,7 +153,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['invoice_no']['x'] ?? 400 }}px;
             top: {{ $positionMap['invoice_no']['y'] ?? 50 }}px;
-            font-size: {{ $positionMap['invoice_no']['font_size'] ?? 12 }}px;
+            font-size: {{ $positionMap['invoice_no']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['invoice_no']['font_weight'] ?? 'bold' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -167,7 +167,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['invoice_date']['x'] ?? 400 }}px;
             top: {{ $positionMap['invoice_date']['y'] ?? 70 }}px;
-            font-size: {{ $positionMap['invoice_date']['font_size'] ?? 12 }}px;
+            font-size: {{ $positionMap['invoice_date']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['invoice_date']['font_weight'] ?? 'normal' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -181,7 +181,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_name']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_name']['y'] ?? 150 }}px;
-            font-size: {{ $positionMap['customer_name']['font_size'] ?? 12 }}px;
+            font-size: {{ $positionMap['customer_name']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['customer_name']['font_weight'] ?? 'bold' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -195,7 +195,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_phone']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_phone']['y'] ?? 170 }}px;
-            font-size: {{ $positionMap['customer_phone']['font_size'] ?? 11 }}px;
+            font-size: {{ $positionMap['customer_phone']['font_size'] ?? 13 }}px;
             font-weight: {{ $positionMap['customer_phone']['font_weight'] ?? 'normal' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -209,7 +209,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_address']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_address']['y'] ?? 190 }}px;
-            font-size: {{ $positionMap['customer_address']['font_size'] ?? 11 }}px;
+            font-size: {{ $positionMap['customer_address']['font_size'] ?? 13 }}px;
             font-weight: {{ $positionMap['customer_address']['font_weight'] ?? 'normal' }};
             line-height: 1.3;
             background: rgba(255, 255, 255, 0.8);
@@ -224,7 +224,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_email']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_email']['y'] ?? 210 }}px;
-            font-size: {{ $positionMap['customer_email']['font_size'] ?? 11 }}px;
+            font-size: {{ $positionMap['customer_email']['font_size'] ?? 13 }}px;
             font-weight: {{ $positionMap['customer_email']['font_weight'] ?? 'normal' }};
             background: rgba(255, 255, 255, 0.8);
             padding: 2px 4px;
@@ -238,7 +238,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['items_table']['x'] ?? 50 }}px;
             top: {{ $positionMap['items_table']['y'] ?? 240 }}px;
-            font-size: {{ $positionMap['items_table']['font_size'] ?? 11 }}px;
+            font-size: {{ $positionMap['items_table']['font_size'] ?? 13 }}px;
         ">
             <table class="items-table" style="width: 500px;">
                 <thead>
@@ -276,7 +276,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['total_section']['x'] ?? 350 }}px;
             top: {{ $positionMap['total_section']['y'] ?? 520 }}px;
-            font-size: {{ $positionMap['total_section']['font_size'] ?? 12 }}px;
+            font-size: {{ $positionMap['total_section']['font_size'] ?? 14 }}px;
             width: 200px;
         ">
             <table style="width: 100%; border-collapse: collapse;">
@@ -309,7 +309,7 @@
         <div class="positioned-element warranty-text" style="
             left: {{ $positionMap['warranty_section']['x'] ?? 50 }}px;
             top: {{ $positionMap['warranty_section']['y'] ?? 600 }}px;
-            font-size: {{ $positionMap['warranty_section']['font_size'] ?? 9 }}px;
+            font-size: {{ $positionMap['warranty_section']['font_size'] ?? 11 }}px;
             font-weight: {{ $positionMap['warranty_section']['font_weight'] ?? 'normal' }};
         ">
             <div style="font-weight: bold; margin-bottom: 5px;">WARRANTY TERMS & CONDITION</div>

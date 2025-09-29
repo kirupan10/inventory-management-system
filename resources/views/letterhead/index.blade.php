@@ -109,29 +109,89 @@
                                                     $letterheadType = $config['letterhead_type'] ?? 'image';
                                                     $previewImage = $config['preview_image'] ?? null;
 
-                                                    // Determine which image to use for positioning
-                                                    if ($letterheadType === 'pdf' && $previewImage) {
-                                                        $positioningImage = 'letterheads/' . $previewImage;
+                                                    // Always show PDF/image when letterhead is uploaded
+                                                    if ($letterheadType === 'pdf') {
+                                                        // For PDF, use preview if available, otherwise use PDF directly
+                                                        if ($previewImage && file_exists(public_path('letterheads/' . $previewImage))) {
+                                                            $positioningImage = 'letterheads/' . $previewImage;
+                                                        } else {
+                                                            // Fallback to original PDF file
+                                                            $positioningImage = 'letterheads/' . $config['letterhead_file'];
+                                                        }
                                                         $showImage = true;
-                                                    } elseif ($letterheadType === 'pdf') {
-                                                        $showImage = false;
                                                     } else {
+                                                        // For regular images
                                                         $positioningImage = 'letterheads/' . $config['letterhead_file'];
                                                         $showImage = true;
                                                     }
                                                 @endphp
 
-                                                @if($showImage)
-                                                    <img src="{{ asset($positioningImage) }}"
-                                                         alt="Letterhead {{ $letterheadType === 'pdf' ? '(PDF Preview)' : '' }}"
-                                                         id="letterheadImage"
-                                                         style="width: 100%; max-width: 595px; height: auto; position: relative;">
+                                @if($showImage || isset($config['letterhead_file']))
+                                    <div class="pdf-canvas-container" style="position: relative; display: inline-block; border: 3px solid #007bff; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,0.2); border-radius: 8px; overflow: visible;">
+                                        <!-- Canvas Accuracy Indicator -->
+                                        <div class="canvas-indicator" style="position: absolute; top: -35px; left: 0; background: {{ $letterheadType === 'pdf' ? '#28a745' : '#007bff' }}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; z-index: 15;">
+                                            {{ $letterheadType === 'pdf' ? '� PDF Canvas' : '🖼️ Image Canvas' }} (595×842px)
+                                        </div>
 
-                                                    @if($letterheadType === 'pdf')
-                                                    <div class="alert alert-info mt-2">
-                                                        <small><strong>Note:</strong> This is a preview of your PDF letterhead for positioning elements. The actual PDF will be used in the final invoice.</small>
-                                                    </div>
-                                                    @endif
+                                        <div id="letterheadImage"
+                                             style="width: 595px; height: 842px;
+                                                    background-image: url('{{ asset($positioningImage) }}?t={{ time() }}');
+                                                    background-size: cover;
+                                                    background-repeat: no-repeat;
+                                                    background-position: center center;
+                                                    position: relative;
+                                                    overflow: visible;
+                                                    border-radius: 5px;
+                                                    border: 1px solid rgba(0,123,255,0.3);">
+
+                                            <!-- PDF Grid Overlay for Precise Positioning -->
+                                            <div class="positioning-grid" id="positioningGrid" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                                                        background-image:
+                                                            linear-gradient(rgba(0,123,255,0.15) 1px, transparent 1px),
+                                                            linear-gradient(90deg, rgba(0,123,255,0.15) 1px, transparent 1px),
+                                                            linear-gradient(rgba(255,0,0,0.1) 1px, transparent 1px),
+                                                            linear-gradient(90deg, rgba(255,0,0,0.1) 1px, transparent 1px);
+                                                        background-size: 25px 25px, 25px 25px, 5px 5px, 5px 5px;
+                                                        opacity: 0.3;
+                                                        z-index: 1;
+                                                        pointer-events: none;
+                                                        transition: opacity 0.3s ease;"></div>
+
+                                            <!-- Ruler markers -->
+                                            <div class="ruler-top" style="position: absolute; top: -20px; left: 0; right: 0; height: 20px; background: #f8f9fa; border: 1px solid #dee2e6; font-size: 10px; z-index: 10;">
+                                                @for($i = 0; $i <= 595; $i += 50)
+                                                    <div style="position: absolute; left: {{ $i }}px; top: 5px; font-size: 8px; color: #666;">{{ $i }}</div>
+                                                    <div style="position: absolute; left: {{ $i }}px; top: 0; width: 1px; height: 20px; background: #999;"></div>
+                                                @endfor
+                                            </div>
+
+                                            <div class="ruler-left" style="position: absolute; left: -20px; top: 0; bottom: 0; width: 20px; background: #f8f9fa; border: 1px solid #dee2e6; font-size: 10px; z-index: 10;">
+                                                @for($i = 0; $i <= 842; $i += 50)
+                                                    <div style="position: absolute; top: {{ $i }}px; left: 2px; font-size: 8px; color: #666; writing-mode: vertical-rl;">{{ $i }}</div>
+                                                    <div style="position: absolute; top: {{ $i }}px; left: 0; width: 20px; height: 1px; background: #999;"></div>
+                                                @endfor
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="canvas-controls mt-2 mb-2" style="display: flex; gap: 10px; align-items: center;">
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="toggleGrid">
+                                            <i class="fas fa-th"></i> Toggle Grid
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-success" id="toggleRulers">
+                                            <i class="fas fa-ruler"></i> Toggle Rulers
+                                        </button>
+                                        <span class="text-muted" style="font-size: 12px;">💡 Hover canvas to enhance grid visibility</span>
+                                    </div>
+
+                                    <div class="alert alert-success mt-2">
+                                        <strong>{{ $letterheadType === 'pdf' ? '🎯 PDF Letterhead Canvas Active:' : '🖼️ Image Letterhead Canvas Active:' }}</strong>
+                                        Your uploaded {{ $letterheadType === 'pdf' ? 'PDF' : 'image' }} is displayed as the positioning canvas.
+                                        Elements positioned here will appear in identical locations on the final PDF invoice.
+                                        @if($letterheadType === 'pdf' && !$previewImage)
+                                            <br><small class="text-info">ℹ️ PDF preview generation requires ImageMagick extension. Canvas positioning still works perfectly - your final invoices will use the PDF background correctly.</small>
+                                        @endif
+                                    </div>
                                                 @else
                                                     {{-- PDF without preview - show blank canvas --}}
                                                     <div id="letterheadImage"
@@ -172,7 +232,7 @@
                                                     </div>
 
                                                     <div class="alert alert-warning mt-2">
-                                                        <small><strong>PDF Letterhead Positioning:</strong> Use the grid above to position elements. Your PDF letterhead will be used as the background in the final invoice. Preview generation requires ImageMagick extension.</small>
+                                                        <small><strong>PDF Letterhead Positioning:</strong> Use the grid above to position elements. Your PDF letterhead will be used as the background in the final invoice. Note: Preview generation requires ImageMagick extension - positioning works regardless.</small>
                                                     </div>
                                                 @endif
 
@@ -324,32 +384,75 @@
 <style>
 .position-editor {
     position: relative;
-    border: 2px solid #ddd;
     background: #f8f9fa;
     display: inline-block;
+    padding: 25px;
+}
+
+.pdf-canvas-container {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.positioning-grid {
+    transition: opacity 0.3s ease;
+}
+
+.pdf-canvas-container:hover .positioning-grid {
+    opacity: 0.6 !important;
+}
+
+.ruler-top, .ruler-left {
+    font-family: 'Courier New', monospace;
+    user-select: none;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.canvas-indicator {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.btn.active {
+    background-color: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+}
+
+#letterheadImage {
+    box-shadow: inset 0 0 0 1px rgba(0,123,255,0.2);
 }
 
 .draggable-element {
     position: absolute;
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.9) 0%, rgba(0, 86, 179, 0.8) 100%);
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.95) 0%, rgba(0, 86, 179, 0.9) 100%);
     border: 2px solid #007bff;
-    padding: 10px 12px;
+    padding: 6px 10px;
     cursor: move;
     font-family: Arial, sans-serif;
     font-weight: 600;
     color: white;
-    min-width: 120px;
-    min-height: 35px;
+    min-width: 90px;
+    min-height: 28px;
     user-select: none;
-    border-radius: 6px;
+    border-radius: 4px;
     box-shadow:
-        0 4px 8px rgba(0,0,0,0.2),
-        0 2px 4px rgba(0,123,255,0.3),
+        0 3px 6px rgba(0,0,0,0.2),
+        0 1px 3px rgba(0,123,255,0.3),
         inset 0 1px 0 rgba(255,255,255,0.2);
-    z-index: 1000;
+    z-index: 1002;
     transition: all 0.2s ease;
     backdrop-filter: blur(2px);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    font-size: 10px;
+    line-height: 1.1;
 }
 
 .draggable-element:hover {
@@ -376,35 +479,43 @@
 }
 
 .draggable-element .element-label {
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.8);
-    margin-bottom: 3px;
+    font-size: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2px;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    display: block;
 }
 
 .draggable-element .element-content {
-    font-size: 11px;
+    font-size: 10px;
     color: white;
-    line-height: 1.2;
-    margin-bottom: 2px;
+    line-height: 1.1;
+    margin-bottom: 1px;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    display: block;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .position-coordinates {
     position: absolute;
-    top: -25px;
-    right: -5px;
-    font-size: 9px;
+    top: -20px;
+    right: -2px;
+    font-size: 8px;
     color: #495057;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 2px 6px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 1px 4px;
+    border: 1px solid #007bff;
+    border-radius: 3px;
     font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-family: 'Courier New', monospace;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    z-index: 1003;
 }
 </style>
 
@@ -447,7 +558,69 @@ document.addEventListener('DOMContentLoaded', function() {
     // Always initialize draggable elements
     console.log('Config data:', @json($config));
     console.log('Initializing draggable elements...');
+
+    // Check if letterhead image loaded properly
+    const letterheadContainer = document.getElementById('letterheadImage');
+    if (letterheadContainer) {
+        const bgImage = letterheadContainer.style.backgroundImage;
+        if (bgImage && bgImage !== 'none') {
+            // Test if background image loads
+            const testImg = new Image();
+            testImg.onload = function() {
+                console.log('Letterhead background loaded successfully');
+            };
+            testImg.onerror = function() {
+                console.log('Letterhead background failed to load, showing placeholder');
+                showPlaceholderCanvas();
+            };
+            // Extract URL from background-image CSS property
+            const urlMatch = bgImage.match(/url\(['"]?(.*?)['"]?\)/);
+            if (urlMatch) {
+                testImg.src = urlMatch[1];
+            }
+        } else {
+            showPlaceholderCanvas();
+        }
+    }
+
     initializeDraggableElements();
+
+    function showPlaceholderCanvas() {
+        const container = document.getElementById('letterheadImage');
+        if (container) {
+            container.style.background = `
+                linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%),
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,123,255,0.1) 10px, rgba(0,123,255,0.1) 20px)
+            `;
+
+            // Add placeholder content if not already present
+            if (!container.querySelector('.canvas-placeholder')) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'canvas-placeholder';
+                placeholder.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    text-align: center;
+                    color: #6c757d;
+                    font-size: 14px;
+                    z-index: 2;
+                    pointer-events: none;
+                `;
+                placeholder.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: 10px;">📄</div>
+                    <div><strong>PDF Letterhead Canvas</strong></div>
+                    <div>A4 Size (595 × 842 px)</div>
+                    <div style="font-size: 12px; margin-top: 8px;">
+                        Your letterhead background will appear here<br>
+                        Positioning coordinates remain accurate
+                    </div>
+                `;
+                container.appendChild(placeholder);
+            }
+        }
+    }
 
     function initializeDraggableElements() {
         const editor = document.getElementById('positionEditor');
@@ -490,23 +663,28 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Editor element:', editor);
         console.log('Container element:', container);
 
-        if (!positions || positions.length === 0) {
-            console.error('No positions data found! Creating default elements...');
-            // Create default elements as fallback
-            const defaultPositions = [
-                {field: 'customer_name', x: 50, y: 50, font_size: 12, font_weight: 'bold'},
-                {field: 'invoice_no', x: 400, y: 50, font_size: 12, font_weight: 'bold'},
-                {field: 'customer_phone', x: 50, y: 80, font_size: 11, font_weight: 'normal'},
-                {field: 'invoice_date', x: 400, y: 80, font_size: 12, font_weight: 'normal'}
-            ];
-            defaultPositions.forEach((pos, index) => {
-                console.log(`Creating default element ${index + 1}:`, pos);
-                createDraggableElement(pos, editor, container);
-            });
-            return;
-        }
+        // Essential elements to always include
+        const essentialElements = [
+            {field: 'invoice_no', x: 400, y: 50, font_size: 14, font_weight: 'bold'},
+            {field: 'invoice_date', x: 400, y: 80, font_size: 14, font_weight: 'normal'},
+            {field: 'product_name', x: 50, y: 130, font_size: 13, font_weight: 'bold'},
+            {field: 'customer_name', x: 50, y: 150, font_size: 14, font_weight: 'bold'},
+            {field: 'customer_phone', x: 50, y: 170, font_size: 13, font_weight: 'normal'}
+        ];
 
-        positions.forEach((pos, index) => {
+        let elementsToCreate = positions && positions.length > 0 ? positions : essentialElements;
+
+        // Always ensure we have the essential elements
+        essentialElements.forEach(essential => {
+            const exists = elementsToCreate.find(pos => pos.field === essential.field);
+            if (!exists) {
+                elementsToCreate.push(essential);
+            }
+        });
+
+        console.log('Elements to create:', elementsToCreate);
+
+        elementsToCreate.forEach((pos, index) => {
             console.log(`Creating element ${index + 1}:`, pos);
             createDraggableElement(pos, editor, container);
         });
@@ -523,29 +701,32 @@ document.addEventListener('DOMContentLoaded', function() {
         element.className = 'draggable-element';
         element.dataset.field = position.field;
 
-        // Calculate position relative to container size
-        let containerWidth, containerHeight;
+        // Always use exact A4 pixel dimensions for consistent positioning
+        const canvasWidth = 595;  // A4 width in pixels at 72 DPI
+        const canvasHeight = 842; // A4 height in pixels at 72 DPI
 
-        if (container.tagName === 'IMG') {
-            containerWidth = container.offsetWidth;
-            containerHeight = container.offsetHeight;
-        } else {
-            // For div containers (PDF without preview)
-            containerWidth = 595; // A4 width in pixels
-            containerHeight = 842; // A4 height in pixels
-        }
-
-        const x = (position.x / 595) * containerWidth;
-        const y = (position.y / 842) * containerHeight;
-
-        element.style.left = x + 'px';
-        element.style.top = y + 'px';
+        // Position element based on exact PDF coordinates
+        element.style.left = position.x + 'px';
+        element.style.top = position.y + 'px';
         element.style.fontSize = (position.font_size || 12) + 'px';
         element.style.fontWeight = position.font_weight || 'normal';
-        element.style.zIndex = '10'; // Ensure elements are above the background
+        element.style.zIndex = '1001'; // Ensure elements are above everything
+
+        // Enhanced visual styling based on field type
+        const fieldColors = {
+            'invoice_no': 'linear-gradient(135deg, rgba(220, 53, 69, 0.95), rgba(176, 42, 55, 0.9))',
+            'invoice_date': 'linear-gradient(135deg, rgba(40, 167, 69, 0.95), rgba(32, 134, 55, 0.9))',
+            'product_name': 'linear-gradient(135deg, rgba(255, 87, 34, 0.95), rgba(204, 69, 27, 0.9))',
+            'customer_name': 'linear-gradient(135deg, rgba(255, 193, 7, 0.95), rgba(204, 154, 6, 0.9))',
+            'customer_phone': 'linear-gradient(135deg, rgba(23, 162, 184, 0.95), rgba(18, 130, 147, 0.9))'
+        };
+
+        if (fieldColors[position.field]) {
+            element.style.background = fieldColors[position.field];
+        }
 
         element.innerHTML = `
-            <div class="element-label">${position.field.replace('_', ' ').toUpperCase()}</div>
+            <div class="element-label">${getFieldLabel(position.field)}</div>
             <div class="element-content">${getSampleContent(position.field)}</div>
             <div class="position-coordinates">${Math.round(position.x)}, ${Math.round(position.y)}</div>
         `;
@@ -557,25 +738,53 @@ document.addEventListener('DOMContentLoaded', function() {
             selectElement(element);
         });
 
+        // Add visual feedback on hover
+        element.addEventListener('mouseenter', function() {
+            element.style.transform = 'scale(1.05)';
+        });
+
+        element.addEventListener('mouseleave', function() {
+            if (!element.classList.contains('dragging')) {
+                element.style.transform = '';
+            }
+        });
+
         console.log('Appending element to container:', element);
         console.log('Container:', container);
         container.appendChild(element);
         console.log('Element successfully appended to container');
     }
 
+    function getFieldLabel(field) {
+        const labels = {
+            'invoice_no': 'INVOICE #',
+            'invoice_date': 'DATE',
+            'product_name': 'PRODUCT',
+            'customer_name': 'CUSTOMER',
+            'customer_phone': 'PHONE',
+            'customer_address': 'ADDRESS',
+            'customer_email': 'EMAIL',
+            'company_name': 'COMPANY',
+            'company_address': 'ADDRESS',
+            'company_contact': 'CONTACT'
+        };
+        return labels[field] || field.replace('_', ' ').toUpperCase();
+    }
+
     function getSampleContent(field) {
         const samples = {
             'company_name': 'AURA PC FACTORY',
             'company_address': 'KALANCHIYAM THODDAM, KARAVEDDY',
-            'company_contact': '📧 AuraPCFactory@gmail.com 📞 +94 77 022 1046',
+            'company_contact': 'AuraPCFactory@gmail.com | +94 77 022 1046',
             'invoice_no': 'ORDR00001',
-            'invoice_date': '29/09/2025',
+            'invoice_date': new Date().toLocaleDateString('en-GB'),
+            'product_name': 'Gaming Laptop Dell XPS 15',
             'customer_name': 'John Doe',
             'customer_phone': '+94 77 123 4567',
             'customer_address': '123 Main Street, Colombo 01',
             'customer_email': 'john.doe@email.com',
-            'items_table': '[TABLE AREA]',
-            'total_section': 'TOTAL: LKR 25,000.00',
+            'items_table': '[ITEMS TABLE]',
+            'total_section': 'LKR 25,000.00',
             'warranty_section': '[WARRANTY TEXT]'
         };
         return samples[field] || field.replace('_', ' ').toUpperCase();
@@ -600,39 +809,72 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleMouseMove(e) {
         if (!isDragging || !selectedElement) return;
 
-        const editor = document.getElementById('positionEditor');
-        const editorRect = editor.getBoundingClientRect();
         const container = document.getElementById('letterheadImage');
+        const containerRect = container.getBoundingClientRect();
 
-        let x = e.clientX - editorRect.left - dragOffset.x;
-        let y = e.clientY - editorRect.top - dragOffset.y;
+        // Calculate position relative to the container
+        let x = e.clientX - containerRect.left - dragOffset.x;
+        let y = e.clientY - containerRect.top - dragOffset.y;
 
-        // Get container dimensions
-        let containerWidth, containerHeight;
-        if (container.tagName === 'IMG') {
-            containerWidth = container.offsetWidth;
-            containerHeight = container.offsetHeight;
-        } else {
-            containerWidth = 595;
-            containerHeight = 842;
-        }
+        // Always use exact A4 dimensions for consistent positioning
+        const canvasWidth = 595;
+        const canvasHeight = 842;
 
-        // Constrain to container bounds
-        x = Math.max(0, Math.min(x, containerWidth - selectedElement.offsetWidth));
-        y = Math.max(0, Math.min(y, containerHeight - selectedElement.offsetHeight));
+        // Constrain to canvas bounds
+        x = Math.max(0, Math.min(x, canvasWidth - selectedElement.offsetWidth));
+        y = Math.max(0, Math.min(y, canvasHeight - selectedElement.offsetHeight));
 
         selectedElement.style.left = x + 'px';
         selectedElement.style.top = y + 'px';
 
-        // Update coordinates display
-        const actualX = (x / containerWidth) * 595;
-        const actualY = (y / containerHeight) * 842;
-
+        // Update coordinates display (x,y are already in PDF coordinates)
         const coordsElement = selectedElement.querySelector('.position-coordinates');
-        coordsElement.textContent = `${Math.round(actualX)}, ${Math.round(actualY)}`;
+        coordsElement.textContent = `${Math.round(x)}, ${Math.round(y)}`;
+
+        // Show positioning crosshairs
+        showPositioningCrosshairs(x, y);
 
         // Update properties panel
-        updatePropertiesPanel(selectedElement, actualX, actualY);
+        updatePropertiesPanel(selectedElement, x, y);
+    }
+
+    function showPositioningCrosshairs(x, y) {
+        const container = document.getElementById('letterheadImage');
+
+        // Remove existing crosshairs
+        const existingCrosshairs = container.querySelectorAll('.positioning-crosshair');
+        existingCrosshairs.forEach(ch => ch.remove());
+
+        // Create vertical crosshair
+        const verticalCrosshair = document.createElement('div');
+        verticalCrosshair.className = 'positioning-crosshair';
+        verticalCrosshair.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: rgba(255, 0, 0, 0.6);
+            z-index: 1001;
+            pointer-events: none;
+        `;
+
+        // Create horizontal crosshair
+        const horizontalCrosshair = document.createElement('div');
+        horizontalCrosshair.className = 'positioning-crosshair';
+        horizontalCrosshair.style.cssText = `
+            position: absolute;
+            left: 0;
+            top: ${y}px;
+            width: 100%;
+            height: 1px;
+            background: rgba(255, 0, 0, 0.6);
+            z-index: 1001;
+            pointer-events: none;
+        `;
+
+        container.appendChild(verticalCrosshair);
+        container.appendChild(horizontalCrosshair);
     }
 
     function handleMouseUp() {
@@ -640,6 +882,12 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedElement.classList.remove('dragging');
         }
         isDragging = false;
+
+        // Remove positioning crosshairs
+        const container = document.getElementById('letterheadImage');
+        const crosshairs = container.querySelectorAll('.positioning-crosshair');
+        crosshairs.forEach(ch => ch.remove());
+
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
     }
@@ -653,20 +901,9 @@ document.addEventListener('DOMContentLoaded', function() {
         element.classList.add('selected');
         selectedElement = element;
 
-        // Update properties panel
-        const container = document.getElementById('letterheadImage');
-        let containerWidth;
-
-        if (container.tagName === 'IMG') {
-            containerWidth = container.offsetWidth;
-            containerHeight = container.offsetHeight;
-        } else {
-            containerWidth = 595;
-            containerHeight = 842;
-        }
-
-        const x = (parseFloat(element.style.left) / containerWidth) * 595;
-        const y = (parseFloat(element.style.top) / containerHeight) * 842;
+        // Get current position (already in PDF coordinates)
+        const x = parseFloat(element.style.left);
+        const y = parseFloat(element.style.top);
 
         updatePropertiesPanel(element, x, y);
     }
@@ -715,22 +952,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const x = parseInt(document.getElementById('posX').value);
         const y = parseInt(document.getElementById('posY').value);
-        const container = document.getElementById('letterheadImage');
 
-        let containerWidth, containerHeight;
-        if (container.tagName === 'IMG') {
-            containerWidth = container.offsetWidth;
-            containerHeight = container.offsetHeight;
-        } else {
-            containerWidth = 595;
-            containerHeight = 842;
-        }
-
-        const pixelX = (x / 595) * containerWidth;
-        const pixelY = (y / 842) * containerHeight;
-
-        selectedElement.style.left = pixelX + 'px';
-        selectedElement.style.top = pixelY + 'px';
+        // Direct positioning in PDF coordinates
+        selectedElement.style.left = x + 'px';
+        selectedElement.style.top = y + 'px';
 
         const coordsElement = selectedElement.querySelector('.position-coordinates');
         coordsElement.textContent = `${x}, ${y}`;
@@ -750,20 +975,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('savePositions').addEventListener('click', function() {
         const elements = document.querySelectorAll('.draggable-element');
         const positions = [];
-        const container = document.getElementById('letterheadImage');
-
-        let containerWidth, containerHeight;
-        if (container.tagName === 'IMG') {
-            containerWidth = container.offsetWidth;
-            containerHeight = container.offsetHeight;
-        } else {
-            containerWidth = 595;
-            containerHeight = 842;
-        }
 
         elements.forEach(element => {
-            const x = (parseFloat(element.style.left) / containerWidth) * 595;
-            const y = (parseFloat(element.style.top) / containerHeight) * 842;
+            // Get position directly from element style (already in PDF coordinates)
+            const x = parseFloat(element.style.left);
+            const y = parseFloat(element.style.top);
 
             positions.push({
                 field: element.dataset.field,
@@ -773,6 +989,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 font_weight: element.style.fontWeight || 'normal'
             });
         });
+
+        console.log('Saving positions:', positions);
 
         fetch('{{ route("letterhead.save-positions") }}', {
             method: 'POST',
@@ -785,9 +1003,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast('Positions saved successfully!', 'success');
+                showToast('Element positions saved successfully! Your letterhead is ready to use.', 'success');
             } else {
-                showToast('Error saving positions', 'error');
+                showToast('Error saving positions: ' + (data.message || 'Unknown error'), 'error');
             }
         })
         .catch(error => {
@@ -795,6 +1013,42 @@ document.addEventListener('DOMContentLoaded', function() {
             showToast('Error saving positions', 'error');
         });
     });
+
+    // Grid and Ruler Toggle Controls
+    document.getElementById('toggleGrid')?.addEventListener('click', function() {
+        const grid = document.getElementById('positioningGrid');
+        if (grid) {
+            const currentOpacity = parseFloat(grid.style.opacity) || 0.3;
+            grid.style.opacity = currentOpacity > 0 ? '0' : '0.3';
+            this.classList.toggle('active');
+        }
+    });
+
+    document.getElementById('toggleRulers')?.addEventListener('click', function() {
+        const rulers = document.querySelectorAll('.ruler-top, .ruler-left');
+        rulers.forEach(ruler => {
+            ruler.style.display = ruler.style.display === 'none' ? 'block' : 'none';
+        });
+        this.classList.toggle('active');
+    });
+
+    // Enhanced grid visibility on canvas hover
+    const canvasContainer = document.querySelector('.pdf-canvas-container');
+    if (canvasContainer) {
+        canvasContainer.addEventListener('mouseenter', function() {
+            const grid = document.getElementById('positioningGrid');
+            if (grid && parseFloat(grid.style.opacity) > 0) {
+                grid.style.opacity = '0.6';
+            }
+        });
+
+        canvasContainer.addEventListener('mouseleave', function() {
+            const grid = document.getElementById('positioningGrid');
+            if (grid && parseFloat(grid.style.opacity) > 0) {
+                grid.style.opacity = '0.3';
+            }
+        });
+    }
 
     // Click outside to deselect
     document.addEventListener('click', function(e) {

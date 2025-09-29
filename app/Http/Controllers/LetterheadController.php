@@ -90,6 +90,57 @@ class LetterheadController extends Controller
         return $this->getDefaultConfig();
     }
 
+    private function createPdfPreviewUsingCommandLine($pdfPath)
+    {
+        try {
+            // Check if magick command is available (ImageMagick 7+)
+            $magickPath = trim(shell_exec('which magick'));
+            if (empty($magickPath)) {
+                // Fallback to convert command (ImageMagick 6)
+                $magickPath = trim(shell_exec('which convert'));
+                if (empty($magickPath)) {
+                    \Log::info('ImageMagick command not found - PDF preview unavailable');
+                    return null;
+                }
+            }
+
+            if (!file_exists($pdfPath)) {
+                \Log::warning('PDF file not found: ' . $pdfPath);
+                return null;
+            }
+
+            $previewFilename = 'letterhead_preview_' . time() . '.png';
+            $previewPath = public_path('letterheads/' . $previewFilename);
+
+            // Ensure letterheads directory exists
+            $letterheadDir = public_path('letterheads');
+            if (!is_dir($letterheadDir)) {
+                mkdir($letterheadDir, 0755, true);
+            }
+
+            // Use ImageMagick command to create preview
+            $command = sprintf(
+                '%s -density 150 -quality 95 "%s[0]" -resize 595x842! -background white -alpha remove "%s" 2>&1',
+                escapeshellcmd($magickPath),
+                escapeshellarg($pdfPath),
+                escapeshellarg($previewPath)
+            );
+
+            $output = shell_exec($command);
+            
+            if (file_exists($previewPath) && filesize($previewPath) > 0) {
+                \Log::info('PDF preview created successfully using command line: ' . $previewFilename);
+                return $previewFilename;
+            } else {
+                \Log::warning('Failed to create PDF preview using command line. Output: ' . $output);
+                return null;
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to create PDF preview using command line: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     private function saveLetterheadConfig($config)
     {
         $configPath = storage_path('app/letterhead_config.json');
@@ -108,54 +159,86 @@ class LetterheadController extends Controller
     {
         try {
             if (!extension_loaded('imagick')) {
-                // Fallback: return null if Imagick is not available
+                // Try using command-line ImageMagick as fallback
+                return $this->createPdfPreviewUsingCommandLine($pdfPath);
+            }
+
+            if (!file_exists($pdfPath)) {
+                \Log::warning('PDF file not found: ' . $pdfPath);
                 return null;
             }
 
             $imagick = new Imagick();
-            $imagick->setResolution(150, 150); // Set resolution before reading
-            $imagick->readImage($pdfPath . '[0]'); // Read only the first page
+
+            // Set high resolution for better quality, then scale down for exact dimensions
+            $imagick->setResolution(150, 150);
+
+            // Read only the first page of the PDF
+            $imagick->readImage($pdfPath . '[0]');
+
+            // Set format to PNG for best quality
             $imagick->setImageFormat('png');
             $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
             $imagick->setImageBackgroundColor('white');
 
-            // Resize to A4 proportions (595x842 at 72 DPI equivalent)
-            $imagick->resizeImage(595, 842, Imagick::FILTER_LANCZOS, 1);
+            // Get original dimensions
+            $originalWidth = $imagick->getImageWidth();
+            $originalHeight = $imagick->getImageHeight();
 
-            $previewFilename = 'letterhead_preview.png';
+            // Always resize to exact A4 dimensions for consistent canvas
+            $imagick->resizeImage(595, 842, Imagick::FILTER_LANCZOS, 1, true);
+
+            // Enhance image quality
+            $imagick->enhanceImage();
+            $imagick->setImageCompressionQuality(95);
+
+            $previewFilename = 'letterhead_preview_' . time() . '.png';
             $previewPath = public_path('letterheads/' . $previewFilename);
 
-            $imagick->writeImage($previewPath);
+            // Ensure letterheads directory exists
+            $letterheadDir = public_path('letterheads');
+            if (!is_dir($letterheadDir)) {
+                mkdir($letterheadDir, 0755, true);
+            }
+
+            // Write the preview
+            $result = $imagick->writeImage($previewPath);
+
+            // Clean up
             $imagick->clear();
             $imagick->destroy();
 
-            return $previewFilename;
+            if ($result && file_exists($previewPath)) {
+                \Log::info('PDF preview created successfully: ' . $previewFilename);
+                return $previewFilename;
+            } else {
+                \Log::warning('Failed to write PDF preview file');
+                return null;
+            }
         } catch (\Exception $e) {
-            // Log the error and return null
-            \Log::warning('Failed to create PDF preview: ' . $e->getMessage());
+            \Log::error('Failed to create PDF preview: ' . $e->getMessage());
             return null;
         }
-    }
-
-    private function getDefaultConfig()
+    }    private function getDefaultConfig()
     {
         return [
             'letterhead_file' => null,
             'letterhead_type' => 'image',
             'preview_image' => null,
             'positions' => [
-                ['field' => 'company_name', 'x' => 50, 'y' => 50, 'font_size' => 16, 'font_weight' => 'bold'],
-                ['field' => 'company_address', 'x' => 50, 'y' => 80, 'font_size' => 12, 'font_weight' => 'normal'],
-                ['field' => 'company_contact', 'x' => 50, 'y' => 110, 'font_size' => 10, 'font_weight' => 'normal'],
-                ['field' => 'invoice_no', 'x' => 400, 'y' => 50, 'font_size' => 12, 'font_weight' => 'bold'],
-                ['field' => 'invoice_date', 'x' => 400, 'y' => 70, 'font_size' => 12, 'font_weight' => 'normal'],
-                ['field' => 'customer_name', 'x' => 50, 'y' => 150, 'font_size' => 12, 'font_weight' => 'bold'],
-                ['field' => 'customer_phone', 'x' => 50, 'y' => 170, 'font_size' => 11, 'font_weight' => 'normal'],
-                ['field' => 'customer_address', 'x' => 50, 'y' => 190, 'font_size' => 11, 'font_weight' => 'normal'],
-                ['field' => 'customer_email', 'x' => 50, 'y' => 210, 'font_size' => 11, 'font_weight' => 'normal'],
-                ['field' => 'items_table', 'x' => 50, 'y' => 240, 'font_size' => 11, 'font_weight' => 'normal'],
-                ['field' => 'total_section', 'x' => 350, 'y' => 520, 'font_size' => 12, 'font_weight' => 'normal'],
-                ['field' => 'warranty_section', 'x' => 50, 'y' => 620, 'font_size' => 9, 'font_weight' => 'normal'],
+                ['field' => 'company_name', 'x' => 50, 'y' => 50, 'font_size' => 18, 'font_weight' => 'bold'],
+                ['field' => 'company_address', 'x' => 50, 'y' => 80, 'font_size' => 14, 'font_weight' => 'normal'],
+                ['field' => 'company_contact', 'x' => 50, 'y' => 110, 'font_size' => 12, 'font_weight' => 'normal'],
+                ['field' => 'invoice_no', 'x' => 400, 'y' => 50, 'font_size' => 14, 'font_weight' => 'bold'],
+                ['field' => 'invoice_date', 'x' => 400, 'y' => 70, 'font_size' => 14, 'font_weight' => 'normal'],
+                ['field' => 'product_name', 'x' => 50, 'y' => 130, 'font_size' => 13, 'font_weight' => 'bold'],
+                ['field' => 'customer_name', 'x' => 50, 'y' => 150, 'font_size' => 14, 'font_weight' => 'bold'],
+                ['field' => 'customer_phone', 'x' => 50, 'y' => 170, 'font_size' => 13, 'font_weight' => 'normal'],
+                ['field' => 'customer_address', 'x' => 50, 'y' => 190, 'font_size' => 13, 'font_weight' => 'normal'],
+                ['field' => 'customer_email', 'x' => 50, 'y' => 210, 'font_size' => 13, 'font_weight' => 'normal'],
+                ['field' => 'items_table', 'x' => 50, 'y' => 240, 'font_size' => 13, 'font_weight' => 'normal'],
+                ['field' => 'total_section', 'x' => 350, 'y' => 520, 'font_size' => 14, 'font_weight' => 'normal'],
+                ['field' => 'warranty_section', 'x' => 50, 'y' => 620, 'font_size' => 11, 'font_weight' => 'normal'],
             ]
         ];
     }
