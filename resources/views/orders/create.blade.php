@@ -154,7 +154,7 @@
                             </div>
 
                             <!-- Cart Items -->
-                            <div class="mb-4" style="height: 240px; min-height: 240px;">
+                            <div class="mb-4" style="height: auto; min-height: 350px;">
                                 <div class="text-center py-5" id="empty-cart">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-muted mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -166,7 +166,7 @@
                                     <p class="text-muted">Cart is empty</p>
                                 </div>
                                 <!-- Cart items will be dynamically added here -->
-                                <div id="cart-items" style="display: none; max-height: 240px; overflow-y: auto; overflow-x: hidden;">
+                                <div id="cart-items" style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
                                     <!-- Dynamic cart items -->
                                 </div>
                             </div>
@@ -362,15 +362,39 @@
         .product-card:hover { transform: translateY(-2px); transition: all 0.2s ease-in-out; }
         .cart-item {
             border-bottom: 1px solid #e9ecef;
-            padding: 12px 0;
-            min-height: 75px;
-            max-height: 75px;
+            padding: 12px;
+            min-height: 95px;
+            max-height: none;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+            position: relative;
         }
-        .cart-item:last-child { border-bottom: none; }
+        .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
         .quantity-btn { width: 32px; height: 32px; padding: 0; font-size: 14px; }
+        
+        /* Ensure cart items don't overlap */
+        #cart-items .cart-item:not(:last-child) {
+            margin-bottom: 12px;
+        }
+        
+        /* Better form control styling in cart */
+        .cart-item .form-control, 
+        .cart-item .form-select {
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        
+        .cart-item .form-control:focus, 
+        .cart-item .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
         .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
         .overflow-auto { max-height: 400px; }
         .flex-1 { flex: 1; }
@@ -849,18 +873,23 @@
                 return;
             }
 
-            // Check if product already in cart
+            // Check if product already exists in cart
             const existingItem = cart.find(item => item.id === productId);
+            
             if (existingItem) {
-                if (existingItem.quantity < stock) {
-                    existingItem.quantity++;
+                // Check if we can increase quantity
+                if (existingItem.quantity + 1 <= stock) {
+                    existingItem.quantity += 1;
                     existingItem.total = existingItem.quantity * existingItem.price;
+                    updateCartDisplay();
                 } else {
                     alert('Cannot add more items. Stock limit reached!');
-                    return;
                 }
             } else {
+                // Create new cart item
+                const lineId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
                 cart.push({
+                    lineId: lineId,
                     id: productId,
                     name: productName,
                     price: productPrice,
@@ -870,9 +899,8 @@
                     serial_number: '',
                     warranty_years: null
                 });
+                updateCartDisplay();
             }
-
-            updateCartDisplay();
         }
 
         function updateCartDisplay() {
@@ -906,34 +934,46 @@
                     cartItems.style.display = 'block';
                     cartItems.innerHTML = cart.map(item => `
                         <div class="cart-item">
+                            <!-- Product Name and Remove Button -->
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div class="flex-1">
-                                    <div class="cart-item-name">${item.name}</div>
+                                    <div class="cart-item-name fw-bold text-dark" style="font-size: 13px; line-height: 1.2;">${item.name}</div>
                                 </div>
-                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFromCart('${item.id}')">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M18 6l-12 12"/>
-                                        <path d="M6 6l12 12"/>
-                                    </svg>
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeFromCart('${item.lineId}')" style="padding: 4px 8px; font-size: 12px;">
+                                    ×
                                 </button>
                             </div>
+                            
+                            <!-- Quantity Controls and Price -->
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
-                                    <button type="button" class="btn btn-outline-secondary quantity-btn me-2" onclick="updateQuantity('${item.id}', -1)">-</button>
-                                    <span class="me-2">${item.quantity}</span>
-                                    <button type="button" class="btn btn-outline-secondary quantity-btn" onclick="updateQuantity('${item.id}', 1)">+</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm me-2" onclick="updateQuantity('${item.lineId}', -1)" style="width: 28px; height: 28px; padding: 0; font-size: 14px;">-</button>
+                                    <span class="me-2 px-2 fw-bold" style="min-width: 25px; text-align: center; font-size: 14px;">${item.quantity}</span>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity('${item.lineId}', 1)" style="width: 28px; height: 28px; padding: 0; font-size: 14px;">+</button>
                                 </div>
-                                <div class="cart-item-price">LKR ${item.total.toLocaleString()}</div>
+                                <div class="cart-item-price fw-bold text-success" style="font-size: 14px;">LKR ${item.total.toLocaleString()}</div>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <input type="text" class="form-control form-control-sm me-2" placeholder="Serial number" value="${item.serial_number || ''}" oninput="updateSerial('${item.id}', this.value)" style="max-width: 55%;">
-                                <select class="form-select form-select-sm" onchange="updateWarranty('${item.id}', this.value)" style="max-width: 45%;">
-                                    <option value="" ${item.warranty_years == null ? 'selected' : ''}>No warranty</option>
-                                    <option value="1" ${item.warranty_years == 1 ? 'selected' : ''}>1 year</option>
-                                    <option value="2" ${item.warranty_years == 2 ? 'selected' : ''}>2 years</option>
-                                    <option value="3" ${item.warranty_years == 3 ? 'selected' : ''}>3 years</option>
-                                </select>
+                            
+                            <!-- Serial Number and Warranty in Same Row -->
+                            <div class="d-flex gap-2">
+                                <div class="flex-1">
+                                    <input type="text" 
+                                           class="form-control form-control-sm" 
+                                           placeholder="Serial number" 
+                                           value="${item.serial_number || ''}" 
+                                           oninput="updateSerial('${item.lineId}', this.value)" 
+                                           style="font-size: 12px; padding: 6px 8px;">
+                                </div>
+                                <div style="min-width: 120px;">
+                                    <select class="form-select form-select-sm" 
+                                            onchange="updateWarranty('${item.lineId}', this.value)" 
+                                            style="font-size: 12px; padding: 6px 8px;">
+                                        <option value="" ${item.warranty_years == null ? 'selected' : ''}>No warranty</option>
+                                        <option value="1" ${item.warranty_years == 1 ? 'selected' : ''}>1 year</option>
+                                        <option value="2" ${item.warranty_years == 2 ? 'selected' : ''}>2 years</option>
+                                        <option value="3" ${item.warranty_years == 3 ? 'selected' : ''}>3 years</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     `).join('');
@@ -959,27 +999,27 @@
             });
         }
 
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
+        function removeFromCart(lineId) {
+            cart = cart.filter(item => item.lineId !== lineId);
             updateCartDisplay();
         }
 
-        function updateSerial(productId, serial) {
-            const item = cart.find(i => i.id === productId);
+        function updateSerial(lineId, serial) {
+            const item = cart.find(i => i.lineId === lineId);
             if (item) {
                 item.serial_number = serial;
             }
         }
 
-        function updateWarranty(productId, years) {
-            const item = cart.find(i => i.id === productId);
+        function updateWarranty(lineId, years) {
+            const item = cart.find(i => i.lineId === lineId);
             if (item) {
                 item.warranty_years = years ? parseInt(years) : null;
             }
         }
 
-        function updateQuantity(productId, change) {
-            const item = cart.find(item => item.id === productId);
+        function updateQuantity(lineId, change) {
+            const item = cart.find(item => item.lineId === lineId);
             if (item) {
                 const newQuantity = item.quantity + change;
                 if (newQuantity > 0 && newQuantity <= item.stock) {
@@ -987,9 +1027,9 @@
                     item.total = item.quantity * item.price;
                     updateCartDisplay();
                 } else if (newQuantity <= 0) {
-                    removeFromCart(productId);
+                    removeFromCart(lineId);
                 } else {
-                    alert('Cannot add more items. Stock limit reached!');
+                    alert(`Cannot add more items. Maximum stock available: ${item.stock}`);
                 }
             }
         }

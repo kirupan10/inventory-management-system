@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Product;
+use Illuminate\Support\Str;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Livewire\Component;
 
@@ -85,16 +86,6 @@ class ProductCart extends Component
     {
         $cart = Cart::instance($this->cart_instance);
 
-        $exists = $cart->search(function ($cartItem, $rowId) use ($product) {
-            return $cartItem->id == $product['id'];
-        });
-
-        if ($exists->isNotEmpty()) {
-            session()->flash('message', 'Product exists in the cart!');
-
-            return;
-        }
-
         $this->product = $product;
 
         $cart->add([
@@ -115,6 +106,7 @@ class ProductCart extends Component
                 'unit_price' => $this->calculate($product)['unit_price'],
                 'serial_number' => null,
                 'warranty_years' => null,
+                'line_uid' => (string) Str::uuid(),
             ],
         ]);
 
