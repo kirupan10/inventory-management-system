@@ -15,8 +15,8 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::select('id', 'name')
-            ->limit(1)
+        $products = Product::with(['category', 'unit'])
+            ->latest()
             ->get();
 
         return view('products.index', [

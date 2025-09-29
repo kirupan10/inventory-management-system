@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <form action="{{ route('orders.store') }}" method="POST">
+        <form action="{{ route('invoice.create') }}" method="POST">
             @csrf
             <!-- Hidden date field with current date -->
             <input name="date" id="date" type="hidden" value="{{ now()->format('Y-m-d') }}">

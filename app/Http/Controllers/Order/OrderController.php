@@ -18,7 +18,9 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::latest()->get();
+        $orders = Order::with(['customer'])
+            ->latest()
+            ->get();
 
         return view('orders.index', [
             'orders' => $orders,
@@ -39,40 +41,52 @@ class OrderController extends Controller
 
     public function store(OrderStoreRequest $request)
     {
-        // Create order with COMPLETE status by default
-        $orderData = $request->all();
-        $orderData['order_status'] = OrderStatus::COMPLETE;
+        DB::beginTransaction();
 
-        $order = Order::create($orderData);
+        try {
+            $order = Order::create($request->all());
 
-        // Create Order Details
-        $contents = Cart::instance('order')->content();
+            // Create Order Details
+            $contents = Cart::instance('order')->content();
+            $orderDetails = [];
 
-        foreach ($contents as $content) {
-            OrderDetails::create([
-                'order_id' => $order->id,
-                'product_id' => $content->id,
-                'quantity' => $content->qty,
-                'unitcost' => $content->price,
-                'total' => $content->subtotal,
-            ]);
+            foreach ($contents as $content) {
+                $orderDetails[] = [
+                    'order_id' => $order->id,
+                    'product_id' => $content->id,
+                    'quantity' => $content->qty,
+                    'unitcost' => $content->price,
+                    'total' => $content->subtotal,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
 
-            // Reduce stock immediately
-            Product::where('id', $content->id)
-                ->decrement('quantity', $content->qty);
+            // Bulk insert order details
+            OrderDetails::insert($orderDetails);
+
+            // Clear cart
+            Cart::instance('order')->destroy();
+
+            DB::commit();
+
+            return redirect()
+                ->route('orders.index')
+                ->with('success', 'Order has been created successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Failed to create order. Please try again.');
         }
-
-        // Clear cart
-        Cart::destroy();
-
-        return redirect()
-            ->route('orders.index')
-            ->with('success', 'Order has been created successfully!');
     }
 
     public function show(Order $order)
     {
-        $order->loadMissing(['customer', 'details'])->get();
+        $order->loadMissing(['customer', 'details.product']);
 
         return view('orders.show', [
             'order' => $order,
@@ -81,36 +95,38 @@ class OrderController extends Controller
 
     public function update(Order $order, Request $request)
     {
-        // Simple order update - basic info only
-        $order->update($request->only(['customer_id', 'order_date', 'vat', 'total']));
+        DB::beginTransaction();
 
-        return redirect()
-            ->route('orders.index')
-            ->with('success', 'Order has been updated successfully!');
-    }
+        try {
+            // Update order status to complete and reduce stock
+            if ($order->order_status !== OrderStatus::COMPLETE) {
+                $orderDetails = $order->details()->with('product')->get();
 
-    public function edit(Order $order)
-    {
-        return view('orders.edit', [
-            'order' => $order,
-            'customers' => Customer::all(['id', 'name', 'phone']),
-        ]);
+                // Update product quantities
+                foreach ($orderDetails as $detail) {
+                    $detail->product->decrement('quantity', $detail->quantity);
+                }
+
+                $order->update(['order_status' => OrderStatus::COMPLETE]);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('orders.index')
+                ->with('success', 'Order has been completed successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->with('error', 'Failed to complete order. Please try again.');
+        }
     }
 
     public function destroy(Order $order)
     {
-        // Restore stock before deleting order
-        $orderDetails = OrderDetails::where('order_id', $order->id)->get();
-
-        foreach ($orderDetails as $detail) {
-            Product::where('id', $detail->product_id)
-                ->increment('quantity', $detail->quantity);
-        }
-
-        // Delete order details first
-        OrderDetails::where('order_id', $order->id)->delete();
-
-        // Delete the order
         $order->delete();
 
         return redirect()
