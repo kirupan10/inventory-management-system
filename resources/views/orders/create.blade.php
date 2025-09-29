@@ -47,22 +47,40 @@
                 <div class="col-lg-7 col-xl-7">
                     <div class="card h-100">
                         <div class="card-header">
-                            <h3 class="card-title">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M4 7v-1a2 2 0 0 1 2 -2h2"/>
-                                    <path d="M4 17v1a2 2 0 0 0 2 2h2"/>
-                                    <path d="M16 4h2a2 2 0 0 1 2 2v1"/>
-                                    <path d="M16 20h2a2 2 0 0 0 2 -2v-1"/>
-                                    <path d="M8 11l0 .01"/>
-                                    <path d="M12 11l0 .01"/>
-                                    <path d="M16 11l0 .01"/>
-                                    <path d="M8 15l0 .01"/>
-                                    <path d="M12 15l0 .01"/>
-                                    <path d="M16 15l0 .01"/>
-                                </svg>
-                                Product Search
-                            </h3>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h3 class="card-title mb-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M4 7v-1a2 2 0 0 1 2 -2h2"/>
+                                            <path d="M4 17v1a2 2 0 0 0 2 2h2"/>
+                                            <path d="M16 4h2a2 2 0 0 1 2 2v1"/>
+                                            <path d="M16 20h2a2 2 0 0 0 2 -2v-1"/>
+                                            <path d="M8 11l0 .01"/>
+                                            <path d="M12 11l0 .01"/>
+                                            <path d="M16 11l0 .01"/>
+                                            <path d="M8 15l0 .01"/>
+                                            <path d="M12 15l0 .01"/>
+                                            <path d="M16 15l0 .01"/>
+                                        </svg>
+                                        Product Search
+                                    </h3>
+                                </div>
+                                <div class="text-muted">
+                                    <small id="current-order-date">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/>
+                                            <path d="M16 3v4"/>
+                                            <path d="M8 3v4"/>
+                                            <path d="M4 11h16"/>
+                                            <path d="M11 15h1"/>
+                                            <path d="M12 15v3"/>
+                                        </svg>
+                                        Order Date: <span id="order-date-display">{{ now()->format('d/m/Y, H:i:s') }}</span>
+                                    </small>
+                                </div>
+                            </div>
                         </div>
                         <div class="card-body d-flex flex-column">
                             <!-- Product Search Section -->
@@ -112,7 +130,7 @@
                 <div class="col-lg-5 col-xl-5">
                     <div class="card h-100">
                         <div class="card-header">
-                            <h3 class="card-title">
+                            <h3 class="card-title" id="cart-title">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                     <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
@@ -120,7 +138,7 @@
                                     <path d="M17 17h-11v-14h-2"/>
                                     <path d="M6 5l14 1l-1 7h-13"/>
                                 </svg>
-                                Cart (0)
+                                Cart (<span id="cart-count">0</span>)
                             </h3>
                             <div class="card-actions">
                                 <button type="button" class="btn btn-outline-secondary btn-sm">Clear</button>
@@ -129,7 +147,6 @@
                         <div class="card-body d-flex flex-column p-3">
                             <!-- Customer Selection -->
                             <div class="mb-4">
-                                <label for="customer_id" class="form-label fw-bold">Customer</label>
                                 <div class="input-group">
                                     <select id="customer_id" name="customer_id"
                                             class="form-select @error('customer_id') is-invalid @enderror">
@@ -171,11 +188,33 @@
                                 </div>
                             </div>
 
+                            <!-- Discount and Service Charges (shown only when cart has items) -->
+                            <div id="cart-adjustments" class="mb-3" style="display: none;">
+                                <div class="row g-2 mb-2">
+                                    <div class="col">
+                                        <label class="form-label small">Discount (LKR)</label>
+                                        <input type="number" id="discount-amount" class="form-control form-control-sm" step="0.01" min="0" value="0" placeholder="0.00" name="discount_amount">
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label small">Service Charges (LKR)</label>
+                                        <input type="number" id="service-charges" class="form-control form-control-sm" step="0.01" min="0" value="0" placeholder="0.00" name="service_charges">
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Order Summary -->
                             <div class="border-top pt-3">
                                 <div class="row mb-2">
                                     <div class="col">Subtotal:</div>
-                                    <div class="col-auto fw-bold">LKR 0.00</div>
+                                    <div class="col-auto fw-bold" id="subtotal-amount">LKR 0.00</div>
+                                </div>
+                                <div class="row mb-2" id="discount-row" style="display: none;">
+                                    <div class="col text-danger">Discount:</div>
+                                    <div class="col-auto fw-bold text-danger" id="discount-display">-LKR 0.00</div>
+                                </div>
+                                <div class="row mb-2" id="service-row" style="display: none;">
+                                    <div class="col text-info">Service Charges:</div>
+                                    <div class="col-auto fw-bold text-info" id="service-display">+LKR 0.00</div>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col"><strong>Total:</strong></div>
@@ -377,20 +416,20 @@
         }
         .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
         .quantity-btn { width: 32px; height: 32px; padding: 0; font-size: 14px; }
-        
+
         /* Ensure cart items don't overlap */
         #cart-items .cart-item:not(:last-child) {
             margin-bottom: 12px;
         }
-        
+
         /* Better form control styling in cart */
-        .cart-item .form-control, 
+        .cart-item .form-control,
         .cart-item .form-select {
             border: 1px solid #ced4da;
             border-radius: 4px;
         }
-        
-        .cart-item .form-control:focus, 
+
+        .cart-item .form-control:focus,
         .cart-item .form-select:focus {
             border-color: #86b7fe;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
@@ -780,23 +819,22 @@
                 dateField.value = dateTime.date;
             }
 
-            // Display current date and time in console and optionally in UI
-            console.log('Order form loaded at:', dateTime.formatted);
-
-            // Optional: Add current date/time display to the page
-
-            // Find a place to insert the time display (after the form header)
-            const cardHeader = document.querySelector('.card-header');
-            if (cardHeader) {
-                const currentTimeDisplay = document.createElement('small');
-                currentTimeDisplay.className = 'text-muted';
-                currentTimeDisplay.textContent = 'Order Date: ' + dateTime.formatted;
-
-                const timeContainer = document.createElement('div');
-                timeContainer.className = 'mt-2';
-                timeContainer.appendChild(currentTimeDisplay);
-                cardHeader.appendChild(timeContainer);
+            // Update the order date display
+            const orderDateDisplay = document.getElementById('order-date-display');
+            if (orderDateDisplay) {
+                orderDateDisplay.textContent = dateTime.formatted;
             }
+
+            // Update the date display every second
+            setInterval(function() {
+                const currentDateTime = getCurrentDateTime();
+                if (orderDateDisplay) {
+                    orderDateDisplay.textContent = currentDateTime.formatted;
+                }
+            }, 1000);
+
+            // Display current date and time in console
+            console.log('Order form loaded at:', dateTime.formatted);
         });
 
         // POS System JavaScript
@@ -862,6 +900,18 @@
             searchInput.addEventListener('input', filterProducts);
         }
 
+        // Discount and service charges event listeners
+        const discountInput = document.getElementById('discount-amount');
+        const serviceChargesInput = document.getElementById('service-charges');
+
+        if (discountInput) {
+            discountInput.addEventListener('input', updateOrderTotals);
+        }
+
+        if (serviceChargesInput) {
+            serviceChargesInput.addEventListener('input', updateOrderTotals);
+        }
+
         function addToCart(productId, productElement) {
             const productName = productElement.querySelector('.fw-bold.text-dark').textContent;
             const productPrice = parseFloat(productElement.querySelector('.text-success').textContent.replace('LKR ', '').replace(',', ''));
@@ -876,12 +926,12 @@
 
             // Check if product already exists in cart
             const existingItem = cart.find(item => item.id === productId);
-            
+
             if (existingItem) {
                 // Get current available stock (accounting for items already in cart from other sessions)
                 const availableStock = stock;
                 const totalInCart = existingItem.quantity;
-                
+
                 // Check if we can increase quantity
                 if (totalInCart + 1 <= availableStock) {
                     existingItem.quantity += 1;
@@ -914,31 +964,27 @@
             const emptyCart = document.getElementById('empty-cart');
             const cartItems = document.getElementById('cart-items');
             const cartTitle = document.querySelector('h3.card-title');
+            const cartAdjustments = document.getElementById('cart-adjustments');
 
             cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
             cartTotal = cart.reduce((sum, item) => sum + item.total, 0);
 
-            // Update cart title
-            if (cartTitle && cartTitle.innerHTML.includes('Cart')) {
-                cartTitle.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                        <path d="M17 17h-11v-14h-2"/>
-                        <path d="M6 5l14 1l-1 7h-13"/>
-                    </svg>
-                    Cart (${cartCount})
-                `;
+            // Update cart count in the title
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = cartCount;
             }
 
             if (cart.length === 0) {
                 if (emptyCart) emptyCart.style.display = 'block';
                 if (cartItems) cartItems.style.display = 'none';
+                if (cartAdjustments) cartAdjustments.style.display = 'none';
             } else {
                 if (emptyCart) emptyCart.style.display = 'none';
                 if (cartItems) {
                     cartItems.style.display = 'block';
+                    if (cartAdjustments) cartAdjustments.style.display = 'block';
+
                     cartItems.innerHTML = cart.map(item => `
                         <div class="cart-item">
                             <!-- Product Name and Remove Button -->
@@ -950,7 +996,7 @@
                                     ×
                                 </button>
                             </div>
-                            
+
                             <!-- Quantity Controls and Price -->
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <div class="d-flex align-items-center">
@@ -960,20 +1006,20 @@
                                 </div>
                                 <div class="cart-item-price fw-bold text-success" style="font-size: 14px;">LKR ${item.total.toLocaleString()}</div>
                             </div>
-                            
+
                             <!-- Serial Number and Warranty in Same Row -->
                             <div class="d-flex gap-2">
                                 <div class="flex-1">
-                                    <input type="text" 
-                                           class="form-control form-control-sm" 
-                                           placeholder="Serial number" 
-                                           value="${item.serial_number || ''}" 
-                                           oninput="updateSerial('${item.lineId}', this.value)" 
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Serial number"
+                                           value="${item.serial_number || ''}"
+                                           oninput="updateSerial('${item.lineId}', this.value)"
                                            style="font-size: 12px; padding: 6px 8px;">
                                 </div>
                                 <div style="min-width: 120px;">
-                                    <select class="form-select form-select-sm" 
-                                            onchange="updateWarranty('${item.lineId}', this.value)" 
+                                    <select class="form-select form-select-sm"
+                                            onchange="updateWarranty('${item.lineId}', this.value)"
                                             style="font-size: 12px; padding: 6px 8px;">
                                         <option value="" ${item.warranty_years == null ? 'selected' : ''}>No warranty</option>
                                         <option value="1" ${item.warranty_years == 1 ? 'selected' : ''}>1 year</option>
@@ -987,23 +1033,8 @@
                 }
             }
 
-            // Update totals
-            const subtotalRows = document.querySelectorAll('.row');
-            subtotalRows.forEach(row => {
-                const firstCol = row.querySelector('.col');
-                const lastCol = row.querySelector('.col-auto');
-                if (firstCol && lastCol) {
-                    if (firstCol.textContent.includes('Subtotal:')) {
-                        lastCol.textContent = `LKR ${cartTotal.toLocaleString()}`;
-                    }
-                    if (firstCol.textContent.includes('Total:')) {
-                        const strongElement = lastCol.querySelector('strong');
-                        if (strongElement) {
-                            strongElement.textContent = `LKR ${cartTotal.toLocaleString()}`;
-                        }
-                    }
-                }
-            });
+            // Update totals with discount and service charges
+            updateOrderTotals();
         }
 
         function removeFromCart(lineId) {
@@ -1044,7 +1075,50 @@
         function clearCart() {
             if (cart.length > 0 && confirm('Are you sure you want to clear the cart?')) {
                 cart = [];
+                // Reset discount and service charges
+                document.getElementById('discount-amount').value = '0';
+                document.getElementById('service-charges').value = '0';
                 updateCartDisplay();
+            }
+        }
+
+        // Function to update order totals including discount and service charges
+        function updateOrderTotals() {
+            const discountAmount = parseFloat(document.getElementById('discount-amount').value) || 0;
+            const serviceCharges = parseFloat(document.getElementById('service-charges').value) || 0;
+
+            const subtotalElement = document.getElementById('subtotal-amount');
+            const discountRow = document.getElementById('discount-row');
+            const discountDisplay = document.getElementById('discount-display');
+            const serviceRow = document.getElementById('service-row');
+            const serviceDisplay = document.getElementById('service-display');
+            const totalElement = document.getElementById('total-amount');
+
+            // Update subtotal
+            if (subtotalElement) {
+                subtotalElement.textContent = `LKR ${cartTotal.toLocaleString()}`;
+            }
+
+            // Show/hide and update discount
+            if (discountAmount > 0) {
+                if (discountRow) discountRow.style.display = 'flex';
+                if (discountDisplay) discountDisplay.textContent = `-LKR ${discountAmount.toLocaleString()}`;
+            } else {
+                if (discountRow) discountRow.style.display = 'none';
+            }
+
+            // Show/hide and update service charges
+            if (serviceCharges > 0) {
+                if (serviceRow) serviceRow.style.display = 'flex';
+                if (serviceDisplay) serviceDisplay.textContent = `+LKR ${serviceCharges.toLocaleString()}`;
+            } else {
+                if (serviceRow) serviceRow.style.display = 'none';
+            }
+
+            // Calculate and update final total
+            const finalTotal = cartTotal - discountAmount + serviceCharges;
+            if (totalElement) {
+                totalElement.textContent = `LKR ${finalTotal.toLocaleString()}`;
             }
         }
 
@@ -1162,6 +1236,7 @@
             const items = orderData.items;
             const subtotal = orderData.subtotal;
             const discount = orderData.discount;
+            const serviceCharges = orderData.service_charges;
             const total = orderData.total;
 
             // Generate receipt HTML
@@ -1223,10 +1298,16 @@
                         <span>Subtotal:</span>
                         <span>LKR ${subtotal.toLocaleString()}</span>
                     </div>
-                    ${discount > 0 ? `
+                    ${orderData.discount && orderData.discount > 0 ? `
                         <div class="total-row">
                             <span>Discount:</span>
-                            <span>-LKR ${discount.toLocaleString()}</span>
+                            <span>-LKR ${orderData.discount.toLocaleString()}</span>
+                        </div>
+                    ` : ''}
+                    ${orderData.service_charges && orderData.service_charges > 0 ? `
+                        <div class="total-row">
+                            <span>Service Charges:</span>
+                            <span>+LKR ${orderData.service_charges.toLocaleString()}</span>
                         </div>
                     ` : ''}
                     <div class="total-row final">
@@ -1310,7 +1391,7 @@
         // Function to update stock display after successful payment
         function updateStockDisplay(soldItems) {
             console.log('Updating stock display for items:', soldItems);
-            
+
             soldItems.forEach(soldItem => {
                 // Find the product card on the page
                 const productCard = document.querySelector(`[data-product-id="${soldItem.product_id}"]`);
@@ -1320,10 +1401,10 @@
                         const currentStockText = stockBadge.textContent;
                         const currentStock = parseInt(currentStockText.replace('Stock: ', ''));
                         const newStock = Math.max(0, currentStock - soldItem.quantity);
-                        
+
                         // Update the stock display
                         stockBadge.textContent = `Stock: ${newStock}`;
-                        
+
                         // Update the badge color based on stock level
                         stockBadge.className = 'badge rounded-pill';
                         if (newStock > 0) {
@@ -1336,7 +1417,7 @@
                             productCard.style.opacity = '0.6';
                             productCard.style.pointerEvents = 'none';
                         }
-                        
+
                         console.log(`Updated ${soldItem.product_name}: ${currentStock} → ${newStock}`);
                     }
                 }
@@ -1363,6 +1444,11 @@
             if (paymentAmountInput) {
                 paymentAmountInput.value = '';
             }
+
+            // Reset discount and service charges
+            document.getElementById('discount-amount').value = '0';
+            document.getElementById('service-charges').value = '0';
+            updateOrderTotals();
 
             // Close modal
             closeReceiptModal();
@@ -1427,6 +1513,8 @@
             document.getElementById('cart-items-input').value = cartData;
 
             console.log('Cart data being sent:', cartData);
+            console.log('Discount amount:', document.getElementById('discount-amount').value);
+            console.log('Service charges:', document.getElementById('service-charges').value);
 
             // Submit the form using AJAX to avoid redirect issues
             // Use the specific order form ID to avoid confusion with logout form
@@ -1476,7 +1564,7 @@
                         if (jsonResponse.soldItems && jsonResponse.soldItems.length > 0) {
                             updateStockDisplay(jsonResponse.soldItems);
                         }
-                        
+
                         // Clear cart and reset UI
                         const cartItemsBeforeClear = [...cart]; // Store cart items for potential stock update
                         cart = [];

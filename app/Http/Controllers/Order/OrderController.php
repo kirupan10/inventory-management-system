@@ -101,11 +101,15 @@ class OrderController extends Controller
             // Calculate totals from cart
             $cartItems = json_decode($request->cart_items, true);
             $subTotal = collect($cartItems)->sum('total');
+            $discountAmount = (float) ($request->discount_amount ?? 0);
+            $serviceCharges = (float) ($request->service_charges ?? 0);
             $vat = 0; // Assuming no VAT for now
-            $total = $subTotal + $vat;
+            $total = $subTotal - $discountAmount + $serviceCharges + $vat;
 
             $orderData['total_products'] = count($cartItems);
             $orderData['sub_total'] = (int) round($subTotal * 100); // Convert to cents
+            $orderData['discount_amount'] = (int) round($discountAmount * 100);
+            $orderData['service_charges'] = (int) round($serviceCharges * 100);
             $orderData['vat'] = (int) round($vat * 100);
             $orderData['total'] = (int) round($total * 100);
             $orderData['due'] = max(0, (int) round($total * 100) - (int) round($request->pay * 100));
@@ -232,7 +236,8 @@ class OrderController extends Controller
                             ];
                         }),
                         'subtotal' => $order->sub_total,
-                        'discount' => ($order->sub_total - $order->total),
+                        'discount' => $order->discount_amount,
+                        'service_charges' => $order->service_charges,
                         'total' => $order->total,
                     ],
                     'redirect_url' => route('orders.receipt', $order)

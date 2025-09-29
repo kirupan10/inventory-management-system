@@ -22,6 +22,8 @@ class Order extends Model
         'order_status',
         'total_products',
         'sub_total',
+        'discount_amount',
+        'service_charges',
         'vat',
         'total',
         'invoice_no',
@@ -59,6 +61,16 @@ class Order extends Model
     }
 
     public function getDueAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getDiscountAmountAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getServiceChargesAttribute($value)
     {
         return $value / 100;
     }
