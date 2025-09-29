@@ -12,6 +12,7 @@ class UnitController extends Controller
     {
         $units = Unit::query()
             ->select(['id', 'name', 'slug', 'short_code'])
+            ->latest()
             ->get();
 
         return view('units.index', [

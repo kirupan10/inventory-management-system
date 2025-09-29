@@ -13,7 +13,7 @@ class UserController extends Controller
     public function index()
     {
         // TODO: Select columns
-        $users = User::all();
+        $users = User::latest()->get();
 
         return view('users.index', [
             'users' => $users

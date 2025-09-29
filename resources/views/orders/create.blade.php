@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <form action="{{ route('invoice.create') }}" method="POST">
+        <form action="{{ route('orders.store') }}" method="POST">
             @csrf
             <!-- Hidden date field with current date -->
             <input name="date" id="date" type="hidden" value="{{ now()->format('Y-m-d') }}">
@@ -245,7 +245,7 @@
                                 <div class="row g-2 mb-3" id="payment-amount-section" style="display: none;">
                                     <div class="col">
                                         <label class="form-label fw-bold text-primary">Amount (LKR)</label>
-                                        <input type="number" id="payment-amount-input" class="form-control form-control-lg" step="0.01" min="0" placeholder="0.00" name="amount_received">
+                                        <input type="number" id="payment-amount-input" class="form-control form-control-lg" step="0.01" min="0" placeholder="0.00" name="pay">
                                     </div>
                                 </div>
 
