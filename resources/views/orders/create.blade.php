@@ -67,18 +67,7 @@
                                     </h3>
                                 </div>
                                 <div class="text-muted">
-                                    <small id="current-order-date">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"/>
-                                            <path d="M16 3v4"/>
-                                            <path d="M8 3v4"/>
-                                            <path d="M4 11h16"/>
-                                            <path d="M11 15h1"/>
-                                            <path d="M12 15v3"/>
-                                        </svg>
-                                        Order Date: <span id="order-date-display">{{ now()->format('d/m/Y, H:i:s') }}</span>
-                                    </small>
+
                                 </div>
                             </div>
                         </div>
@@ -844,19 +833,7 @@
                 dateField.value = dateTime.date;
             }
 
-            // Update the order date display
-            const orderDateDisplay = document.getElementById('order-date-display');
-            if (orderDateDisplay) {
-                orderDateDisplay.textContent = dateTime.formatted;
-            }
 
-            // Update the date display every second
-            setInterval(function() {
-                const currentDateTime = getCurrentDateTime();
-                if (orderDateDisplay) {
-                    orderDateDisplay.textContent = currentDateTime.formatted;
-                }
-            }, 1000);
 
             // Display current date and time in console
             console.log('Order form loaded at:', dateTime.formatted);
