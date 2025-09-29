@@ -50,9 +50,15 @@
                     </a>
                 </th>
                 <th scope="col" class="align-middle text-center">
-                    <a wire:click.prevent="sortBy('email')" href="#" role="button">
-                        {{ __('Email') }}
-                        @include('inclues._sort-icon', ['field' => 'email'])
+                    <a wire:click.prevent="sortBy('address')" href="#" role="button">
+                        {{ __('Address') }}
+                        @include('inclues._sort-icon', ['field' => 'address'])
+                    </a>
+                </th>
+                <th scope="col" class="align-middle text-center">
+                    <a wire:click.prevent="sortBy('phone')" href="#" role="button">
+                        {{ __('Phone') }}
+                        @include('inclues._sort-icon', ['field' => 'phone'])
                     </a>
                 </th>
                 <th scope="col" class="align-middle text-center">
@@ -70,7 +76,10 @@
                         {{ $customer->name }}
                     </td>
                     <td class="align-middle">
-                        {{ $customer->email }}
+                        {{ $customer->address ?? 'N/A' }}
+                    </td>
+                    <td class="align-middle">
+                        {{ $customer->phone ?? 'N/A' }}
                     </td>
                     <td class="align-middle text-center" style="width: 10%">
                         <x-button.show class="btn-icon" route="{{ route('customers.show', $customer) }}"/>
@@ -80,7 +89,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td class="align-middle text-center" colspan="8">
+                    <td class="align-middle text-center" colspan="5">
                         No results found
                     </td>
                 </tr>

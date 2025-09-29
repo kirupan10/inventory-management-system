@@ -38,7 +38,7 @@ class Customer extends Model
     public function scopeSearch($query, $value): void
     {
         $query->where('name', 'like', "%{$value}%")
-            ->orWhere('email', 'like', "%{$value}%")
+            ->orWhere('address', 'like', "%{$value}%")
             ->orWhere('phone', 'like', "%{$value}%");
     }
 }
