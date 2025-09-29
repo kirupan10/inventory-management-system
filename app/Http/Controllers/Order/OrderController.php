@@ -174,16 +174,41 @@ class OrderController extends Controller
 
             // Check if this is an AJAX request
             if ($request->ajax() || $request->wantsJson()) {
+                // Load the order with relationships for the receipt
+                $order->load(['customer', 'details.product']);
+                
                 return response()->json([
                     'success' => true,
                     'message' => 'Order has been created successfully!',
                     'order_id' => $order->id,
-                    'redirect_url' => route('orders.show', $order)
+                    'order' => [
+                        'id' => $order->id,
+                        'invoice_no' => $order->invoice_no,
+                        'order_date' => $order->order_date->format('d/m/Y, H:i:s'),
+                        'customer' => [
+                            'name' => $order->customer->name,
+                            'phone' => $order->customer->phone,
+                            'email' => $order->customer->email,
+                        ],
+                        'items' => $order->details->map(function($detail) {
+                            return [
+                                'name' => $detail->product->name,
+                                'code' => $detail->product->code,
+                                'quantity' => $detail->quantity,
+                                'price' => $detail->unitcost / 100,
+                                'total' => $detail->total / 100,
+                            ];
+                        }),
+                        'subtotal' => $order->sub_total,
+                        'discount' => ($order->sub_total - $order->total),
+                        'total' => $order->total,
+                    ],
+                    'redirect_url' => route('orders.receipt', $order)
                 ]);
             }
 
             return redirect()
-                ->route('orders.show', $order)
+                ->route('orders.receipt', $order)
                 ->with('success', 'Order has been created successfully!');
 
         } catch (\Exception $e) {
@@ -275,6 +300,15 @@ class OrderController extends Controller
             ->first();
 
         return view('orders.print-invoice', [
+            'order' => $order,
+        ]);
+    }
+
+    public function showReceipt(Order $order)
+    {
+        $order->loadMissing(['customer', 'details.product']);
+
+        return view('orders.pos-receipt', [
             'order' => $order,
         ]);
     }

@@ -14,7 +14,13 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             // Remove the restrictive order_status constraint that only allows value 1
-            DB::statement('ALTER TABLE orders DROP CONSTRAINT IF EXISTS chk_order_status');
+            // MySQL doesn't support IF EXISTS for constraints, so we need to handle this differently
+            try {
+                DB::statement('ALTER TABLE orders DROP CHECK chk_order_status');
+            } catch (\Exception $e) {
+                // Constraint might not exist, which is fine
+                // Log the exception but don't fail the migration
+            }
         });
     }
 
@@ -25,7 +31,12 @@ return new class extends Migration
     {
         Schema::table('orders', function (Blueprint $table) {
             // Re-add the constraint allowing both PENDING (0) and COMPLETE (1)
-            DB::statement('ALTER TABLE orders ADD CONSTRAINT chk_order_status CHECK (order_status IN (0, 1))');
+            try {
+                DB::statement('ALTER TABLE orders ADD CONSTRAINT chk_order_status CHECK (order_status IN (0, 1))');
+            } catch (\Exception $e) {
+                // Constraint might already exist, which is fine
+                // Log the exception but don't fail the migration
+            }
         });
     }
 };

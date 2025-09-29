@@ -304,6 +304,19 @@
     </div>
 </div>
 
+<!-- POS Receipt Modal -->
+<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <div class="modal-body p-0">
+                <div class="receipt-container" id="receipt-content">
+                    <!-- Receipt content will be loaded here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('page-styles')
@@ -396,6 +409,256 @@
         .ts-control.focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* POS Receipt Modal Styles */
+        .receipt-container {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 20px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: #cbd5e1;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: #f59e0b;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 24px;
+        }
+
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .company-address {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 2px;
+        }
+
+        .receipt-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            font-size: 12px;
+        }
+
+        .receipt-info div {
+            text-align: right;
+        }
+
+        .receipt-info div:first-child {
+            text-align: left;
+        }
+
+        .customer-section {
+            margin: 20px 0;
+            padding: 10px 0;
+            border-top: 1px dashed #ccc;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .customer-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .customer-info {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .customer-info div {
+            margin-bottom: 2px;
+        }
+
+        .items-section {
+            margin: 20px 0;
+        }
+
+        .items-header {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 8px;
+            font-weight: bold;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ccc;
+            font-size: 12px;
+        }
+
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 8px;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+            font-size: 11px;
+        }
+
+        .item-row:last-child {
+            border-bottom: none;
+        }
+
+        .item-details {
+            grid-column: 1;
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+            word-wrap: break-word;
+        }
+
+        .item-meta {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .warranty {
+            color: #3b82f6;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .totals-section {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .total-row.final {
+            font-weight: bold;
+            font-size: 14px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #ccc;
+        }
+
+        .print-actions {
+            margin-top: 20px;
+            text-align: center;
+            padding-top: 15px;
+            border-top: 1px dashed #ccc;
+        }
+
+        .print-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .print-btn:hover {
+            background: #2563eb;
+        }
+
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: #4b5563;
+        }
+
+        /* Print styles for modal */
+        @media print {
+            .modal {
+                position: static !important;
+                display: block !important;
+            }
+            
+            .modal-dialog {
+                margin: 0 !important;
+                max-width: none !important;
+                width: 80mm !important;
+            }
+            
+            .modal-content {
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+            
+            .receipt-container {
+                padding: 10px !important;
+            }
+            
+            .close-btn,
+            .print-actions {
+                display: none !important;
+            }
+            
+            body * {
+                visibility: hidden;
+            }
+            
+            #receiptModal, #receiptModal * {
+                visibility: visible;
+            }
+            
+            #receiptModal {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
         }
     </style>
 @endpush
@@ -762,6 +1025,151 @@
             });
         }
 
+        // Show receipt modal function
+        function showReceiptModal(orderData) {
+            // Use actual order data from server response
+            const customer = orderData.customer;
+            const invoiceNo = orderData.invoice_no;
+            const dateTime = orderData.order_date;
+            const items = orderData.items;
+            const subtotal = orderData.subtotal;
+            const discount = orderData.discount;
+            const total = orderData.total;
+
+            // Generate receipt HTML
+            const receiptHTML = `
+                <button class="close-btn" onclick="closeReceiptModal()" title="Close">&times;</button>
+                
+                <div class="receipt-header">
+                    <div class="company-logo">A</div>
+                    <div class="company-name">Aura PC Factory</div>
+                    <div class="company-address">Kodikama Road, Samiyan Arasady, Nellaidy.</div>
+                    <div class="company-address">+94770221046 | ikirupan@gmail.com</div>
+                </div>
+
+                <div class="receipt-info">
+                    <div>
+                        <strong>Receipt #:</strong><br>
+                        <strong>Date:</strong>
+                    </div>
+                    <div>
+                        ${invoiceNo}<br>
+                        ${dateTime}
+                    </div>
+                </div>
+
+                <div class="customer-section">
+                    <div class="customer-title">Customer Details</div>
+                    <div class="customer-info">
+                        <div><strong>Name:</strong> ${customer.name}</div>
+                        ${customer.phone ? `<div><strong>Phone:</strong> ${customer.phone}</div>` : ''}
+                        ${customer.email ? `<div><strong>Email:</strong> ${customer.email}</div>` : ''}
+                    </div>
+                </div>
+
+                <div class="items-section">
+                    <div class="items-header">
+                        <span>Item</span>
+                        <span>Qty</span>
+                        <span>Price</span>
+                        <span>Total</span>
+                    </div>
+
+                    ${items.map((item, index) => `
+                        <div class="item-row">
+                            <div class="item-details">
+                                <div class="item-name">${index + 1}. ${item.name}</div>
+                                <div class="item-meta">
+                                    ${item.code ? `S/N: ${item.code}<br>` : ''}
+                                    <span class="warranty">Warranty: 3 years</span>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">${item.quantity}</div>
+                            <div style="text-align: right;">LKR ${item.price.toLocaleString()}</div>
+                            <div style="text-align: right;">LKR ${item.total.toLocaleString()}</div>
+                        </div>
+                    `).join('')}
+
+                <div class="totals-section">
+                    <div class="total-row">
+                        <span>Subtotal:</span>
+                        <span>LKR ${subtotal.toLocaleString()}</span>
+                    </div>
+                    ${discount > 0 ? `
+                        <div class="total-row">
+                            <span>Discount:</span>
+                            <span>-LKR ${discount.toLocaleString()}</span>
+                        </div>
+                    ` : ''}
+                    <div class="total-row final">
+                        <span>TOTAL:</span>
+                        <span>LKR ${total.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <div class="print-actions">
+                    <button class="print-btn" onclick="printReceipt()">🖨️ Print Receipt</button>
+                    <button class="back-btn" onclick="startNewOrder()">← New Order</button>
+                </div>
+            `;
+
+            // Insert receipt content and show modal
+            document.getElementById('receipt-content').innerHTML = receiptHTML;
+            const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
+            receiptModal.show();
+        }
+
+        // Close receipt modal
+        function closeReceiptModal() {
+            const receiptModal = bootstrap.Modal.getInstance(document.getElementById('receiptModal'));
+            if (receiptModal) {
+                receiptModal.hide();
+            }
+        }
+
+        // Print receipt function
+        function printReceipt() {
+            window.print();
+        }
+
+        // Start new order function
+        function startNewOrder() {
+            // Clear cart and reset form
+            cart = [];
+            updateCartDisplay();
+            
+            // Reset customer selection
+            const customerSelect = document.getElementById('customer_id');
+            if (customerSelect.tomselect) {
+                customerSelect.tomselect.clear();
+            }
+            
+            // Reset payment method
+            document.querySelector('select[name="payment_type"]').value = 'Cash';
+            
+            // Reset payment amount
+            const paymentAmountInput = document.getElementById('payment-amount-input');
+            if (paymentAmountInput) {
+                paymentAmountInput.value = '';
+            }
+            
+            // Close modal
+            closeReceiptModal();
+            
+            // Show success message
+            showSuccessNotification('Ready for new order!');
+        }
+
+        // Handle escape key to close modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const receiptModal = bootstrap.Modal.getInstance(document.getElementById('receiptModal'));
+                if (receiptModal) {
+                    closeReceiptModal();
+                }
+            }
+        });
+
         // Submit order function
         function submitOrder() {
             console.log('Submit order called');
@@ -855,9 +1263,13 @@
                     console.log('� Server response:', jsonResponse);
 
                     if (jsonResponse.success) {
-                        alert('✅ Order created successfully!');
-                        // Optionally redirect to orders page
-                        // window.location.href = '/orders';
+                        // Show success message briefly, then show receipt modal
+                        showSuccessNotification('Order created successfully!');
+                        
+                        // Show receipt modal after a brief delay with actual order data
+                        setTimeout(() => {
+                            showReceiptModal(jsonResponse.order);
+                        }, 800);
                     } else {
                         alert('❌ Order creation failed: ' + (jsonResponse.message || 'Unknown error'));
                     }
