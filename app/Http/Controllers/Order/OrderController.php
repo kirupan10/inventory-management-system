@@ -113,6 +113,15 @@ class OrderController extends Controller
             // Convert pay to cents
             $orderData['pay'] = (int) round($request->pay * 100);
 
+            // Resolve default Walk-In Customer if not provided
+            if (empty($orderData['customer_id'])) {
+                $walkIn = Customer::firstOrCreate(
+                    ['name' => 'Walk-In Customer'],
+                    ['phone' => null, 'email' => null, 'address' => null]
+                );
+                $orderData['customer_id'] = $walkIn->id;
+            }
+
             $order = Order::create($orderData);
 
             // Create Order Details from cart items

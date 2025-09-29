@@ -17,7 +17,7 @@ class OrderStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'customer_id' => 'required|exists:customers,id',
+            'customer_id' => 'nullable|exists:customers,id',
             'payment_type' => 'required|in:Cash,Card,Bank Transfer',
             'pay' => 'nullable|numeric|min:0',
             'cart_items' => 'required|json|min:3',
@@ -29,7 +29,6 @@ class OrderStoreRequest extends FormRequest
     public function messages()
     {
         return [
-            'customer_id.required' => 'Please select a customer.',
             'customer_id.exists' => 'Selected customer does not exist.',
             'payment_type.required' => 'Please select a payment method.',
             'payment_type.in' => 'Invalid payment method selected.',

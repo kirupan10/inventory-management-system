@@ -132,9 +132,8 @@
                                 <label for="customer_id" class="form-label fw-bold">Customer</label>
                                 <div class="input-group">
                                     <select id="customer_id" name="customer_id"
-                                            class="form-select @error('customer_id') is-invalid @enderror"
-                                            required>
-                                        <option value="">Search customer by name, phone, or email</option>
+                                            class="form-select @error('customer_id') is-invalid @enderror">
+                                        <option value="">Walk-In Customer</option>
                                         @foreach($customers as $customer)
                                             <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>
                                                 {{ $customer->name }}@if($customer->phone) - {{ $customer->phone }}@endif
@@ -180,7 +179,7 @@
                                 </div>
                                 <div class="row mb-3">
                                     <div class="col"><strong>Total:</strong></div>
-                                    <div class="col-auto"><strong class="h4 text-primary">LKR 0.00</strong></div>
+                                    <div class="col-auto"><strong id="total-amount" class="h4 text-primary">LKR 0.00</strong></div>
                                 </div>
 
                                 <!-- Payment Method -->
@@ -199,6 +198,7 @@
                                         const paymentTypeSelect = document.querySelector('select[name="payment_type"]');
                                         const paymentAmountSection = document.getElementById('payment-amount-section');
                                         const paymentAmountInput = document.getElementById('payment-amount-input');
+                                        const completeBtn = document.getElementById('complete-payment-btn');
 
                                         // Create feedback element for balance/shortage
                                         let balanceFeedback = document.getElementById('balance-feedback');
@@ -209,22 +209,47 @@
                                             paymentAmountInput && paymentAmountInput.parentNode.appendChild(balanceFeedback);
                                         }
 
+                                        function sanitizeAmount(text) {
+                                            if (!text) return 0;
+                                            return parseFloat(String(text).replace(/[^0-9.]/g, '')) || 0;
+                                        }
+
                                         function updateBalanceFeedback() {
+                                            if (!paymentAmountInput) return;
                                             const enteredAmount = parseFloat(paymentAmountInput.value) || 0;
-                                            const totalAmount = parseFloat(document.getElementById('total-amount')?.textContent.replace('LKR ', '').replace(',', '')) || 0;
+                                            const totalText = document.getElementById('total-amount')?.textContent || '';
+                                            const totalAmount = sanitizeAmount(totalText);
                                             const diff = enteredAmount - totalAmount;
 
-                                            if (enteredAmount === 0) {
+                                            // Reset visual state
+                                            paymentAmountInput.classList.remove('is-invalid');
+                                            paymentAmountInput.classList.remove('is-valid');
+                                            paymentAmountInput.classList.remove('border-danger');
+                                            paymentAmountInput.classList.remove('border-info');
+
+                                            // Default: disable when no amount or zero
+                                            if (!enteredAmount) {
                                                 balanceFeedback.innerHTML = '';
+                                                if (completeBtn) completeBtn.disabled = true;
                                                 return;
                                             }
 
                                             if (diff < 0) {
+                                                // Not enough
                                                 balanceFeedback.innerHTML = `<span style="color: #dc2626; font-weight: 500;">Insufficient amount: LKR ${Math.abs(diff).toFixed(2)}</span>`;
-                                            } else if (diff > 0) {
-                                                balanceFeedback.innerHTML = `<span style="color: #2563eb; font-weight: 500;">Change to give: LKR ${diff.toFixed(2)}</span>`;
-                                            } else {
+                                                paymentAmountInput.classList.add('is-invalid');
+                                                paymentAmountInput.classList.add('border-danger');
+                                                if (completeBtn) completeBtn.disabled = true;
+                                            } else if (diff === 0) {
+                                                // Exact amount
                                                 balanceFeedback.innerHTML = '';
+                                                paymentAmountInput.classList.add('is-valid');
+                                                if (completeBtn) completeBtn.disabled = false;
+                                            } else {
+                                                // Change to give
+                                                balanceFeedback.innerHTML = `<span style="color: #2563eb; font-weight: 500;">Change to give: LKR ${diff.toFixed(2)}</span>`;
+                                                paymentAmountInput.classList.add('border-info');
+                                                if (completeBtn) completeBtn.disabled = false;
                                             }
                                         }
 
@@ -236,17 +261,27 @@
                                             paymentTypeSelect.addEventListener('change', function() {
                                                 if (this.value === 'Cash') {
                                                     paymentAmountSection.style.display = 'block';
+                                                    if (completeBtn) completeBtn.disabled = true; // wait for valid amount
+                                                    updateBalanceFeedback();
                                                 } else {
                                                     paymentAmountSection.style.display = 'none';
                                                     if (balanceFeedback) balanceFeedback.innerHTML = '';
+                                                    if (paymentAmountInput) {
+                                                        paymentAmountInput.value = '';
+                                                        paymentAmountInput.classList.remove('is-invalid','is-valid','border-danger','border-info');
+                                                    }
+                                                    if (completeBtn) completeBtn.disabled = false; // card/bank: allow
                                                 }
                                             });
                                             // Trigger change on load
                                             if (paymentTypeSelect.value === 'Cash') {
                                                 paymentAmountSection.style.display = 'block';
+                                                if (completeBtn) completeBtn.disabled = true;
+                                                updateBalanceFeedback();
                                             } else {
                                                 paymentAmountSection.style.display = 'none';
                                                 if (balanceFeedback) balanceFeedback.innerHTML = '';
+                                                if (completeBtn) completeBtn.disabled = false;
                                             }
                                         }
                                     });
@@ -1126,7 +1161,7 @@
                             <div class="item-details">
                                 <div class="item-name">${index + 1}. ${item.name}</div>
                                 <div class="item-meta">
-                                    ${item.serial_number ? `S/N: ${item.serial_number}<br>` : (item.code ? `S/N: ${item.code}<br>` : '')}
+                                    ${item.serial_number ? `S/N: ${item.serial_number}<br>` : ''}
                                     ${item.warranty_years && Number(item.warranty_years) > 0 ? `<span class="warranty">Warranty: ${item.warranty_years} ${Number(item.warranty_years) === 1 ? 'year' : 'years'}</span>` : ''}
                                 </div>
                             </div>
@@ -1276,10 +1311,7 @@
             console.log('Payment Type:', paymentType);
             console.log('Cart items:', cart);
 
-            if (!customerId) {
-                alert('Please select a customer');
-                return;
-            }
+            // If no customer selected, it will be saved as Walk-In Customer by server
 
             if (!paymentType) {
                 alert('Please select a payment method');

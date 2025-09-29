@@ -308,8 +308,6 @@
                     <div class="item-meta">
                         @if($item->serial_number)
                             S/N: {{ $item->serial_number }}<br>
-                        @elseif($item->product->code)
-                            S/N: {{ $item->product->code }}<br>
                         @endif
                         @if(!is_null($item->warranty_years) && $item->warranty_years > 0)
                             <span class="warranty">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</span>
