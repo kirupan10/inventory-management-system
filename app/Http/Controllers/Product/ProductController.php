@@ -46,10 +46,10 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $existingProduct = Product::where('code', $request->get('code'))->first();
-        
+
         if ($existingProduct) {
             $newCode = $this->generateUniqueCode();
-            
+
             $request->merge(['code' => $newCode]);
         }
 
@@ -89,7 +89,7 @@ class ProductController extends Controller
     {
         do {
             $code = 'PC' . strtoupper(uniqid());
-        } while (Product::where('code', $code)->exists()); 
+        } while (Product::where('code', $code)->exists());
 
         return $code;
     }

@@ -75,3 +75,18 @@ Route::get('test/', function (){
 //    return view('test');
     return view('orders.create');
 });
+
+Route::post('simple-test', function(\Illuminate\Http\Request $request) {
+    // Log all request data
+    \Log::info('Simple test route hit', [
+        'all_data' => $request->all(),
+        'customer_id' => $request->customer_id,
+        'payment_type' => $request->payment_type,
+        'cart_items' => $request->cart_items,
+        'method' => $request->method(),
+        'url' => $request->url(),
+        'ip' => $request->ip()
+    ]);
+
+    return response('<h1>SUCCESS!</h1><pre>' . json_encode($request->all(), JSON_PRETTY_PRINT) . '</pre>');
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);

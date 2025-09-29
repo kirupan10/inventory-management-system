@@ -10,7 +10,6 @@ use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Product;
 use Carbon\Carbon;
-use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,11 +28,7 @@ class OrderController extends Controller
 
     public function create()
     {
-        Cart::instance('order')
-            ->destroy();
-
         return view('orders.create', [
-            'carts' => Cart::content(),
             'customers' => Customer::all(['id', 'name', 'phone']),
             'products' => Product::with(['category', 'unit'])->get(),
         ]);
@@ -41,22 +36,95 @@ class OrderController extends Controller
 
     public function store(OrderStoreRequest $request)
     {
+        // Log the incoming request
+        \Log::info('Order store request received', [
+            'customer_id' => $request->customer_id,
+            'payment_type' => $request->payment_type,
+            'cart_items' => $request->cart_items,
+            'pay' => $request->pay
+        ]);
+
         DB::beginTransaction();
 
         try {
-            $order = Order::create($request->all());
+            // Get cart items from JSON
+            $cartItems = json_decode($request->cart_items, true);
 
-            // Create Order Details
-            $contents = Cart::instance('order')->content();
+            if (empty($cartItems)) {
+                \Log::warning('Empty cart items in order store');
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'No items in cart. Please add items before completing the order.');
+            }
+
+            // Validate stock availability before creating order
+            $stockErrors = [];
+            foreach ($cartItems as $item) {
+                $product = Product::find($item['id']);
+                if (!$product) {
+                    $stockErrors[] = "Product with ID {$item['id']} not found.";
+                    continue;
+                }
+
+                if ($product->quantity < $item['quantity']) {
+                    $stockErrors[] = "Insufficient stock for {$product->name}. Available: {$product->quantity}, Requested: {$item['quantity']}";
+                }
+            }
+
+            if (!empty($stockErrors)) {
+                \Log::warning('Stock validation failed', [
+                    'errors' => $stockErrors,
+                    'cart_items' => $cartItems
+                ]);
+
+                // Return JSON error for AJAX requests
+                if ($request->ajax() || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Stock validation failed: ' . implode(', ', $stockErrors)
+                    ], 400);
+                }
+
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Stock validation failed: ' . implode(', ', $stockErrors));
+            }
+
+            // Create order with explicit status and proper field mapping
+            $orderData = $request->validated();
+            $orderData['order_status'] = OrderStatus::PENDING; // New orders start as pending
+            $orderData['order_date'] = $request->date ?? now()->format('Y-m-d'); // Map date to order_date
+
+            // Calculate totals from cart
+            $cartItems = json_decode($request->cart_items, true);
+            $subTotal = collect($cartItems)->sum('total');
+            $vat = 0; // Assuming no VAT for now
+            $total = $subTotal + $vat;
+
+            $orderData['total_products'] = count($cartItems);
+            $orderData['sub_total'] = (int) round($subTotal * 100); // Convert to cents
+            $orderData['vat'] = (int) round($vat * 100);
+            $orderData['total'] = (int) round($total * 100);
+            $orderData['due'] = max(0, (int) round($total * 100) - (int) round($request->pay * 100));
+            $orderData['invoice_no'] = $request->reference . '-' . now()->format('YmdHis');
+
+            // Convert pay to cents
+            $orderData['pay'] = (int) round($request->pay * 100);
+
+            $order = Order::create($orderData);
+
+            // Create Order Details from cart items
             $orderDetails = [];
 
-            foreach ($contents as $content) {
+            foreach ($cartItems as $item) {
                 $orderDetails[] = [
                     'order_id' => $order->id,
-                    'product_id' => $content->id,
-                    'quantity' => $content->qty,
-                    'unitcost' => $content->price,
-                    'total' => $content->subtotal,
+                    'product_id' => $item['id'],
+                    'quantity' => $item['quantity'],
+                    'unitcost' => (int) round($item['price'] * 100), // Convert to cents
+                    'total' => (int) round($item['total'] * 100), // Convert to cents
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -65,26 +133,81 @@ class OrderController extends Controller
             // Bulk insert order details
             OrderDetails::insert($orderDetails);
 
-            // Clear cart
-            Cart::instance('order')->destroy();
+            // Update product inventory - reduce stock quantities
+            foreach ($cartItems as $item) {
+                $product = Product::find($item['id']);
+                if ($product) {
+                    $newQuantity = $product->quantity - $item['quantity'];
+
+                    // Ensure quantity doesn't go negative
+                    if ($newQuantity < 0) {
+                        \Log::warning('Product stock going negative', [
+                            'product_id' => $item['id'],
+                            'product_name' => $product->name,
+                            'current_stock' => $product->quantity,
+                            'ordered_quantity' => $item['quantity'],
+                            'order_id' => $order->id
+                        ]);
+                        $newQuantity = 0; // Set to 0 instead of negative
+                    }
+
+                    // Update product quantity
+                    $product->update(['quantity' => $newQuantity]);
+
+                    \Log::info('Product inventory updated', [
+                        'product_id' => $item['id'],
+                        'product_name' => $product->name,
+                        'old_quantity' => $product->quantity + $item['quantity'],
+                        'new_quantity' => $newQuantity,
+                        'ordered_quantity' => $item['quantity'],
+                        'order_id' => $order->id
+                    ]);
+                } else {
+                    \Log::error('Product not found for inventory update', [
+                        'product_id' => $item['id'],
+                        'order_id' => $order->id
+                    ]);
+                }
+            }
 
             DB::commit();
 
+            // Check if this is an AJAX request
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order has been created successfully!',
+                    'order_id' => $order->id,
+                    'redirect_url' => route('orders.show', $order)
+                ]);
+            }
+
             return redirect()
-                ->route('orders.index')
+                ->route('orders.show', $order)
                 ->with('success', 'Order has been created successfully!');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
+            \Log::error('Order creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Check if this is an AJAX request
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create order. Error: ' . $e->getMessage()
+                ], 500);
+            }
+
             return redirect()
                 ->back()
                 ->withInput()
-                ->with('error', 'Failed to create order. Please try again.');
+                ->with('error', 'Failed to create order. Please try again. Error: ' . $e->getMessage());
         }
-    }
-
-    public function show(Order $order)
+    }    public function show(Order $order)
     {
         $order->loadMissing(['customer', 'details.product']);
 

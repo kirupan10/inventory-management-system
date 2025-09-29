@@ -4,6 +4,17 @@
 <div class="page-body">
     <div class="container-fluid">
         <x-alert/>
+        
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <h6>Please fix the following errors:</h6>
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         <!-- POS Header -->
         <div class="row mb-3">
@@ -24,7 +35,7 @@
             </div>
         </div>
 
-        <form action="{{ route('orders.store') }}" method="POST">
+        <form id="order-form" action="{{ route('orders.store') }}" method="POST">
             @csrf
             <!-- Hidden date field with current date -->
             <input name="date" id="date" type="hidden" value="{{ now()->format('Y-m-d') }}">
@@ -252,7 +263,7 @@
                                 <!-- Action Buttons -->
                                 <div class="row g-2">
                                     <div class="col">
-                                        <button type="button" id="complete-payment-btn" class="btn btn-primary w-100 btn-lg" data-bs-toggle="modal" data-bs-target="#paymentModal">
+                                        <button type="button" id="complete-payment-btn" class="btn btn-primary w-100 btn-lg" onclick="submitOrder()">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                 <path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2"/>
@@ -269,10 +280,8 @@
                 </div>
             </div>
 
-            <!-- Include the Order Form Livewire Component (hidden for now) -->
-            <div style="display: none;">
-                <livewire:order-form :cart-instance="'order'" />
-            </div>
+            <!-- Hidden cart data -->
+            <input type="hidden" name="cart_items" id="cart-items-input" value="">
         </form>
     </div>
 </div>
@@ -445,6 +454,10 @@
             // Find a place to insert the time display (after the form header)
             const cardHeader = document.querySelector('.card-header');
             if (cardHeader) {
+                const currentTimeDisplay = document.createElement('small');
+                currentTimeDisplay.className = 'text-muted';
+                currentTimeDisplay.textContent = 'Order Date: ' + dateTime.formatted;
+                
                 const timeContainer = document.createElement('div');
                 timeContainer.className = 'mt-2';
                 timeContainer.appendChild(currentTimeDisplay);
@@ -668,31 +681,8 @@
             });
         }
 
-        // Payment validation handler
-        const completePaymentBtn = document.getElementById('complete-payment-btn');
-        const paymentModal = document.getElementById('paymentModal');
-
-        if (completePaymentBtn) {
-            completePaymentBtn.addEventListener('click', function() {
-                // Calculate total amount
-                const totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('LKR ', ''));
-
-                if (totalAmount <= 0 || cart.length === 0) {
-                    alert('Please add items to cart before completing payment.');
-                    return false;
-                }
-
-                // Get selected customer
-                const customerId = document.getElementById('customer_id').value;
-                if (!customerId) {
-                    alert('Please select a customer before proceeding with payment.');
-                    return false;
-                }
-
-                // Load payment processor component
-                loadPaymentProcessor();
-            });
-        }
+        // Payment validation handler - REMOVED conflicting event listener
+        // The button now uses only onclick="submitOrder()" to avoid conflicts
 
         function loadPaymentProcessor() {
             const customerId = document.getElementById('customer_id').value;
@@ -769,6 +759,125 @@
                 if (window.Livewire) {
                     Livewire.emit('reset-payment');
                 }
+            });
+        }
+
+        // Submit order function
+        function submitOrder() {
+            console.log('Submit order called');
+            
+            // Validate required fields
+            const customerId = document.getElementById('customer_id').value;
+            const paymentType = document.querySelector('select[name="payment_type"]').value;
+
+            console.log('Customer ID:', customerId);
+            console.log('Payment Type:', paymentType);
+            console.log('Cart items:', cart);
+
+            if (!customerId) {
+                alert('Please select a customer');
+                return;
+            }
+
+            if (!paymentType) {
+                alert('Please select a payment method');
+                return;
+            }
+
+            if (cart.length === 0) {
+                alert('Please add items to cart');
+                return;
+            }
+
+            // Handle payment amount
+            const payAmountInput = document.getElementById('payment-amount-input');
+            if (paymentType === 'Cash') {
+                const payAmount = payAmountInput.value;
+                if (!payAmount || parseFloat(payAmount) <= 0) {
+                    alert('Please enter payment amount');
+                    return;
+                }
+            } else {
+                // For non-cash payments, set pay amount to total
+                const cartTotalAmount = cart.reduce((sum, item) => sum + item.total, 0);
+                if (payAmountInput) {
+                    payAmountInput.value = cartTotalAmount;
+                }
+            }
+
+            // Populate hidden cart data
+            const cartData = JSON.stringify(cart);
+            document.getElementById('cart-items-input').value = cartData;
+            
+            console.log('Cart data being sent:', cartData);
+
+            // Submit the form using AJAX to avoid redirect issues
+            // Use the specific order form ID to avoid confusion with logout form
+            const form = document.getElementById('order-form');
+            if (!form) {
+                console.error('❌ Order form not found!');
+                alert('Error: Order form not found');
+                return;
+            }
+            const formData = new FormData(form);
+            
+            console.log('🔍 FORM DEBUG INFO:');
+            console.log('Form element:', form);
+            console.log('Form action attribute:', form.getAttribute('action'));
+            console.log('Form action property:', form.action);
+            console.log('Current URL:', window.location.href);
+            console.log('Form data:', Object.fromEntries(formData));
+            
+            // Force absolute URL to prevent any relative path issues
+            const targetUrl = form.action || 'http://127.0.0.1:8000/simple-test';
+            console.log('🚀 Final target URL:', targetUrl);
+            
+            fetch(targetUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.text(); // Get raw text first
+            })
+            .then(data => {
+                console.log('Raw response:', data);
+                
+                // Try to parse as JSON first (from OrderController)
+                try {
+                    const jsonResponse = JSON.parse(data);
+                    console.log('✅ JSON RESPONSE RECEIVED!');
+                    console.log('� Server response:', jsonResponse);
+                    
+                    if (jsonResponse.success) {
+                        alert('✅ Order created successfully!');
+                        // Optionally redirect to orders page
+                        // window.location.href = '/orders';
+                    } else {
+                        alert('❌ Order creation failed: ' + (jsonResponse.message || 'Unknown error'));
+                    }
+                } catch (e) {
+                    // Fallback for HTML responses (like our debug route)
+                    console.log('Response is not JSON, checking for SUCCESS marker');
+                    if (data.includes('SUCCESS!')) {
+                        console.log('✅ DEBUG SUCCESS RESPONSE!');
+                        alert('✅ SUCCESS! Check console for details.');
+                        const newWindow = window.open();
+                        newWindow.document.write(data);
+                    } else {
+                        console.log('❌ Unexpected response:', data);
+                        alert('❌ Got unexpected response. Check console for details.');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                alert('Network error: ' + error.message);
             });
         }
     </script>

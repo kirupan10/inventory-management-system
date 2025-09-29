@@ -37,6 +37,32 @@ class Order extends Model
         'order_status'  => OrderStatus::class
     ];
 
+    // Accessors to convert integer cents back to decimal currency
+    public function getSubTotalAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getVatAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getTotalAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getPayAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getDueAttribute($value)
+    {
+        return $value / 100;
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);

@@ -24,6 +24,17 @@ class OrderDetails extends Model
         'updated_at' => 'datetime',
     ];
 
+    // Accessors to convert integer cents back to decimal currency
+    public function getUnitcostAttribute($value)
+    {
+        return $value / 100;
+    }
+
+    public function getTotalAttribute($value)
+    {
+        return $value / 100;
+    }
+
     protected $with = ['product'];
 
     public function product(): BelongsTo
