@@ -98,13 +98,13 @@
                                 <div class="row g-2" style="margin: 0;">
                                     @foreach($products as $product)
                                     <div class="col-md-6 col-lg-4" style="padding: 0.25rem;">
-                                        <div class="card product-card {{ $product->quantity <= 0 ? 'out-of-stock' : 'cursor-pointer hover-shadow' }}" 
-                                             data-product-id="{{ $product->id }}" 
+                                        <div class="card product-card {{ $product->quantity <= 0 ? 'out-of-stock' : 'cursor-pointer hover-shadow' }}"
+                                             data-product-id="{{ $product->id }}"
                                              data-stock="{{ $product->quantity }}"
-                                             style="border: {{ $product->quantity <= 0 ? '2px solid #ef4444' : '1px solid #e9ecef' }}; 
-                                                    border-radius: 8px; 
-                                                    min-height: 50px; 
-                                                    width: 100%; 
+                                             style="border: {{ $product->quantity <= 0 ? '2px solid #ef4444' : '1px solid #e9ecef' }};
+                                                    border-radius: 8px;
+                                                    min-height: 50px;
+                                                    width: 100%;
                                                     {{ $product->quantity <= 0 ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
                                             <div class="card-body p-3">
                                                 <div class="text-start">
@@ -409,18 +409,18 @@
         .cursor-pointer { cursor: pointer; }
         .hover-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; }
         .product-card:hover { transform: translateY(-2px); transition: all 0.2s ease-in-out; }
-        
+
         /* Out of stock product styles */
         .out-of-stock {
             cursor: not-allowed !important;
             opacity: 0.6;
         }
-        
+
         .out-of-stock:hover {
             transform: none !important;
             box-shadow: none !important;
         }
-        
+
         .product-card:not(.out-of-stock):hover {
             border-color: #3b82f6 !important;
         }
@@ -912,12 +912,12 @@
                 if (this.classList.contains('out-of-stock')) {
                     // Show a more user-friendly message for out of stock products
                     const productName = this.querySelector('.fw-bold').textContent.replace('(Out of Stock)', '').trim();
-                    
+
                     // Create and show a toast notification instead of alert
                     showToast(`"${productName}" is currently out of stock and cannot be added to cart.`, 'error');
                     return;
                 }
-                
+
                 const productId = this.dataset.productId;
                 addToCart(productId, this);
             });
@@ -951,33 +951,33 @@
             // Get product name (handle both in-stock and out-of-stock cases)
             const productNameElement = productElement.querySelector('.fw-bold');
             const productName = productNameElement.textContent.replace('(Out of Stock)', '').trim();
-            
+
             // Get product price - try multiple selectors to be more robust
-            let priceElement = productElement.querySelector('.fw-bold.text-success') || 
+            let priceElement = productElement.querySelector('.fw-bold.text-success') ||
                               productElement.querySelector('.fw-bold.text-muted') ||
                               productElement.querySelector('.text-success') ||
                               productElement.querySelector('.text-muted');
-            
+
             let productPrice = 0;
             if (priceElement) {
                 // Clean price text: remove 'LKR ', commas, and any other non-numeric characters except decimal points
                 const priceText = priceElement.textContent.replace('LKR', '').replace(/,/g, '').trim();
                 productPrice = parseFloat(priceText);
-                
+
                 // If still NaN, try to find any numbers in the text
                 if (isNaN(productPrice)) {
                     const numbers = priceText.match(/[\d.]+/);
                     productPrice = numbers ? parseFloat(numbers[0]) : 0;
                 }
             }
-            
+
             // Debug log for troubleshooting
             console.log('Price parsing:', {
                 priceElement: priceElement ? priceElement.textContent : 'not found',
                 productPrice: productPrice,
                 productName: productName
             });
-            
+
             // Get stock from data attribute (more reliable)
             const stock = parseInt(productElement.dataset.stock || '0');
 
