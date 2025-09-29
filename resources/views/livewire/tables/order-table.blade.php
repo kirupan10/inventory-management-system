@@ -74,12 +74,6 @@
                         </a>
                     </th>
                     <th scope="col" class="align-middle text-center">
-                        <a wire:click.prevent="sortBy('order_status')" href="#" role="button">
-                            {{ __('Status') }}
-                            @include('inclues._sort-icon', ['field' => 'order_status'])
-                        </a>
-                    </th>
-                    <th scope="col" class="align-middle text-center">
                         {{ __('Action') }}
                     </th>
                 </tr>
@@ -105,13 +99,6 @@
                     <td class="align-middle text-center">
                         {{ Number::currency($order->total, 'EUR') }}
                     </td>
-                    <td class="align-middle text-center">
-                        <x-status dot color="{{ $order->order_status === \App\Enums\OrderStatus::COMPLETE ? 'green' : 'orange' }}"
-                                  class="text-uppercase"
-                        >
-                            {{ $order->order_status->label() }}
-                        </x-status>
-                    </td>
                     <td class="align-middle text-center" style="width: 10%">
                         <x-button.show class="btn-icon" route="{{ route('orders.show', $order) }}"/>
                         <x-button.edit class="btn-icon" route="{{ route('orders.edit', $order) }}"/>
@@ -121,7 +108,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td class="align-middle text-center" colspan="8">
+                    <td class="align-middle text-center" colspan="7">
                         No results found
                     </td>
                 </tr>
