@@ -98,22 +98,32 @@
                                 <div class="row g-2" style="margin: 0;">
                                     @foreach($products as $product)
                                     <div class="col-md-6 col-lg-4" style="padding: 0.25rem;">
-                                        <div class="card cursor-pointer hover-shadow product-card" data-product-id="{{ $product->id }}" style="border: 1px solid #e9ecef; border-radius: 8px; min-height: 50px; width: 100%;">
+                                        <div class="card product-card {{ $product->quantity <= 0 ? 'out-of-stock' : 'cursor-pointer hover-shadow' }}" 
+                                             data-product-id="{{ $product->id }}" 
+                                             data-stock="{{ $product->quantity }}"
+                                             style="border: {{ $product->quantity <= 0 ? '2px solid #ef4444' : '1px solid #e9ecef' }}; 
+                                                    border-radius: 8px; 
+                                                    min-height: 50px; 
+                                                    width: 100%; 
+                                                    {{ $product->quantity <= 0 ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
                                             <div class="card-body p-3">
                                                 <div class="text-start">
-                                                    <div class="fw-bold text-dark mb-1" style="font-size: 14px; line-height: 1.2; word-wrap: break-word;">
+                                                    <div class="fw-bold {{ $product->quantity <= 0 ? 'text-muted' : 'text-dark' }} mb-1" style="font-size: 14px; line-height: 1.2; word-wrap: break-word;">
                                                         {{ Str::limit($product->name, 25) }}
+                                                        @if($product->quantity <= 0)
+                                                            <small class="text-danger ms-1">(Out of Stock)</small>
+                                                        @endif
                                                     </div>
                                                     <div class="text-muted small mb-2" style="font-size: 11px;">
                                                         PRD-{{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}
                                                     </div>
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap;">
-                                                    <span class="fw-bold text-success" style="font-size: 14px; white-space: nowrap;">LKR {{ number_format($product->selling_price, 0) }}</span>
+                                                    <span class="fw-bold {{ $product->quantity <= 0 ? 'text-muted' : 'text-success' }}" style="font-size: 14px; white-space: nowrap;">LKR {{ number_format($product->selling_price, 0) }}</span>
                                                     @if($product->quantity > 0)
                                                         <span class="badge rounded-pill" style="background-color: #3b82f6; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Stock: {{ $product->quantity }}</span>
                                                     @else
-                                                        <span class="badge rounded-pill" style="background-color: #ef4444; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Stock: 0</span>
+                                                        <span class="badge rounded-pill" style="background-color: #ef4444; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Out of Stock</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -399,6 +409,21 @@
         .cursor-pointer { cursor: pointer; }
         .hover-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; }
         .product-card:hover { transform: translateY(-2px); transition: all 0.2s ease-in-out; }
+        
+        /* Out of stock product styles */
+        .out-of-stock {
+            cursor: not-allowed !important;
+            opacity: 0.6;
+        }
+        
+        .out-of-stock:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        .product-card:not(.out-of-stock):hover {
+            border-color: #3b82f6 !important;
+        }
         .cart-item {
             border-bottom: 1px solid #e9ecef;
             padding: 12px;
@@ -883,6 +908,16 @@
         // Add product click handlers
         document.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', function() {
+                // Check if product is out of stock
+                if (this.classList.contains('out-of-stock')) {
+                    // Show a more user-friendly message for out of stock products
+                    const productName = this.querySelector('.fw-bold').textContent.replace('(Out of Stock)', '').trim();
+                    
+                    // Create and show a toast notification instead of alert
+                    showToast(`"${productName}" is currently out of stock and cannot be added to cart.`, 'error');
+                    return;
+                }
+                
                 const productId = this.dataset.productId;
                 addToCart(productId, this);
             });
@@ -913,14 +948,49 @@
         }
 
         function addToCart(productId, productElement) {
-            const productName = productElement.querySelector('.fw-bold.text-dark').textContent;
-            const productPrice = parseFloat(productElement.querySelector('.text-success').textContent.replace('LKR ', '').replace(',', ''));
-            const stockElement = productElement.querySelector('.badge');
-            const stock = parseInt(stockElement.textContent.replace('Stock: ', ''));
+            // Get product name (handle both in-stock and out-of-stock cases)
+            const productNameElement = productElement.querySelector('.fw-bold');
+            const productName = productNameElement.textContent.replace('(Out of Stock)', '').trim();
+            
+            // Get product price - try multiple selectors to be more robust
+            let priceElement = productElement.querySelector('.fw-bold.text-success') || 
+                              productElement.querySelector('.fw-bold.text-muted') ||
+                              productElement.querySelector('.text-success') ||
+                              productElement.querySelector('.text-muted');
+            
+            let productPrice = 0;
+            if (priceElement) {
+                // Clean price text: remove 'LKR ', commas, and any other non-numeric characters except decimal points
+                const priceText = priceElement.textContent.replace('LKR', '').replace(/,/g, '').trim();
+                productPrice = parseFloat(priceText);
+                
+                // If still NaN, try to find any numbers in the text
+                if (isNaN(productPrice)) {
+                    const numbers = priceText.match(/[\d.]+/);
+                    productPrice = numbers ? parseFloat(numbers[0]) : 0;
+                }
+            }
+            
+            // Debug log for troubleshooting
+            console.log('Price parsing:', {
+                priceElement: priceElement ? priceElement.textContent : 'not found',
+                productPrice: productPrice,
+                productName: productName
+            });
+            
+            // Get stock from data attribute (more reliable)
+            const stock = parseInt(productElement.dataset.stock || '0');
 
-            // Check if product is disabled due to no stock
-            if (productElement.style.pointerEvents === 'none' || stock <= 0) {
-                alert('This product is out of stock!');
+            // Validate price
+            if (isNaN(productPrice) || productPrice <= 0) {
+                showToast(`Unable to add "${productName}" - invalid price information.`, 'error');
+                console.error('Invalid price for product:', productName, 'Price:', productPrice);
+                return;
+            }
+
+            // Double-check stock availability
+            if (stock <= 0 || productElement.classList.contains('out-of-stock')) {
+                showToast(`"${productName}" is currently out of stock and cannot be added to cart.`, 'error');
                 return;
             }
 
@@ -1082,6 +1152,42 @@
             }
         }
 
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            // Remove any existing toast
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `custom-toast alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 300px;
+                max-width: 500px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            toast.innerHTML = `
+                <strong>${type === 'error' ? 'Error:' : type === 'success' ? 'Success:' : 'Info:'}</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+
+            // Add to document
+            document.body.appendChild(toast);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                if (toast && toast.parentNode) {
+                    toast.remove();
+                }
+            }, 4000);
+        }
+
         // Function to update order totals including discount and service charges
         function updateOrderTotals() {
             const discountAmount = parseFloat(document.getElementById('discount-amount').value) || 0;
@@ -1127,7 +1233,9 @@
             const productCards = document.querySelectorAll('.product-card');
 
             productCards.forEach(card => {
-                const productName = card.querySelector('.fw-bold.text-dark').textContent.toLowerCase();
+                // Handle both in-stock (.text-dark) and out-of-stock (.text-muted) products
+                const productNameElement = card.querySelector('.fw-bold');
+                const productName = productNameElement.textContent.toLowerCase().replace('(out of stock)', '').trim();
 
                 if (productName.includes(searchTerm)) {
                     card.parentElement.style.display = 'block';

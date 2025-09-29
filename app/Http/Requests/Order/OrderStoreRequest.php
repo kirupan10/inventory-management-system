@@ -23,6 +23,7 @@ class OrderStoreRequest extends FormRequest
             'cart_items' => 'required|json|min:3',
             'date' => 'nullable|date',
             'reference' => 'nullable|string',
+            'invoice_no' => 'nullable|string',
         ];
     }
 
@@ -72,14 +73,29 @@ class OrderStoreRequest extends FormRequest
             'sub_total' => $subTotalInt,
             'vat' => $vatInt,
             'total' => $totalInt,
-            'invoice_no' => IdGenerator::generate([
-                'table' => 'orders',
-                'field' => 'invoice_no',
-                'length' => 10,
-                'prefix' => 'INV-',
-            ]),
+            'invoice_no' => $this->generateInvoiceNumber(),
             'pay' => $payInt,
             'due' => $dueInt,
         ]);
+    }
+
+    private function generateInvoiceNumber(): string
+    {
+        // Get the last order with the new ORDR00001 format (5 digits)
+        $lastOrder = \App\Models\Order::where('invoice_no', 'REGEXP', '^ORDR[0-9]{5}$')
+            ->orderBy('invoice_no', 'desc')
+            ->first();
+
+        if ($lastOrder) {
+            // Extract number from last invoice (e.g., ORDR00001 -> 1)
+            $lastNumber = (int) substr($lastOrder->invoice_no, 4);
+            $nextNumber = $lastNumber + 1;
+        } else {
+            // Start from 1 if no orders with new format exist
+            $nextNumber = 1;
+        }
+
+        // Format as ORDR00001, ORDR00002, etc.
+        return 'ORDR' . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 }

@@ -95,6 +95,7 @@ class OrderController extends Controller
 
             // Create order with explicit status and proper field mapping
             $orderData = $request->validated();
+            \Log::info('Validated order data:', $orderData);
             $orderData['order_status'] = OrderStatus::PENDING; // New orders start as pending
             $orderData['order_date'] = $request->date ?? now()->format('Y-m-d'); // Map date to order_date
 
@@ -113,7 +114,6 @@ class OrderController extends Controller
             $orderData['vat'] = (int) round($vat * 100);
             $orderData['total'] = (int) round($total * 100);
             $orderData['due'] = max(0, (int) round($total * 100) - (int) round($request->pay * 100));
-            $orderData['invoice_no'] = $request->reference . '-' . now()->format('YmdHis');
 
             // Convert pay to cents
             $orderData['pay'] = (int) round($request->pay * 100);
@@ -127,6 +127,7 @@ class OrderController extends Controller
                 $orderData['customer_id'] = $walkIn->id;
             }
 
+            \Log::info('Final order data before create:', $orderData);
             $order = Order::create($orderData);
 
             // Create Order Details from cart items
@@ -319,15 +320,6 @@ class OrderController extends Controller
                 ->back()
                 ->with('error', 'Failed to complete order. Please try again.');
         }
-    }
-
-    public function destroy(Order $order)
-    {
-        $order->delete();
-
-        return redirect()
-            ->route('orders.index')
-            ->with('success', 'Order has been deleted successfully!');
     }
 
     public function downloadInvoice($order)
