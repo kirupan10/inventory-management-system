@@ -29,10 +29,10 @@ class DatabaseSeeder extends Seeder
             ->recycle($orders)
             ->create();
 
-        $purchases = Purchase::factory(60)->create();
+        //$purchases = Purchase::factory(60)->create();
 
         $users = User::factory(10)
-            ->recycle($purchases)
+            //->recycle($purchases)
             ->create();
 
         $admin = User::factory()->create([
