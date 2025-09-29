@@ -409,14 +409,14 @@ class OrderController extends Controller
             // Try to merge PDFs using FPDI if available
             if (class_exists('setasign\Fpdi\Fpdi')) {
                 $mergedPdf = $this->mergePdfsWithFpdi($letterheadPath, $tempContentPath);
-                
+
                 // Clean up temp file
                 if (File::exists($tempContentPath)) {
                     File::delete($tempContentPath);
                 }
 
                 $filename = "Invoice_{$order->invoice_no}_{$order->order_date->format('Y-m-d')}.pdf";
-                
+
                 return response($mergedPdf, 200, [
                     'Content-Type' => 'application/pdf',
                     'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -437,24 +437,24 @@ class OrderController extends Controller
     private function mergePdfsWithFpdi($letterheadPath, $contentPath)
     {
         $fpdi = new Fpdi();
-        
+
         // Import letterhead PDF
         $fpdi->setSourceFile($letterheadPath);
         $letterheadTemplate = $fpdi->importPage(1);
-        
+
         // Import content PDF
         $fpdi->setSourceFile($contentPath);
         $contentTemplate = $fpdi->importPage(1);
-        
+
         // Create new page
         $fpdi->AddPage();
-        
+
         // Use letterhead as background
         $fpdi->useTemplate($letterheadTemplate);
-        
+
         // Overlay content
         $fpdi->useTemplate($contentTemplate);
-        
+
         return $fpdi->Output('S'); // Return as string
     }
 

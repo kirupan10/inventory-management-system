@@ -9,7 +9,7 @@
             $letterheadConfig = json_decode(file_get_contents(storage_path('app/letterhead_config.json')), true) ?? [];
             $hasLetterhead = isset($letterheadConfig['letterhead_file']) && $letterheadConfig['letterhead_file'];
             $positions = $letterheadConfig['positions'] ?? [];
-            
+
             // Convert positions array to associative array for easier lookup
             $positionMap = [];
             foreach ($positions as $pos) {
@@ -108,11 +108,11 @@
     <div class="page">
         @if($hasLetterhead)
             {{-- With Custom Letterhead - Use Positioned Elements --}}
-            
+
             {{-- Company Name --}}
             @if(isset($positionMap['company_name']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['company_name']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['company_name']['x'] ?? 50 }}px;
                 top: {{ $positionMap['company_name']['y'] ?? 50 }}px;
                 font-size: {{ $positionMap['company_name']['font_size'] ?? 16 }}px;
                 font-weight: {{ $positionMap['company_name']['font_weight'] ?? 'bold' }};
@@ -124,7 +124,7 @@
             {{-- Company Address --}}
             @if(isset($positionMap['company_address']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['company_address']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['company_address']['x'] ?? 50 }}px;
                 top: {{ $positionMap['company_address']['y'] ?? 80 }}px;
                 font-size: {{ $positionMap['company_address']['font_size'] ?? 12 }}px;
                 font-weight: {{ $positionMap['company_address']['font_weight'] ?? 'normal' }};
@@ -140,7 +140,7 @@
             {{-- Company Contact --}}
             @if(isset($positionMap['company_contact']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['company_contact']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['company_contact']['x'] ?? 50 }}px;
                 top: {{ $positionMap['company_contact']['y'] ?? 110 }}px;
                 font-size: {{ $positionMap['company_contact']['font_size'] ?? 10 }}px;
                 font-weight: {{ $positionMap['company_contact']['font_weight'] ?? 'normal' }};
@@ -152,7 +152,7 @@
             {{-- Invoice Number --}}
             @if(isset($positionMap['invoice_no']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['invoice_no']['x'] ?? 400 }}px; 
+                left: {{ $positionMap['invoice_no']['x'] ?? 400 }}px;
                 top: {{ $positionMap['invoice_no']['y'] ?? 50 }}px;
                 font-size: {{ $positionMap['invoice_no']['font_size'] ?? 12 }}px;
                 font-weight: {{ $positionMap['invoice_no']['font_weight'] ?? 'bold' }};
@@ -164,7 +164,7 @@
             {{-- Invoice Date --}}
             @if(isset($positionMap['invoice_date']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['invoice_date']['x'] ?? 400 }}px; 
+                left: {{ $positionMap['invoice_date']['x'] ?? 400 }}px;
                 top: {{ $positionMap['invoice_date']['y'] ?? 70 }}px;
                 font-size: {{ $positionMap['invoice_date']['font_size'] ?? 12 }}px;
                 font-weight: {{ $positionMap['invoice_date']['font_weight'] ?? 'normal' }};
@@ -176,7 +176,7 @@
             {{-- Customer Name --}}
             @if(isset($positionMap['customer_name']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['customer_name']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['customer_name']['x'] ?? 50 }}px;
                 top: {{ $positionMap['customer_name']['y'] ?? 150 }}px;
                 font-size: {{ $positionMap['customer_name']['font_size'] ?? 12 }}px;
                 font-weight: {{ $positionMap['customer_name']['font_weight'] ?? 'bold' }};
@@ -188,7 +188,7 @@
             {{-- Customer Phone --}}
             @if(isset($positionMap['customer_phone']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['customer_phone']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['customer_phone']['x'] ?? 50 }}px;
                 top: {{ $positionMap['customer_phone']['y'] ?? 170 }}px;
                 font-size: {{ $positionMap['customer_phone']['font_size'] ?? 11 }}px;
                 font-weight: {{ $positionMap['customer_phone']['font_weight'] ?? 'normal' }};
@@ -200,7 +200,7 @@
             {{-- Customer Address --}}
             @if(isset($positionMap['customer_address']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['customer_address']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['customer_address']['x'] ?? 50 }}px;
                 top: {{ $positionMap['customer_address']['y'] ?? 190 }}px;
                 font-size: {{ $positionMap['customer_address']['font_size'] ?? 11 }}px;
                 font-weight: {{ $positionMap['customer_address']['font_weight'] ?? 'normal' }};
@@ -213,7 +213,7 @@
             {{-- Customer Email --}}
             @if(isset($positionMap['customer_email']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['customer_email']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['customer_email']['x'] ?? 50 }}px;
                 top: {{ $positionMap['customer_email']['y'] ?? 210 }}px;
                 font-size: {{ $positionMap['customer_email']['font_size'] ?? 11 }}px;
                 font-weight: {{ $positionMap['customer_email']['font_weight'] ?? 'normal' }};
@@ -225,7 +225,7 @@
             {{-- Items Table --}}
             @if(isset($positionMap['items_table']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['items_table']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['items_table']['x'] ?? 50 }}px;
                 top: {{ $positionMap['items_table']['y'] ?? 240 }}px;
                 font-size: {{ $positionMap['items_table']['font_size'] ?? 11 }}px;
             ">
@@ -263,7 +263,7 @@
             {{-- Total Section --}}
             @if(isset($positionMap['total_section']))
             <div class="positioned-element" style="
-                left: {{ $positionMap['total_section']['x'] ?? 350 }}px; 
+                left: {{ $positionMap['total_section']['x'] ?? 350 }}px;
                 top: {{ $positionMap['total_section']['y'] ?? 520 }}px;
                 font-size: {{ $positionMap['total_section']['font_size'] ?? 12 }}px;
                 width: 200px;
@@ -296,7 +296,7 @@
             {{-- Warranty Section --}}
             @if(isset($positionMap['warranty_section']))
             <div class="positioned-element warranty-text" style="
-                left: {{ $positionMap['warranty_section']['x'] ?? 50 }}px; 
+                left: {{ $positionMap['warranty_section']['x'] ?? 50 }}px;
                 top: {{ $positionMap['warranty_section']['y'] ?? 600 }}px;
                 font-size: {{ $positionMap['warranty_section']['font_size'] ?? 9 }}px;
                 font-weight: {{ $positionMap['warranty_section']['font_weight'] ?? 'normal' }};

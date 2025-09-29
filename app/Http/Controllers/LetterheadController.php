@@ -43,7 +43,7 @@ class LetterheadController extends Controller
                 'preview_image' => $previewImage,
                 'uploaded_at' => now()->toISOString()
             ];
-            
+
             $this->saveLetterheadConfig($config);
 
             return response()->json(['success' => true, 'filename' => $filename, 'type' => $config['letterhead_type']]);
@@ -113,17 +113,17 @@ class LetterheadController extends Controller
             $imagick->setImageFormat('png');
             $imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
             $imagick->setImageBackgroundColor('white');
-            
+
             // Resize to A4 proportions (595x842 at 72 DPI equivalent)
             $imagick->resizeImage(595, 842, Imagick::FILTER_LANCZOS, 1);
-            
+
             $previewFilename = 'letterhead_preview.png';
             $previewPath = public_path('letterheads/' . $previewFilename);
-            
+
             $imagick->writeImage($previewPath);
             $imagick->clear();
             $imagick->destroy();
-            
+
             return $previewFilename;
         } catch (\Exception $e) {
             // Log the error and return null

@@ -56,7 +56,7 @@
                                             $fileExtension = pathinfo($config['letterhead_file'], PATHINFO_EXTENSION);
                                             $isPdf = strtolower($fileExtension) === 'pdf';
                                         @endphp
-                                        
+
                                         @if($isPdf)
                                             <div class="pdf-preview" style="border: 1px solid #ddd; padding: 10px; text-align: center; background: #f8f9fa;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-danger mb-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -99,7 +99,7 @@
                             <div class="col-12">
                                 <h4>3. Position Text Elements</h4>
                                 <p class="text-muted mb-3">Click and drag the elements on the preview to position them precisely on your letterhead.</p>
-                                
+
                                 @if(isset($config['letterhead_file']) && $config['letterhead_file'])
                                 <div class="position-editor-container">
                                     <div class="row">
@@ -108,7 +108,7 @@
                                                 @php
                                                     $letterheadType = $config['letterhead_type'] ?? 'image';
                                                     $previewImage = $config['preview_image'] ?? null;
-                                                    
+
                                                     // Determine which image to use for positioning
                                                     if ($letterheadType === 'pdf' && $previewImage) {
                                                         $positioningImage = 'letterheads/' . $previewImage;
@@ -120,13 +120,13 @@
                                                         $showImage = true;
                                                     }
                                                 @endphp
-                                                
+
                                                 @if($showImage)
-                                                    <img src="{{ asset($positioningImage) }}" 
-                                                         alt="Letterhead {{ $letterheadType === 'pdf' ? '(PDF Preview)' : '' }}" 
-                                                         id="letterheadImage" 
+                                                    <img src="{{ asset($positioningImage) }}"
+                                                         alt="Letterhead {{ $letterheadType === 'pdf' ? '(PDF Preview)' : '' }}"
+                                                         id="letterheadImage"
                                                          style="width: 100%; max-width: 595px; height: auto; position: relative;">
-                                                    
+
                                                     @if($letterheadType === 'pdf')
                                                     <div class="alert alert-info mt-2">
                                                         <small><strong>Note:</strong> This is a preview of your PDF letterhead for positioning elements. The actual PDF will be used in the final invoice.</small>
@@ -134,18 +134,18 @@
                                                     @endif
                                                 @else
                                                     {{-- PDF without preview - show blank canvas --}}
-                                                    <div id="letterheadImage" 
+                                                    <div id="letterheadImage"
                                                          style="width: 595px; height: 842px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #dee2e6; position: relative; overflow: hidden;">
-                                                        
+
                                                         {{-- Grid pattern for positioning guide --}}
-                                                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-                                                                    background-image: 
+                                                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                                                                    background-image:
                                                                         linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
                                                                         linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
                                                                     background-size: 50px 50px; opacity: 0.3; z-index: 1;"></div>
-                                                        
+
                                                         {{-- Center guidance --}}
-                                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
                                                                     text-align: center; color: #6c757d; z-index: 2;">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -159,23 +159,23 @@
                                                             <div>A4 Size (595 x 842 px)</div>
                                                             <small>Drag elements to position them<br>Your PDF background will show in final invoice</small>
                                                         </div>
-                                                        
+
                                                         {{-- Corner markers --}}
-                                                        <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; 
+                                                        <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 20px;
                                                                     border-top: 2px solid #007bff; border-left: 2px solid #007bff; z-index: 2;"></div>
-                                                        <div style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; 
+                                                        <div style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px;
                                                                     border-top: 2px solid #007bff; border-right: 2px solid #007bff; z-index: 2;"></div>
-                                                        <div style="position: absolute; bottom: 10px; left: 10px; width: 20px; height: 20px; 
+                                                        <div style="position: absolute; bottom: 10px; left: 10px; width: 20px; height: 20px;
                                                                     border-bottom: 2px solid #007bff; border-left: 2px solid #007bff; z-index: 2;"></div>
-                                                        <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; 
+                                                        <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px;
                                                                     border-bottom: 2px solid #007bff; border-right: 2px solid #007bff; z-index: 2;"></div>
                                                     </div>
-                                                    
+
                                                     <div class="alert alert-warning mt-2">
                                                         <small><strong>PDF Letterhead Positioning:</strong> Use the grid above to position elements. Your PDF letterhead will be used as the background in the final invoice. Preview generation requires ImageMagick extension.</small>
                                                     </div>
                                                 @endif
-                                                
+
                                                 <!-- Draggable elements will be added here via JavaScript -->
                                             </div>
                                         </div>
@@ -226,18 +226,18 @@
                                             </div>
                                             <div class="position-editor" id="positionEditor">
                                                 {{-- Default blank canvas for positioning --}}
-                                                <div id="letterheadImage" 
+                                                <div id="letterheadImage"
                                                      style="width: 595px; height: 842px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #dee2e6; position: relative; overflow: hidden;">
-                                                    
+
                                                     {{-- Grid pattern for positioning guide --}}
-                                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-                                                                background-image: 
+                                                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+                                                                background-image:
                                                                     linear-gradient(rgba(0,0,0,.1) 1px, transparent 1px),
                                                                     linear-gradient(90deg, rgba(0,0,0,.1) 1px, transparent 1px);
                                                                 background-size: 50px 50px; opacity: 0.3; z-index: 1;"></div>
-                                                    
+
                                                     {{-- Center guidance --}}
-                                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                                                    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
                                                                 text-align: center; color: #6c757d; z-index: 2;">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -251,20 +251,20 @@
                                                         <div>A4 Size (595 x 842 px)</div>
                                                         <small>Position elements, then upload letterhead later<br>Your settings will be preserved</small>
                                                     </div>
-                                                    
+
                                                     {{-- Corner markers --}}
-                                                    <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 20px; 
+                                                    <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 20px;
                                                                 border-top: 2px solid #007bff; border-left: 2px solid #007bff; z-index: 2;"></div>
-                                                    <div style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px; 
+                                                    <div style="position: absolute; top: 10px; right: 10px; width: 20px; height: 20px;
                                                                 border-top: 2px solid #007bff; border-right: 2px solid #007bff; z-index: 2;"></div>
-                                                    <div style="position: absolute; bottom: 10px; left: 10px; width: 20px; height: 20px; 
+                                                    <div style="position: absolute; bottom: 10px; left: 10px; width: 20px; height: 20px;
                                                                 border-bottom: 2px solid #007bff; border-left: 2px solid #007bff; z-index: 2;"></div>
-                                                    <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px; 
+                                                    <div style="position: absolute; bottom: 10px; right: 10px; width: 20px; height: 20px;
                                                                 border-bottom: 2px solid #007bff; border-right: 2px solid #007bff; z-index: 2;"></div>
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="col-md-4">
                                             <div class="card">
                                                 <div class="card-header">
@@ -274,7 +274,7 @@
                                                     <p class="text-muted">Click on any element to edit its properties</p>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="mt-3">
                                                 <button id="savePositions" class="btn btn-success w-100">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -320,7 +320,7 @@
     min-height: 35px;
     user-select: none;
     border-radius: 6px;
-    box-shadow: 
+    box-shadow:
         0 4px 8px rgba(0,0,0,0.2),
         0 2px 4px rgba(0,123,255,0.3),
         inset 0 1px 0 rgba(255,255,255,0.2);
@@ -333,7 +333,7 @@
 .draggable-element:hover {
     background: linear-gradient(135deg, rgba(0, 123, 255, 1) 0%, rgba(0, 86, 179, 0.95) 100%);
     transform: scale(1.05);
-    box-shadow: 
+    box-shadow:
         0 6px 12px rgba(0,0,0,0.3),
         0 3px 6px rgba(0,123,255,0.4),
         inset 0 1px 0 rgba(255,255,255,0.3);
@@ -341,7 +341,7 @@
 
 .draggable-element.dragging {
     transform: rotate(2deg) scale(1.1);
-    box-shadow: 
+    box-shadow:
         0 8px 16px rgba(0,0,0,0.4),
         0 4px 8px rgba(0,123,255,0.5);
     z-index: 1001;
@@ -395,9 +395,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form submission for letterhead upload
     document.getElementById('letterheadForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         const formData = new FormData(this);
-        
+
         fetch('{{ route("letterhead.upload") }}', {
             method: 'POST',
             body: formData,
@@ -430,23 +430,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeDraggableElements() {
         const editor = document.getElementById('positionEditor');
         const container = document.getElementById('letterheadImage');
-        
+
         console.log('Editor:', editor);
         console.log('Container:', container);
         console.log('Container tagName:', container ? container.tagName : 'null');
-        
+
         if (!container) {
             console.error('No letterheadImage container found!');
             return;
         }
-        
+
         if (container.tagName === 'IMG') {
             // Wait for image to load to get correct dimensions
             container.onload = function() {
                 console.log('Image loaded, creating elements...');
                 createDraggableElements();
             };
-            
+
             if (container.complete) {
                 console.log('Image already complete, creating elements...');
                 createDraggableElements();
@@ -462,12 +462,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const positions = @json($config['positions'] ?? []);
         const editor = document.getElementById('positionEditor');
         const container = document.getElementById('letterheadImage');
-        
+
         console.log('Creating draggable elements...');
         console.log('Positions data:', positions);
         console.log('Editor element:', editor);
         console.log('Container element:', container);
-        
+
         if (!positions || positions.length === 0) {
             console.error('No positions data found! Creating default elements...');
             // Create default elements as fallback
@@ -483,12 +483,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             return;
         }
-        
+
         positions.forEach((pos, index) => {
             console.log(`Creating element ${index + 1}:`, pos);
             createDraggableElement(pos, editor, container);
         });
-        
+
         console.log('Finished creating all draggable elements');
     }
 
@@ -496,14 +496,14 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Creating element for field:', position.field);
         console.log('Position data:', position);
         console.log('Container for element:', container);
-        
+
         const element = document.createElement('div');
         element.className = 'draggable-element';
         element.dataset.field = position.field;
-        
+
         // Calculate position relative to container size
         let containerWidth, containerHeight;
-        
+
         if (container.tagName === 'IMG') {
             containerWidth = container.offsetWidth;
             containerHeight = container.offsetHeight;
@@ -512,29 +512,29 @@ document.addEventListener('DOMContentLoaded', function() {
             containerWidth = 595; // A4 width in pixels
             containerHeight = 842; // A4 height in pixels
         }
-        
+
         const x = (position.x / 595) * containerWidth;
         const y = (position.y / 842) * containerHeight;
-        
+
         element.style.left = x + 'px';
         element.style.top = y + 'px';
         element.style.fontSize = (position.font_size || 12) + 'px';
         element.style.fontWeight = position.font_weight || 'normal';
         element.style.zIndex = '10'; // Ensure elements are above the background
-        
+
         element.innerHTML = `
             <div class="element-label">${position.field.replace('_', ' ').toUpperCase()}</div>
             <div class="element-content">${getSampleContent(position.field)}</div>
             <div class="position-coordinates">${Math.round(position.x)}, ${Math.round(position.y)}</div>
         `;
-        
+
         // Add event listeners
         element.addEventListener('mousedown', handleMouseDown);
         element.addEventListener('click', function(e) {
             e.stopPropagation();
             selectElement(element);
         });
-        
+
         console.log('Appending element to container:', element);
         console.log('Container:', container);
         container.appendChild(element);
@@ -564,27 +564,27 @@ document.addEventListener('DOMContentLoaded', function() {
         isDragging = true;
         selectedElement = e.currentTarget;
         selectedElement.classList.add('dragging');
-        
+
         const rect = selectedElement.getBoundingClientRect();
         dragOffset.x = e.clientX - rect.left;
         dragOffset.y = e.clientY - rect.top;
-        
+
         selectElement(selectedElement);
-        
+
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
     }
 
     function handleMouseMove(e) {
         if (!isDragging || !selectedElement) return;
-        
+
         const editor = document.getElementById('positionEditor');
         const editorRect = editor.getBoundingClientRect();
         const container = document.getElementById('letterheadImage');
-        
+
         let x = e.clientX - editorRect.left - dragOffset.x;
         let y = e.clientY - editorRect.top - dragOffset.y;
-        
+
         // Get container dimensions
         let containerWidth, containerHeight;
         if (container.tagName === 'IMG') {
@@ -594,21 +594,21 @@ document.addEventListener('DOMContentLoaded', function() {
             containerWidth = 595;
             containerHeight = 842;
         }
-        
+
         // Constrain to container bounds
         x = Math.max(0, Math.min(x, containerWidth - selectedElement.offsetWidth));
         y = Math.max(0, Math.min(y, containerHeight - selectedElement.offsetHeight));
-        
+
         selectedElement.style.left = x + 'px';
         selectedElement.style.top = y + 'px';
-        
+
         // Update coordinates display
         const actualX = (x / containerWidth) * 595;
         const actualY = (y / containerHeight) * 842;
-        
+
         const coordsElement = selectedElement.querySelector('.position-coordinates');
         coordsElement.textContent = `${Math.round(actualX)}, ${Math.round(actualY)}`;
-        
+
         // Update properties panel
         updatePropertiesPanel(selectedElement, actualX, actualY);
     }
@@ -627,14 +627,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.draggable-element').forEach(el => {
             el.classList.remove('selected');
         });
-        
+
         element.classList.add('selected');
         selectedElement = element;
-        
+
         // Update properties panel
         const container = document.getElementById('letterheadImage');
         let containerWidth;
-        
+
         if (container.tagName === 'IMG') {
             containerWidth = container.offsetWidth;
             containerHeight = container.offsetHeight;
@@ -642,10 +642,10 @@ document.addEventListener('DOMContentLoaded', function() {
             containerWidth = 595;
             containerHeight = 842;
         }
-        
+
         const x = (parseFloat(element.style.left) / containerWidth) * 595;
         const y = (parseFloat(element.style.top) / containerHeight) * 842;
-        
+
         updatePropertiesPanel(element, x, y);
     }
 
@@ -654,7 +654,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const field = element.dataset.field;
         const fontSize = parseFloat(element.style.fontSize) || 12;
         const fontWeight = element.style.fontWeight || 'normal';
-        
+
         panel.innerHTML = `
             <div class="mb-3">
                 <label class="form-label">Field</label>
@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </select>
             </div>
         `;
-        
+
         // Add event listeners for property changes
         document.getElementById('posX').addEventListener('input', updateElementPosition);
         document.getElementById('posY').addEventListener('input', updateElementPosition);
@@ -690,11 +690,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateElementPosition() {
         if (!selectedElement) return;
-        
+
         const x = parseInt(document.getElementById('posX').value);
         const y = parseInt(document.getElementById('posY').value);
         const container = document.getElementById('letterheadImage');
-        
+
         let containerWidth, containerHeight;
         if (container.tagName === 'IMG') {
             containerWidth = container.offsetWidth;
@@ -703,23 +703,23 @@ document.addEventListener('DOMContentLoaded', function() {
             containerWidth = 595;
             containerHeight = 842;
         }
-        
+
         const pixelX = (x / 595) * containerWidth;
         const pixelY = (y / 842) * containerHeight;
-        
+
         selectedElement.style.left = pixelX + 'px';
         selectedElement.style.top = pixelY + 'px';
-        
+
         const coordsElement = selectedElement.querySelector('.position-coordinates');
         coordsElement.textContent = `${x}, ${y}`;
     }
 
     function updateElementStyle() {
         if (!selectedElement) return;
-        
+
         const fontSize = document.getElementById('fontSize').value;
         const fontWeight = document.getElementById('fontWeight').value;
-        
+
         selectedElement.style.fontSize = fontSize + 'px';
         selectedElement.style.fontWeight = fontWeight;
     }
@@ -729,7 +729,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const elements = document.querySelectorAll('.draggable-element');
         const positions = [];
         const container = document.getElementById('letterheadImage');
-        
+
         let containerWidth, containerHeight;
         if (container.tagName === 'IMG') {
             containerWidth = container.offsetWidth;
@@ -738,11 +738,11 @@ document.addEventListener('DOMContentLoaded', function() {
             containerWidth = 595;
             containerHeight = 842;
         }
-        
+
         elements.forEach(element => {
             const x = (parseFloat(element.style.left) / containerWidth) * 595;
             const y = (parseFloat(element.style.top) / containerHeight) * 842;
-            
+
             positions.push({
                 field: element.dataset.field,
                 x: Math.round(x),
@@ -751,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 font_weight: element.style.fontWeight || 'normal'
             });
         });
-        
+
         fetch('{{ route("letterhead.save-positions") }}', {
             method: 'POST',
             headers: {
@@ -796,9 +796,9 @@ document.addEventListener('DOMContentLoaded', function() {
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         document.body.appendChild(toast);
-        
+
         setTimeout(() => {
             toast.remove();
         }, 5000);
