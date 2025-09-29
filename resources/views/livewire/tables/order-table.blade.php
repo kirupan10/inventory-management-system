@@ -112,9 +112,11 @@
                             {{ $order->order_status->label() }}
                         </x-status>
                     </td>
-                    <td class="align-middle text-center" style="width: 5%">
+                    <td class="align-middle text-center" style="width: 10%">
                         <x-button.show class="btn-icon" route="{{ route('orders.show', $order) }}"/>
+                        <x-button.edit class="btn-icon" route="{{ route('orders.edit', $order) }}"/>
                         <x-button.print class="btn-icon" route="{{ route('order.downloadInvoice', $order) }}"/>
+                        <x-button.delete class="btn-icon" route="{{ route('orders.destroy', $order) }}"/>
                     </td>
                 </tr>
             @empty

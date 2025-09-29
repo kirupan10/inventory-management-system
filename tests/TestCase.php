@@ -5,7 +5,6 @@ namespace Tests;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
-use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\User;
 use Illuminate\Foundation\Testing\Concerns\InteractsWithExceptionHandling;
@@ -51,13 +50,6 @@ abstract class TestCase extends BaseTestCase
     {
         return Customer::factory()->create([
             'name' => 'Customer 1'
-        ]);
-    }
-
-    public function createSupplier()
-    {
-        return Supplier::create([
-            'name' => 'Thomann'
         ]);
     }
 }

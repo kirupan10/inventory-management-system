@@ -35,9 +35,11 @@
                         <div class="position-relative">
                             <input type="text"
                                    wire:model.live.debounce.300ms="invoiceProducts.{{$index}}.product_search"
+                                   wire:focus="focusSearch({{$index}})"
+                                   wire:blur="blurSearch({{$index}})"
                                    id="product_search_{{$index}}"
                                    class="product-search-input form-control @error('invoiceProducts.' . $index . '.product_id') is-invalid @enderror"
-                                   placeholder="Start typing to search products..."
+                                   placeholder="Click to see products or start typing to search..."
                                    autocomplete="off"
                             >
 
@@ -49,14 +51,14 @@
                             <!-- Hot Search Results Dropdown -->
                             <div class="product-search-results position-absolute w-100"
                                  id="search_results_{{$index}}"
-                                 style="top: 100%; z-index: 1000; max-height: 350px; overflow-y: auto; display: {{ (isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0) ? 'block' : 'none' }};"
+                                 style="top: 100%; z-index: 1000; max-height: 350px; overflow-y: auto; display: {{ (isset($searchFocused[$index]) && $searchFocused[$index]) || (isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0) ? 'block' : 'none' }};"
                                  >
 
                                 @php
                                     $filteredProducts = $this->getFilteredProducts($index);
                                 @endphp
 
-                                @if(isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0)
+                                @if((isset($searchFocused[$index]) && $searchFocused[$index]) || (isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0))
                                     @if($filteredProducts->count() > 0)
                                         <div class="bg-white border border-top-0 rounded-bottom shadow">
                                             @foreach($filteredProducts as $product)
@@ -89,9 +91,13 @@
                                             <!-- Quick stats at bottom -->
                                             <div class="p-2 bg-light border-top">
                                                 <small class="text-muted">
-                                                    Showing {{ $filteredProducts->count() }} results
-                                                    @if($this->allProducts->count() > $filteredProducts->count())
-                                                        of {{ $this->allProducts->count() }} total products
+                                                    @if(isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0)
+                                                        Showing {{ $filteredProducts->count() }} search results
+                                                        @if($this->allProducts->count() > $filteredProducts->count())
+                                                            of {{ $this->allProducts->count() }} total products
+                                                        @endif
+                                                    @else
+                                                        Showing first {{ $filteredProducts->count() }} products - start typing to search
                                                     @endif
                                                 </small>
                                             </div>
@@ -99,11 +105,19 @@
                                     @else
                                         <div class="bg-white border border-top-0 rounded-bottom shadow">
                                             <div class="p-3 text-center">
-                                                <div class="text-muted">
-                                                    <i class="ti ti-search"></i>
-                                                    No products found for "{{ $invoiceProducts[$index]['product_search'] }}"
-                                                </div>
-                                                <small class="text-muted">Try a different search term</small>
+                                                @if(isset($invoiceProducts[$index]['product_search']) && strlen($invoiceProducts[$index]['product_search']) > 0)
+                                                    <div class="text-muted">
+                                                        <i class="ti ti-search"></i>
+                                                        No products found for "{{ $invoiceProducts[$index]['product_search'] }}"
+                                                    </div>
+                                                    <small class="text-muted">Try a different search term</small>
+                                                @else
+                                                    <div class="text-muted">
+                                                        <i class="ti ti-package"></i>
+                                                        No products available
+                                                    </div>
+                                                    <small class="text-muted">Add products to your inventory first</small>
+                                                @endif
                                             </div>
                                         </div>
                                     @endif
@@ -372,16 +386,22 @@
                     clearTimeout(searchTimeouts[index]);
                 }
 
-                // Show results on focus if there's text
+                // Show results on focus (always show, either first 5 products or search results)
                 input.addEventListener('focus', function() {
+                    // Trigger Livewire focus event to show initial products
+                    if (window.Livewire) {
+                        this.dispatchEvent(new Event('focus'));
+                    }
+
                     const searchResults = document.getElementById('search_results_' + index);
-                    if (searchResults && this.value.length > 0) {
+                    if (searchResults) {
                         searchResults.style.display = 'block';
                     }
                 });
 
                 // Hide results on blur (with delay to allow clicks)
                 input.addEventListener('blur', function() {
+                    // Let Livewire handle the blur event first
                     setTimeout(() => {
                         const searchResults = document.getElementById('search_results_' + index);
                         if (searchResults) {
@@ -457,6 +477,18 @@
             setTimeout(function() {
                 initializeHotSearch();
             }, 100);
+        });
+
+        // Listen for Livewire events to hide search results
+        document.addEventListener('livewire:initialized', function() {
+            Livewire.on('hide-search-results', function(data) {
+                setTimeout(() => {
+                    const searchResults = document.getElementById('search_results_' + data.index);
+                    if (searchResults) {
+                        searchResults.style.display = 'none';
+                    }
+                }, 150);
+            });
         });
 
         // Handle clicks outside to close dropdowns
