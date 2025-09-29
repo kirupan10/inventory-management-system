@@ -195,10 +195,22 @@ class OrderController extends Controller
                 // Load the order with relationships for the receipt
                 $order->load(['customer', 'details.product']);
 
+                // Prepare sold items data for frontend stock update
+                $soldItems = collect($cartItems)->map(function($item) {
+                    $product = Product::find($item['id']);
+                    return [
+                        'product_id' => $item['id'],
+                        'product_name' => $product ? $product->name : 'Unknown Product',
+                        'quantity' => $item['quantity'],
+                        'new_stock' => $product ? $product->quantity : 0
+                    ];
+                })->toArray();
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Order has been created successfully!',
                     'order_id' => $order->id,
+                    'soldItems' => $soldItems, // Add sold items for stock update
                     'order' => [
                         'id' => $order->id,
                         'invoice_no' => $order->invoice_no,

@@ -868,7 +868,8 @@
             const stockElement = productElement.querySelector('.badge');
             const stock = parseInt(stockElement.textContent.replace('Stock: ', ''));
 
-            if (stock <= 0) {
+            // Check if product is disabled due to no stock
+            if (productElement.style.pointerEvents === 'none' || stock <= 0) {
                 alert('This product is out of stock!');
                 return;
             }
@@ -877,13 +878,19 @@
             const existingItem = cart.find(item => item.id === productId);
             
             if (existingItem) {
+                // Get current available stock (accounting for items already in cart from other sessions)
+                const availableStock = stock;
+                const totalInCart = existingItem.quantity;
+                
                 // Check if we can increase quantity
-                if (existingItem.quantity + 1 <= stock) {
+                if (totalInCart + 1 <= availableStock) {
                     existingItem.quantity += 1;
                     existingItem.total = existingItem.quantity * existingItem.price;
+                    // Update the stock reference in case it changed
+                    existingItem.stock = stock;
                     updateCartDisplay();
                 } else {
-                    alert('Cannot add more items. Stock limit reached!');
+                    alert(`Cannot add more items. Available stock: ${availableStock}, Currently in cart: ${totalInCart}`);
                 }
             } else {
                 // Create new cart item
@@ -1300,6 +1307,42 @@
             window.print();
         }
 
+        // Function to update stock display after successful payment
+        function updateStockDisplay(soldItems) {
+            console.log('Updating stock display for items:', soldItems);
+            
+            soldItems.forEach(soldItem => {
+                // Find the product card on the page
+                const productCard = document.querySelector(`[data-product-id="${soldItem.product_id}"]`);
+                if (productCard) {
+                    const stockBadge = productCard.querySelector('.badge');
+                    if (stockBadge) {
+                        const currentStockText = stockBadge.textContent;
+                        const currentStock = parseInt(currentStockText.replace('Stock: ', ''));
+                        const newStock = Math.max(0, currentStock - soldItem.quantity);
+                        
+                        // Update the stock display
+                        stockBadge.textContent = `Stock: ${newStock}`;
+                        
+                        // Update the badge color based on stock level
+                        stockBadge.className = 'badge rounded-pill';
+                        if (newStock > 0) {
+                            stockBadge.style.backgroundColor = '#3b82f6';
+                            stockBadge.style.color = 'white';
+                        } else {
+                            stockBadge.style.backgroundColor = '#ef4444';
+                            stockBadge.style.color = 'white';
+                            // Optionally disable the product card
+                            productCard.style.opacity = '0.6';
+                            productCard.style.pointerEvents = 'none';
+                        }
+                        
+                        console.log(`Updated ${soldItem.product_name}: ${currentStock} → ${newStock}`);
+                    }
+                }
+            });
+        }
+
         // Start new order function
         function startNewOrder() {
             // Clear cart and reset form
@@ -1429,7 +1472,13 @@
                     console.log('� Server response:', jsonResponse);
 
                     if (jsonResponse.success) {
+                        // Update stock display with sold items
+                        if (jsonResponse.soldItems && jsonResponse.soldItems.length > 0) {
+                            updateStockDisplay(jsonResponse.soldItems);
+                        }
+                        
                         // Clear cart and reset UI
+                        const cartItemsBeforeClear = [...cart]; // Store cart items for potential stock update
                         cart = [];
                         updateCartDisplay();
                         const payInput = document.getElementById('payment-amount-input');
@@ -1440,6 +1489,16 @@
                         }
                         if (feedback) feedback.innerHTML = '';
                         document.getElementById('cart-items-input').value = '[]';
+
+                        // If server doesn't provide soldItems, use cart data as fallback
+                        if (!jsonResponse.soldItems && cartItemsBeforeClear.length > 0) {
+                            const fallbackSoldItems = cartItemsBeforeClear.map(item => ({
+                                product_id: item.id,
+                                product_name: item.name,
+                                quantity: item.quantity
+                            }));
+                            updateStockDisplay(fallbackSoldItems);
+                        }
 
                         // Show success message briefly, then show receipt modal
                         showSuccessNotification('Order created successfully!');
