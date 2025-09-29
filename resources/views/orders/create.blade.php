@@ -4,7 +4,7 @@
 <div class="page-body">
     <div class="container-fluid">
         <x-alert/>
-        
+
         @if($errors->any())
             <div class="alert alert-danger">
                 <h6>Please fix the following errors:</h6>
@@ -457,7 +457,7 @@
                 const currentTimeDisplay = document.createElement('small');
                 currentTimeDisplay.className = 'text-muted';
                 currentTimeDisplay.textContent = 'Order Date: ' + dateTime.formatted;
-                
+
                 const timeContainer = document.createElement('div');
                 timeContainer.className = 'mt-2';
                 timeContainer.appendChild(currentTimeDisplay);
@@ -765,7 +765,7 @@
         // Submit order function
         function submitOrder() {
             console.log('Submit order called');
-            
+
             // Validate required fields
             const customerId = document.getElementById('customer_id').value;
             const paymentType = document.querySelector('select[name="payment_type"]').value;
@@ -808,7 +808,7 @@
             // Populate hidden cart data
             const cartData = JSON.stringify(cart);
             document.getElementById('cart-items-input').value = cartData;
-            
+
             console.log('Cart data being sent:', cartData);
 
             // Submit the form using AJAX to avoid redirect issues
@@ -820,18 +820,18 @@
                 return;
             }
             const formData = new FormData(form);
-            
+
             console.log('🔍 FORM DEBUG INFO:');
             console.log('Form element:', form);
             console.log('Form action attribute:', form.getAttribute('action'));
             console.log('Form action property:', form.action);
             console.log('Current URL:', window.location.href);
             console.log('Form data:', Object.fromEntries(formData));
-            
+
             // Force absolute URL to prevent any relative path issues
             const targetUrl = form.action || 'http://127.0.0.1:8000/simple-test';
             console.log('🚀 Final target URL:', targetUrl);
-            
+
             fetch(targetUrl, {
                 method: 'POST',
                 body: formData,
@@ -847,13 +847,13 @@
             })
             .then(data => {
                 console.log('Raw response:', data);
-                
+
                 // Try to parse as JSON first (from OrderController)
                 try {
                     const jsonResponse = JSON.parse(data);
                     console.log('✅ JSON RESPONSE RECEIVED!');
                     console.log('� Server response:', jsonResponse);
-                    
+
                     if (jsonResponse.success) {
                         alert('✅ Order created successfully!');
                         // Optionally redirect to orders page

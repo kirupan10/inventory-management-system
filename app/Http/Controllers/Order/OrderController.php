@@ -216,6 +216,17 @@ class OrderController extends Controller
         ]);
     }
 
+    public function edit(Order $order)
+    {
+        $order->loadMissing(['customer', 'details.product']);
+
+        return view('orders.edit', [
+            'order' => $order,
+            'customers' => Customer::all(['id', 'name', 'phone']),
+            'products' => Product::with(['category', 'unit'])->get(),
+        ]);
+    }
+
     public function update(Order $order, Request $request)
     {
         DB::beginTransaction();
