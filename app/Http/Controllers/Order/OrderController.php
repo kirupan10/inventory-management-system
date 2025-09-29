@@ -13,6 +13,10 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Gloudemans\Shoppingcart\Facades\Cart;
+use PDF;
+use Illuminate\Support\Facades\File;
+use setasign\Fpdi\Fpdi;
+use FPDF;
 
 class OrderController extends Controller
 {
@@ -331,6 +335,136 @@ class OrderController extends Controller
         return view('orders.print-invoice', [
             'order' => $order,
         ]);
+    }
+
+    public function downloadPdfBill(Order $order)
+    {
+        // Load the order with its relationships
+        $order->loadMissing(['customer', 'details.product']);
+
+        // Check if we have a PDF letterhead
+        $letterheadConfig = $this->getLetterheadConfig();
+        $letterheadType = $letterheadConfig['letterhead_type'] ?? 'image';
+        $letterheadFile = $letterheadConfig['letterhead_file'] ?? null;
+
+        if ($letterheadType === 'pdf' && $letterheadFile) {
+            // Handle PDF letterhead with overlay
+            return $this->generatePdfWithPdfLetterhead($order, $letterheadFile);
+        } else {
+            // Handle image letterhead or no letterhead
+            return $this->generateStandardPdf($order);
+        }
+    }
+
+    private function generateStandardPdf(Order $order)
+    {
+        // Generate PDF using DomPDF (standard approach)
+        $pdf = PDF::loadView('orders.pdf-bill', [
+            'order' => $order,
+        ]);
+
+        // Set paper size to A4 and orientation to portrait
+        $pdf->setPaper('A4', 'portrait');
+
+        // Set options for better rendering
+        $pdf->setOptions([
+            'dpi' => 150,
+            'defaultFont' => 'Arial',
+            'isHtml5ParserEnabled' => true,
+            'isPhpEnabled' => true,
+            'isRemoteEnabled' => true,
+        ]);
+
+        // Generate filename
+        $filename = "Invoice_{$order->invoice_no}_{$order->order_date->format('Y-m-d')}.pdf";
+
+        // Return PDF download
+        return $pdf->download($filename);
+    }
+
+    private function generatePdfWithPdfLetterhead(Order $order, $letterheadFile)
+    {
+        try {
+            // First, generate the content PDF without letterhead background
+            $contentPdf = PDF::loadView('orders.pdf-bill-overlay', [
+                'order' => $order,
+            ]);
+
+            $contentPdf->setPaper('A4', 'portrait');
+            $contentPdf->setOptions([
+                'dpi' => 150,
+                'defaultFont' => 'Arial',
+                'isHtml5ParserEnabled' => true,
+                'isPhpEnabled' => true,
+                'isRemoteEnabled' => true,
+            ]);
+
+            // Save content PDF to temporary file
+            $tempContentPath = storage_path('app/temp_content_' . $order->id . '.pdf');
+            file_put_contents($tempContentPath, $contentPdf->output());
+
+            // Path to letterhead PDF
+            $letterheadPath = public_path('letterheads/' . $letterheadFile);
+
+            // Try to merge PDFs using FPDI if available
+            if (class_exists('setasign\Fpdi\Fpdi')) {
+                $mergedPdf = $this->mergePdfsWithFpdi($letterheadPath, $tempContentPath);
+                
+                // Clean up temp file
+                if (File::exists($tempContentPath)) {
+                    File::delete($tempContentPath);
+                }
+
+                $filename = "Invoice_{$order->invoice_no}_{$order->order_date->format('Y-m-d')}.pdf";
+                
+                return response($mergedPdf, 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                ]);
+            } else {
+                // Fallback to standard PDF generation
+                File::delete($tempContentPath);
+                return $this->generateStandardPdf($order);
+            }
+
+        } catch (\Exception $e) {
+            // Log error and fallback to standard generation
+            \Log::error('PDF merge failed: ' . $e->getMessage());
+            return $this->generateStandardPdf($order);
+        }
+    }
+
+    private function mergePdfsWithFpdi($letterheadPath, $contentPath)
+    {
+        $fpdi = new Fpdi();
+        
+        // Import letterhead PDF
+        $fpdi->setSourceFile($letterheadPath);
+        $letterheadTemplate = $fpdi->importPage(1);
+        
+        // Import content PDF
+        $fpdi->setSourceFile($contentPath);
+        $contentTemplate = $fpdi->importPage(1);
+        
+        // Create new page
+        $fpdi->AddPage();
+        
+        // Use letterhead as background
+        $fpdi->useTemplate($letterheadTemplate);
+        
+        // Overlay content
+        $fpdi->useTemplate($contentTemplate);
+        
+        return $fpdi->Output('S'); // Return as string
+    }
+
+    private function getLetterheadConfig()
+    {
+        $configPath = storage_path('app/letterhead_config.json');
+        if (File::exists($configPath)) {
+            return json_decode(File::get($configPath), true);
+        }
+        return [];
     }
 
     public function showReceipt(Order $order)

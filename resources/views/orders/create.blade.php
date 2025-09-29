@@ -23,14 +23,37 @@
                     <h1 class="page-title">
                         {{ __('Point of Sale') }}
                     </h1>
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M9 14l-4 -4l4 -4"/>
-                            <path d="M5 10h11a4 4 0 1 1 0 8h-1"/>
-                        </svg>
-                        Back to Dashboard
-                    </a>
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('letterhead.index') }}" class="btn btn-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>
+                                <path d="M12 11l0 6"/>
+                                <path d="M9 14l3 -3l3 3"/>
+                            </svg>
+                            📄 Letterhead Setup
+                        </a>
+                        <a href="{{ route('orders.download-pdf-bill', 61) }}" class="btn btn-success" target="_blank">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
+                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>
+                                <path d="M9 9l1 0"/>
+                                <path d="M9 13l6 0"/>
+                                <path d="M9 17l6 0"/>
+                            </svg>
+                            Test PDF (Order #61)
+                        </a>
+                        <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M9 14l-4 -4l4 -4"/>
+                                <path d="M5 10h11a4 4 0 1 1 0 8h-1"/>
+                            </svg>
+                            Back to Dashboard
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

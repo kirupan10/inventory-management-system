@@ -70,7 +70,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders/{order}/edit', [OrderController::class, 'edit'])->name('orders.edit');
     Route::put('/orders/update/{order}', [OrderController::class, 'update'])->name('orders.update');
     Route::get('/orders/details/{order_id}/download', [OrderController::class, 'downloadInvoice'])->name('order.downloadInvoice');
+    Route::get('/orders/{order}/download-pdf-bill', [OrderController::class, 'downloadPdfBill'])->name('orders.download-pdf-bill');
     Route::get('/orders/{order}/receipt', [OrderController::class, 'showReceipt'])->name('orders.receipt');
+
+    // Letterhead Configuration Routes
+    Route::get('/letterhead', [App\Http\Controllers\LetterheadController::class, 'index'])->name('letterhead.index');
+    Route::post('/letterhead/upload', [App\Http\Controllers\LetterheadController::class, 'uploadLetterhead'])->name('letterhead.upload');
+    Route::post('/letterhead/save-positions', [App\Http\Controllers\LetterheadController::class, 'savePositions'])->name('letterhead.save-positions');
+    Route::get('/letterhead/positions', [App\Http\Controllers\LetterheadController::class, 'getPositions'])->name('letterhead.get-positions');
 
 });
 
