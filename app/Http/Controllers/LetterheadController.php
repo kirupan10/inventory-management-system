@@ -298,8 +298,6 @@ class LetterheadController extends Controller
             'letterhead_type' => 'image',
             'preview_image' => null,
             'positions' => [
-                ['field' => 'invoice_no', 'x' => 400, 'y' => 50, 'font_size' => 12, 'font_weight' => 'bold'],
-                ['field' => 'invoice_date', 'x' => 400, 'y' => 70, 'font_size' => 10, 'font_weight' => 'normal'],
                 ['field' => 'product_name', 'x' => 50, 'y' => 130, 'font_size' => 10, 'font_weight' => 'bold'],
                 ['field' => 'customer_name', 'x' => 50, 'y' => 150, 'font_size' => 10, 'font_weight' => 'bold'],
                 ['field' => 'customer_phone', 'x' => 50, 'y' => 170, 'font_size' => 10, 'font_weight' => 'normal'],

@@ -178,7 +178,7 @@
             /* background removed for better positioning */
 
         ">
-            INVOICE: {{ $order->invoice_no }}
+            {{ $order->invoice_no }}
         </div>
         @endif
 
@@ -192,7 +192,7 @@
             /* background removed for better positioning */
 
         ">
-            DATE: {{ $order->order_date->format('d/m/Y') }}
+            {{ $order->order_date->format('d/m/Y') }}
         </div>
         @endif
 
