@@ -626,7 +626,7 @@
             height: 30px;
             cursor: pointer;
             font-size: 18px;
-            color: #64748b;
+            color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -664,7 +664,7 @@
 
         .company-address {
             font-size: 12px;
-            color: #666;
+            color: #000;
             margin-bottom: 2px;
         }
 
@@ -698,7 +698,7 @@
 
         .customer-info {
             font-size: 12px;
-            color: #666;
+            color: #000;
         }
 
         .customer-info div {
