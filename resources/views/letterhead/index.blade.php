@@ -329,31 +329,34 @@
                                                     <h5>📋 Items Table Alignment</h5>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p class="text-muted small mb-3">Control the horizontal positioning and width of the items table for balanced alignment.</p>
-                                                    
+                                                    <div class="alert alert-primary small mb-3">
+                                                        <strong>📐 Canvas Width Analysis:</strong> PDF Canvas = <strong>595px</strong> (A4 Standard)<br>
+                                                        <strong>🎯 Perfect Balance:</strong> <span class="text-success">25px margin + 545px table + 25px margin = 595px</span>
+                                                    </div>
+
                                                     <div class="row mb-3">
                                                         <div class="col-6">
                                                             <label class="form-label">Start Position (X)</label>
-                                                            <input type="number" class="form-control" id="itemsStartX" 
-                                                                   value="{{ $config['items_alignment']['start_x'] ?? 40 }}" 
-                                                                   min="0" max="400" placeholder="40">
+                                                            <input type="number" class="form-control" id="itemsStartX"
+                                                                   value="{{ $config['items_alignment']['start_x'] ?? 25 }}"
+                                                                   min="0" max="400" placeholder="25">
                                                             <small class="text-muted">Left margin (0-400px)</small>
                                                         </div>
                                                         <div class="col-6">
                                                             <label class="form-label">End Position (X)</label>
-                                                            <input type="number" class="form-control" id="itemsEndX" 
-                                                                   value="{{ $config['items_alignment']['end_x'] ?? 555 }}" 
-                                                                   min="200" max="595" placeholder="555">
+                                                            <input type="number" class="form-control" id="itemsEndX"
+                                                                   value="{{ $config['items_alignment']['end_x'] ?? 570 }}"
+                                                                   min="200" max="595" placeholder="570">
                                                             <small class="text-muted">Right margin (200-595px)</small>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="mb-3">
                                                         <label class="form-label">Table Width</label>
-                                                        <input type="number" class="form-control" id="itemsWidth" 
-                                                               value="{{ $config['items_alignment']['width'] ?? 515 }}" 
-                                                               min="300" max="555" readonly>
-                                                        <small class="text-muted">Auto-calculated: <span id="calculatedWidth">515</span>px</small>
+                                                        <input type="number" class="form-control" id="itemsWidth"
+                                                               value="{{ $config['items_alignment']['width'] ?? 545 }}"
+                                                               min="300" max="570" readonly>
+                                                        <small class="text-muted">Auto-calculated: <span id="calculatedWidth">545</span>px</small>
                                                     </div>
 
                                                     <div class="mb-3">
@@ -361,22 +364,22 @@
                                                         <div class="row">
                                                             <div class="col-6 mb-2">
                                                                 <button type="button" class="btn btn-outline-primary btn-sm alignment-preset w-100" data-preset="left">
-                                                                    <i class="fas fa-align-left"></i> Left<br><small>45px margins</small>
+                                                                    <i class="fas fa-align-left"></i> Left<br><small>35px margins</small>
                                                                 </button>
                                                             </div>
                                                             <div class="col-6 mb-2">
                                                                 <button type="button" class="btn btn-outline-success btn-sm alignment-preset w-100" data-preset="center">
-                                                                    <i class="fas fa-align-center"></i> Center<br><small>48px margins</small>
+                                                                    <i class="fas fa-align-center"></i> Center<br><small>30px margins</small>
                                                                 </button>
                                                             </div>
                                                             <div class="col-6 mb-2">
                                                                 <button type="button" class="btn btn-outline-warning btn-sm alignment-preset w-100" data-preset="right">
-                                                                    <i class="fas fa-align-right"></i> Right<br><small>50px margins</small>
+                                                                    <i class="fas fa-align-right"></i> Right<br><small>45px margins</small>
                                                                 </button>
                                                             </div>
                                                             <div class="col-6 mb-2">
                                                                 <button type="button" class="btn btn-success btn-sm alignment-preset w-100 active" data-preset="balanced">
-                                                                    <i class="fas fa-balance-scale"></i> Balanced ⭐<br><small>40px equal margins</small>
+                                                                    <i class="fas fa-balance-scale"></i> Balanced ⭐<br><small>25px equal margins</small>
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -395,19 +398,23 @@
                                                     </button>
 
                                                     <div class="alert alert-success mt-2 small">
-                                                        <strong>✅ Perfect Equal Spacing:</strong>
+                                                        <strong>✅ Perfect Centralized Spacing:</strong>
                                                         <div class="mt-2 p-2" style="background: #f8f9fa; border-radius: 4px; border: 1px solid #dee2e6;">
-                                                            <div style="display: flex; align-items: center; font-family: monospace; font-size: 11px;">
-                                                                <span style="color: #dc3545; font-weight: bold;">|40px|</span>
-                                                                <span style="flex: 1; background: #007bff; color: white; text-align: center; padding: 2px;">── ITEMS TABLE (515px) ──</span>
-                                                                <span style="color: #dc3545; font-weight: bold;">|40px|</span>
+                                                            <div style="display: flex; align-items: center; font-family: monospace; font-size: 10px; border: 2px solid #007bff; background: white;">
+                                                                <span style="color: #dc3545; font-weight: bold; padding: 2px; background: #ffe6e6;">|25px|</span>
+                                                                <span style="flex: 1; background: #28a745; color: white; text-align: center; padding: 2px;">── ITEMS TABLE (545px) ──</span>
+                                                                <span style="color: #dc3545; font-weight: bold; padding: 2px; background: #ffe6e6;">|25px|</span>
                                                             </div>
-                                                            <small class="text-muted mt-1 d-block">🎯 <strong>Balanced Preset</strong> = Perfect equal margins (40px each side)</small>
+                                                            <div style="text-align: center; font-family: monospace; font-size: 9px; color: #007bff; font-weight: bold; margin-top: 2px;">
+                                                                ← PDF Canvas Width: 595px (A4 Standard) →
+                                                            </div>
+                                                            <small class="text-muted mt-1 d-block">🎯 <strong>Perfect Mathematical Balance:</strong> 25 + 545 + 25 = 595px</small>
                                                         </div>
                                                         <ul class="mb-0 mt-2">
-                                                            <li><strong>Left:</strong> 45px margins both sides (505px width)</li>
-                                                            <li><strong>Center:</strong> 48px margins both sides (499px width)</li>
-                                                            <li><strong>Right:</strong> 50px margins both sides (495px width)</li>
+                                                            <li><strong>Left:</strong> 35px margins both sides (525px width)</li>
+                                                            <li><strong>Center:</strong> 30px margins both sides (535px width)</li>
+                                                            <li><strong>Right:</strong> 45px margins both sides (505px width)</li>
+                                                            <li><strong>Balanced ⭐:</strong> 25px margins both sides (545px width)</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -1422,10 +1429,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Update width calculation when start or end position changes
         function updateCalculatedWidth() {
-            const startX = parseInt(startXInput.value) || 50;
-            const endX = parseInt(endXInput.value) || 550;
+            const startX = parseInt(startXInput.value) || 25;
+            const endX = parseInt(endXInput.value) || 570;
             const width = Math.max(300, endX - startX);
-            
+
             widthInput.value = width;
             calculatedWidthSpan.textContent = width;
         }
@@ -1438,36 +1445,36 @@ document.addEventListener('DOMContentLoaded', function() {
         presetButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const preset = this.dataset.preset;
-                
+
                 // Remove active state from all buttons
                 presetButtons.forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
-                
+
                 // Apply preset values for equal spacing on both sides
                 // A4 width is 595px, so we calculate equal margins
                 switch(preset) {
                     case 'left':
-                        // Left aligned with 45px left margin, 45px right margin
-                        startXInput.value = 45;
-                        endXInput.value = 550; // 595 - 45 = 550
+                        // Left aligned with 35px margins each side
+                        startXInput.value = 35;
+                        endXInput.value = 560; // 595 - 35 = 560 (525px width)
                         break;
                     case 'center':
-                        // Perfect center with 47.5px margins on both sides
-                        startXInput.value = 48;
-                        endXInput.value = 547; // 595 - 48 = 547 (499px width)
+                        // Center with 30px margins each side
+                        startXInput.value = 30;
+                        endXInput.value = 565; // 595 - 30 = 565 (535px width)
                         break;
                     case 'right':
-                        // Right aligned with 45px margins but slight right emphasis
-                        startXInput.value = 50;
-                        endXInput.value = 545; // Equal 50px right margin
+                        // Right aligned with 45px margins each side
+                        startXInput.value = 45;
+                        endXInput.value = 550; // 595 - 45 = 550 (505px width)
                         break;
                     case 'balanced':
-                        // Perfect balance - exactly equal margins (40px each side)
-                        startXInput.value = 40;
-                        endXInput.value = 555; // 595 - 40 = 555 (515px width)
+                        // Perfect balance - exactly equal margins (25px each side)
+                        startXInput.value = 25;
+                        endXInput.value = 570; // 595 - 25 = 570 (545px width)
                         break;
                 }
-                
+
                 updateCalculatedWidth();
                 showToast(`Applied ${preset} alignment preset!`, 'success');
             });
@@ -1478,13 +1485,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const startX = parseInt(startXInput.value) || 50;
             const endX = parseInt(endXInput.value) || 550;
             const width = parseInt(widthInput.value) || 500;
-            
+
             // Find and update items table element
             const itemsTableElement = document.querySelector('[data-field="items_table"]');
             if (itemsTableElement) {
                 // Update position
                 itemsTableElement.style.left = startX + 'px';
-                
+
                 // Update coordinates display
                 const coordsElement = itemsTableElement.querySelector('.position-coordinates');
                 if (coordsElement) {
@@ -1501,7 +1508,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Save alignment settings
             saveItemsAlignment(startX, endX, width);
-            
+
             showToast('Items table alignment updated! Width: ' + width + 'px', 'success');
         });
 
@@ -1540,6 +1547,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize items alignment controls after page load
     setTimeout(initializeItemsAlignment, 1000);
+
+    // Auto-apply balanced 25px margins as default
+    setTimeout(() => {
+        const balancedButton = document.querySelector('.alignment-preset[data-preset="balanced"]');
+        if (balancedButton && !document.querySelector('.alignment-preset.active')) {
+            balancedButton.click();
+            showToast('✅ Applied perfect 25px balanced margins for items table!', 'success');
+        }
+    }, 1500);
 });
 </script>
 @endsection

@@ -112,7 +112,7 @@ class LetterheadController extends Controller
             'alignment' => 'required|array',
             'alignment.start_x' => 'required|numeric|min:0|max:400',
             'alignment.end_x' => 'required|numeric|min:200|max:595',
-            'alignment.width' => 'required|numeric|min:300|max:555',
+            'alignment.width' => 'required|numeric|min:300|max:570',
         ]);
 
         $config = $this->getLetterheadConfig();

@@ -15,6 +15,18 @@
             foreach ($positions as $pos) {
                 $positionMap[$pos['field']] = $pos;
             }
+
+            // Calculate perfect 25px balanced margins based on canvas width
+            $canvasWidth = 595; // A4 standard width
+            $marginLeft = 25;
+            $marginRight = 25;
+            $totalMargins = $marginLeft + $marginRight; // 50px
+            $perfectTableWidth = $canvasWidth - $totalMargins; // 595 - 50 = 545px
+
+            $itemsAlignment = $letterheadConfig['items_alignment'] ?? [];
+            $forceBalancedMargins = true; // Always use balanced margins
+            $balancedStartX = $marginLeft; // 25px
+            $balancedTableWidth = $perfectTableWidth; // 545px
         @endphp
 
         * {
@@ -66,7 +78,7 @@
         }
 
         .items-table td {
-            border: 1px solid #ddd;
+            border: none;
             padding: 8px;
             font-size: 12px;
         }
@@ -173,15 +185,27 @@
             </div>
             @endif
 
+            {{-- Customer Details Header --}}
+            @if(isset($positionMap['customer_name']))
+            <div class="positioned-element" style="
+                left: {{ $positionMap['customer_name']['x'] ?? 50 }}px;
+                top: {{ ($positionMap['customer_name']['y'] ?? 150) - 20 }}px;
+                font-size: {{ ($positionMap['customer_name']['font_size'] ?? 14) + 1 }}px;
+                font-weight: bold;
+            ">
+                Customer Details
+            </div>
+            @endif
+
             {{-- Customer Name --}}
             @if(isset($positionMap['customer_name']))
             <div class="positioned-element" style="
                 left: {{ $positionMap['customer_name']['x'] ?? 50 }}px;
                 top: {{ $positionMap['customer_name']['y'] ?? 150 }}px;
                 font-size: {{ $positionMap['customer_name']['font_size'] ?? 14 }}px;
-                font-weight: {{ $positionMap['customer_name']['font_weight'] ?? 'bold' }};
+                font-weight: {{ $positionMap['customer_name']['font_weight'] ?? 'normal' }};
             ">
-                Customer: {{ $order->customer->name }}
+                {{ $order->customer->name }}
             </div>
             @endif
 
@@ -193,7 +217,7 @@
                 font-size: {{ $positionMap['customer_phone']['font_size'] ?? 13 }}px;
                 font-weight: {{ $positionMap['customer_phone']['font_weight'] ?? 'normal' }};
             ">
-                Phone: {{ $order->customer->phone ?? 'N/A' }}
+                {{ $order->customer->phone ?? 'N/A' }}
             </div>
             @endif
 
@@ -222,25 +246,26 @@
             </div>
             @endif
 
-            {{-- Items Table --}}
+            {{-- Unified Items and Payment Table --}}
             @if(isset($positionMap['items_table']))
             @php
-                $itemsAlignment = $letterheadConfig['items_alignment'] ?? [];
-                $startX = $itemsAlignment['start_x'] ?? ($positionMap['items_table']['x'] ?? 40);
-                $tableWidth = $itemsAlignment['width'] ?? 515;
+                // Use calculated balanced margins (25px left, 545px width, 25px right)
+                $startX = $balancedStartX; // Always 25px from left
+                $tableWidth = $balancedTableWidth; // Always 545px width
+                // This ensures: 25px + 545px + 25px = 595px (perfect balance)
             @endphp
             <div class="positioned-element" style="
                 left: {{ $startX }}px;
                 top: {{ $positionMap['items_table']['y'] ?? 240 }}px;
                 font-size: {{ $positionMap['items_table']['font_size'] ?? 13 }}px;
             ">
-                <table class="items-table" style="width: {{ $tableWidth }}px;">
+                <table class="items-table" style="width: {{ $tableWidth }}px; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="width: {{ $tableWidth * 0.56 }}px; text-align: left; padding: 8px;">Item Details</th>
-                            <th style="width: {{ $tableWidth * 0.12 }}px; text-align: center; padding: 8px;">Qty</th>
-                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px;">Unit Price</th>
-                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px;">Total</th>
+                            <th style="width: {{ $tableWidth * 0.56 }}px; text-align: left; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Item Details</th>
+                            <th style="width: {{ $tableWidth * 0.12 }}px; text-align: center; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Qty</th>
+                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Unit Price</th>
+                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -248,11 +273,18 @@
                         <tr>
                             <td style="text-align: left; padding: 6px; vertical-align: top;">
                                 <div style="font-weight: bold; margin-bottom: 2px;">{{ $item->product->name }}</div>
-                                @if($item->serial_number)
-                                    <div style="font-size: 11px; color: #000; margin-bottom: 1px;">S/N: {{ $item->serial_number }}</div>
-                                @endif
-                                @if($item->warranty_years)
-                                    <div style="font-size: 9px; color: #000;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
+                                @if($item->serial_number || $item->warranty_years)
+                                    <div style="font-size: 10px; color: #000;">
+                                        @if($item->serial_number)
+                                            S/N: {{ $item->serial_number }}
+                                        @endif
+                                        @if($item->serial_number && $item->warranty_years)
+                                            &nbsp;|&nbsp;
+                                        @endif
+                                        @if($item->warranty_years)
+                                            Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                             <td style="text-align: center; padding: 6px; vertical-align: middle;">{{ $item->quantity }}</td>
@@ -260,40 +292,29 @@
                             <td style="text-align: right; padding: 6px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
                         </tr>
                         @endforeach
-                    </tbody>
-                </table>
-            </div>
-            @endif
 
-            {{-- Total Section --}}
-            @if(isset($positionMap['total_section']))
-            <div class="positioned-element" style="
-                left: {{ $positionMap['total_section']['x'] ?? 350 }}px;
-                top: {{ $positionMap['total_section']['y'] ?? 520 }}px;
-                font-size: {{ $positionMap['total_section']['font_size'] ?? 14 }}px;
-                width: 200px;
-            ">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <tr>
-                        <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee;">Subtotal:</td>
-                        <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold;">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
-                    </tr>
-                    @if($order->discount_amount > 0)
-                    <tr>
-                        <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee;">Discount:</td>
-                        <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; color: #dc3545;">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
-                    </tr>
-                    @endif
-                    @if($order->service_charges > 0)
-                    <tr>
-                        <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee;">Service Charges:</td>
-                        <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold;">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
-                    </tr>
-                    @endif
-                    <tr>
-                        <td style="text-align: left; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px;">GRAND TOTAL:</td>
-                        <td style="text-align: right; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px;">LKR {{ number_format($order->total / 100, 2) }}</td>
-                    </tr>
+                        {{-- Payment Summary Rows --}}
+                        <tr style="border-top: 2px solid #000;">
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9;">Subtotal:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9;">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
+                        </tr>
+                        @if($order->discount_amount > 0)
+                        <tr>
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9;">Discount:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc3545; background: #f9f9f9;">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
+                        </tr>
+                        @endif
+                        @if($order->service_charges > 0)
+                        <tr>
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9;">Service Charges:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9;">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
+                        </tr>
+                        @endif
+                        <tr style="border-top: 3px solid #000;">
+                            <td colspan="3" style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">GRAND TOTAL:</td>
+                            <td style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">LKR {{ number_format($order->total / 100, 2) }}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
             @endif
@@ -340,69 +361,78 @@
 
                 <!-- Customer Details -->
                 <div style="margin-bottom: 25px;">
-                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">Customer Details:</div>
-                    <div style="font-size: 13px; line-height: 1.5;">
-                        <strong>Customer:</strong> {{ $order->customer->name }}<br>
-                        <strong>Phone:</strong> {{ $order->customer->phone ?? 'N/A' }}<br>
-                        <strong>Address:</strong> {{ $order->customer->address ?? 'N/A' }}<br>
-                        <strong>Email:</strong> {{ $order->customer->email ?? 'N/A' }}
+                    <div style="font-weight: bold; font-size: 15px; margin-bottom: 8px;">Customer Details</div>
+                    <div style="font-size: 14px; line-height: 1.6;">
+                        {{ $order->customer->name }}<br>
+                        {{ $order->customer->phone ?? 'N/A' }}
+                        @if($order->customer->address)
+                            <br>{{ $order->customer->address }}
+                        @endif
+                        @if($order->customer->email)
+                            <br>{{ $order->customer->email }}
+                        @endif
                     </div>
                 </div>
 
-                <!-- Items Table -->
-                <table class="items-table" style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                <!-- Unified Items and Payment Table - Perfectly Balanced 25px Margins ({{ $perfectTableWidth }}px) -->
+                <div style="margin-left: {{ $marginLeft }}px; margin-right: {{ $marginRight }}px;">
+                <table class="items-table" style="width: {{ $perfectTableWidth }}px; margin-bottom: 20px; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="width: 50%; text-align: left; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Item Details</th>
-                            <th style="width: 15%; text-align: center; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Qty</th>
-                            <th style="width: 20%; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Unit Price</th>
-                            <th style="width: 15%; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Total</th>
+                            <th style="width: 305px; text-align: left; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Item Details</th>
+                            <th style="width: 65px; text-align: center; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Qty</th>
+                            <th style="width: 87px; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Unit Price</th>
+                            <th style="width: 88px; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($order->details as $item)
                         <tr>
-                            <td style="text-align: left; padding: 8px; border: 1px solid #ddd; vertical-align: top;">
+                            <td style="text-align: left; padding: 8px; vertical-align: top;">
                                 <div style="font-weight: bold; margin-bottom: 3px;">{{ $item->product->name }}</div>
-                                @if($item->serial_number)
-                                    <div style="font-size: 11px; color: #000; margin-bottom: 2px;">S/N: {{ $item->serial_number }}</div>
-                                @endif
-                                @if($item->warranty_years)
-                                    <div style="font-size: 9px; color: #000;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
+                                @if($item->serial_number || $item->warranty_years)
+                                    <div style="font-size: 10px; color: #000;">
+                                        @if($item->serial_number)
+                                            S/N: {{ $item->serial_number }}
+                                        @endif
+                                        @if($item->serial_number && $item->warranty_years)
+                                            &nbsp;|&nbsp;
+                                        @endif
+                                        @if($item->warranty_years)
+                                            Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
-                            <td style="text-align: center; padding: 8px; border: 1px solid #ddd; vertical-align: middle;">{{ $item->quantity }}</td>
-                            <td style="text-align: right; padding: 8px; border: 1px solid #ddd; vertical-align: middle;">LKR {{ number_format($item->unitcost / 100, 2) }}</td>
-                            <td style="text-align: right; padding: 8px; border: 1px solid #ddd; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
+                            <td style="text-align: center; padding: 8px; vertical-align: middle;">{{ $item->quantity }}</td>
+                            <td style="text-align: right; padding: 8px; vertical-align: middle;">LKR {{ number_format($item->unitcost / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
                         </tr>
                         @endforeach
-                    </tbody>
-                </table>
 
-                <!-- Totals -->
-                <div style="margin-left: auto; width: 300px; margin-top: 15px;">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr>
-                            <td style="text-align: left; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 12px;">Subtotal:</td>
-                            <td style="text-align: right; padding: 5px 0; border-bottom: 1px solid #eee; font-weight: bold; font-size: 12px;">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
+                        {{-- Payment Summary Rows --}}
+                        <tr style="border-top: 2px solid #000;">
+                            <td colspan="3" style="text-align: right; padding: 10px; font-weight: bold; background: #f9f9f9; font-size: 13px;">Subtotal:</td>
+                            <td style="text-align: right; padding: 10px; font-weight: bold; background: #f9f9f9; font-size: 13px;">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
                         </tr>
                         @if($order->discount_amount > 0)
                         <tr>
-                            <td style="text-align: left; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 12px;">Discount:</td>
-                            <td style="text-align: right; padding: 5px 0; border-bottom: 1px solid #eee; font-weight: bold; font-size: 12px; color: #dc3545;">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9; font-size: 12px;">Discount:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc3545; background: #f9f9f9; font-size: 12px;">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
                         </tr>
                         @endif
                         @if($order->service_charges > 0)
                         <tr>
-                            <td style="text-align: left; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 12px;">Service Charges:</td>
-                            <td style="text-align: right; padding: 5px 0; border-bottom: 1px solid #eee; font-weight: bold; font-size: 12px;">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9; font-size: 12px;">Service Charges:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; background: #f9f9f9; font-size: 12px;">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
                         </tr>
                         @endif
-                        <tr>
-                            <td style="text-align: left; padding: 10px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px;">GRAND TOTAL:</td>
-                            <td style="text-align: right; padding: 10px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px;">LKR {{ number_format($order->total / 100, 2) }}</td>
+                        <tr style="border-top: 3px solid #000;">
+                            <td colspan="3" style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">GRAND TOTAL:</td>
+                            <td style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">LKR {{ number_format($order->total / 100, 2) }}</td>
                         </tr>
-                    </table>
+                    </tbody>
+                </table>
                 </div>
 
                 <!-- Warranty Section -->
