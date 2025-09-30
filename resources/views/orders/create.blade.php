@@ -745,7 +745,7 @@
 
         .item-meta {
             font-size: 10px;
-            color: #666;
+            color: #000;
         }
 
         .warranty {

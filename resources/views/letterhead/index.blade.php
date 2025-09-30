@@ -221,14 +221,14 @@
                                             <div class="ruler-top" style="position: absolute; top: -20px; left: 0; right: 0; height: 20px; background: #f8f9fa; border: 1px solid #dee2e6; font-size: 10px; z-index: 10;">
                                                 @for($i = 0; $i <= 595; $i += 50)
                                                     <div style="position: absolute; left: {{ $i }}px; top: 5px; font-size: 8px; color: #000;">{{ $i }}</div>
-                                                    <div style="position: absolute; left: {{ $i }}px; top: 0; width: 1px; height: 20px; background: #999;"></div>
+                                                    <div style="position: absolute; left: {{ $i }}px; top: 0; width: 1px; height: 20px; background: #000;"></div>
                                                 @endfor
                                             </div>
 
                                             <div class="ruler-left" style="position: absolute; left: -20px; top: 0; bottom: 0; width: 20px; background: #f8f9fa; border: 1px solid #dee2e6; font-size: 10px; z-index: 10;">
                                                 @for($i = 0; $i <= 842; $i += 50)
                                                     <div style="position: absolute; top: {{ $i }}px; left: 2px; font-size: 8px; color: #000; writing-mode: vertical-rl;">{{ $i }}</div>
-                                                    <div style="position: absolute; top: {{ $i }}px; left: 0; width: 20px; height: 1px; background: #999;"></div>
+                                                    <div style="position: absolute; top: {{ $i }}px; left: 0; width: 20px; height: 1px; background: #000;"></div>
                                                 @endfor
                                             </div>
                                         </div>
@@ -466,7 +466,7 @@
 
                                                     {{-- Center guidance --}}
                                                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-                                                                text-align: center; color: #6c757d; z-index: 2;">
+                                                                text-align: center; color: #000; z-index: 2;">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg mb-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                                                             <path d="M14 3v4a1 1 0 0 0 1 1h4"/>

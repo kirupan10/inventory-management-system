@@ -1,0 +1,72 @@
+/* Override all gray text colors to black for better visibility */
+.text-gray-100,
+.text-gray-200,
+.text-gray-300,
+.text-gray-400,
+.text-gray-500,
+.text-gray-600,
+.text-gray-700,
+.text-gray-800,
+.text-gray-900 {
+    color: #000 !important;
+}
+
+/* Override hover states for gray text */
+.hover\:text-gray-400:hover,
+.hover\:text-gray-500:hover,
+.hover\:text-gray-600:hover,
+.hover\:text-gray-700:hover {
+    color: #000 !important;
+}
+
+/* Override active states for gray text */
+.active\:text-gray-500:active,
+.active\:text-gray-700:active {
+    color: #000 !important;
+}
+
+/* Override any remaining gray hex colors for text elements */
+body, p, span, div, td, th, label, button, input, textarea, select {
+    color: #000 !important;
+}
+
+/* Exception for specific UI elements that should remain colored */
+.text-white,
+.text-blue-500,
+.text-blue-600,
+.text-green-500,
+.text-green-600,
+.text-red-500,
+.text-red-600,
+.text-yellow-500,
+.text-yellow-600,
+.text-indigo-500,
+.text-indigo-600,
+.text-purple-500,
+.text-purple-600,
+.text-orange-500,
+.text-orange-600 {
+    color: revert !important;
+}
+
+/* Exception for links that should remain blue */
+a:not(.nav-link):not(.btn) {
+    color: #3b82f6 !important;
+}
+
+/* Exception for success/error messages */
+.alert-success, .text-success {
+    color: #16a34a !important;
+}
+
+.alert-danger, .text-danger {
+    color: #dc2626 !important;
+}
+
+.alert-warning, .text-warning {
+    color: #d97706 !important;
+}
+
+.alert-info, .text-info {
+    color: #0ea5e9 !important;
+}

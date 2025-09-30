@@ -94,11 +94,11 @@
                                     <a class="dropdown-item" href="{{ route('categories.index') }}">
                                         {{ __('Categories') }}
                                     </a>
-                                    <a class="dropdown-item" href="{{ route('units.index') }}">
-                                        {{ __('Units') }}
-                                    </a>
                                     <a class="dropdown-item" href="{{ route('letterhead.index') }}">
                                         {{ __('Letterhead') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                        {{ __('Account') }}
                                     </a>
                                 </div>
                             </div>
