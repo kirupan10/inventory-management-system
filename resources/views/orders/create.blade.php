@@ -1,4 +1,4 @@
-@extends('layouts.tabler')
+@extends('layouts.nexora')
 
 @section('content')
     <div class="page-body">
@@ -1267,13 +1267,13 @@
 
             // Update subtotal
             if (subtotalElement) {
-                subtotalElement.textContent = `LKR ${cartTotal.toLocaleString()}`;
+                subtotalElement.textContent = `LKR ${cartTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             }
 
             // Show/hide and update discount
             if (discountAmount > 0) {
                 if (discountRow) discountRow.style.display = 'flex';
-                if (discountDisplay) discountDisplay.textContent = `-LKR ${discountAmount.toLocaleString()}`;
+                if (discountDisplay) discountDisplay.textContent = `-LKR ${discountAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             } else {
                 if (discountRow) discountRow.style.display = 'none';
             }
@@ -1281,15 +1281,15 @@
             // Show/hide and update service charges
             if (serviceCharges > 0) {
                 if (serviceRow) serviceRow.style.display = 'flex';
-                if (serviceDisplay) serviceDisplay.textContent = `+LKR ${serviceCharges.toLocaleString()}`;
+                if (serviceDisplay) serviceDisplay.textContent = `+LKR ${serviceCharges.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             } else {
                 if (serviceRow) serviceRow.style.display = 'none';
             }
 
-            // Calculate and update final total
-            const finalTotal = cartTotal - discountAmount + serviceCharges;
+            // Calculate and update final total with proper rounding
+            const finalTotal = Math.round((cartTotal - discountAmount + serviceCharges) * 100) / 100;
             if (totalElement) {
-                totalElement.textContent = `LKR ${finalTotal.toLocaleString()}`;
+                totalElement.textContent = `LKR ${finalTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
             }
         }
 

@@ -250,10 +250,10 @@
                 <table class="items-table" style="width: {{ $tableWidth }}px; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="width: {{ $tableWidth * 0.56 }}px; text-align: left; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Item Details</th>
+                            <th style="width: {{ $tableWidth * 0.56 }}px; text-align: left; padding: 8px; background: #f5f5f5; border: 1px solid #ddd; font-size: 18px; font-weight: bold; color: #ff0000;">*** NEXORA TEST *** Item Details</th>
                             <th style="width: {{ $tableWidth * 0.12 }}px; text-align: center; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Qty</th>
-                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Unit Price</th>
-                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Total</th>
+                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Unit Price(LKR)</th>
+                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">Total(LKR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -276,34 +276,61 @@
                                 @endif
                             </td>
                             <td style="text-align: center; padding: 6px; vertical-align: middle;">{{ $item->quantity }}</td>
-                            <td style="text-align: right; padding: 6px; vertical-align: middle;">LKR {{ number_format($item->unitcost / 100, 2) }}</td>
-                            <td style="text-align: right; padding: 6px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 6px; vertical-align: middle;">{{ number_format($item->unitcost, 2, '.', ',') }}</td>
+                            <td style="text-align: right; padding: 6px; vertical-align: middle; font-weight: bold;">{{ number_format($item->total, 2, '.', ',') }}</td>
                         </tr>
                         @endforeach
 
                         {{-- Payment Summary Rows --}}
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold;">Subtotal:</td>
-                            <td style="text-align: right; padding: 8px; font-weight: bold;">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold;">LKR {{ number_format($order->sub_total, 2, '.', ',') }}</td>
                         </tr>
                         @if($order->discount_amount > 0)
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold;">Discount:</td>
-                            <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc3545;">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc3545;">-LKR {{ number_format($order->discount_amount, 2, '.', ',') }}</td>
                         </tr>
                         @endif
                         @if($order->service_charges > 0)
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold;">Service Charges:</td>
-                            <td style="text-align: right; padding: 8px; font-weight: bold;">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold;">LKR {{ number_format($order->service_charges, 2, '.', ',') }}</td>
+                        </tr>
+                        @endif
+                        @if($order->vat > 0)
+                        <tr>
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold;">VAT/Tax:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold;">LKR {{ number_format($order->vat, 2, '.', ',') }}</td>
                         </tr>
                         @endif
                         <tr style="border-top: 3px solid #000;">
                             <td colspan="3" style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">GRAND TOTAL:</td>
-                            <td style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">LKR {{ number_format($order->total / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px; border-top: 2px solid #000; border-bottom: 2px solid #000; background: #e9ecef;">LKR {{ number_format($order->total, 2, '.', ',') }}</td>
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            @endif
+
+            {{-- Payment Information Section --}}
+            @if(isset($positionMap['payment_info']))
+            <div class="positioned-element" style="
+                left: {{ $positionMap['payment_info']['x'] ?? 50 }}px;
+                top: {{ $positionMap['payment_info']['y'] ?? 500 }}px;
+                font-size: {{ $positionMap['payment_info']['font_size'] ?? 12 }}px;
+                font-weight: {{ $positionMap['payment_info']['font_weight'] ?? 'normal' }};
+            ">
+                <div style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 3px;">PAYMENT INFORMATION</div>
+                <div style="margin-bottom: 3px;"><strong>Payment Method:</strong> {{ $order->payment_type ?? 'N/A' }}</div>
+                <div style="margin-bottom: 3px;"><strong>Order Status:</strong> {{ $order->order_status->value ?? 'N/A' }}</div>
+                <div style="margin-bottom: 3px;"><strong>Total Products:</strong> {{ $order->total_products ?? 0 }}</div>
+                @if($order->pay > 0)
+                <div style="margin-bottom: 3px;"><strong>Amount Paid:</strong> LKR {{ number_format($order->pay, 2, '.', ',') }}</div>
+                @endif
+                @if($order->due > 0)
+                <div style="margin-bottom: 3px; color: #dc3545;"><strong>Amount Due:</strong> LKR {{ number_format($order->due, 2, '.', ',') }}</div>
+                @endif
             </div>
             @endif
 
@@ -327,6 +354,10 @@
         @else
             {{-- Fallback without letterhead - Original Layout --}}
             <div style="padding: 20px;">
+                <!-- NEXORA Brand Header -->
+                <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: #ff0000; color: white; font-size: 24px; font-weight: bold; border-radius: 8px;">
+                    *** NEXORA INVENTORY SYSTEM ***
+                </div>
                 <!-- Header Section -->
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; border-bottom: 2px solid #000; padding-bottom: 20px;">
                     <div style="flex: 1;">
@@ -366,10 +397,10 @@
                 <table class="items-table" style="width: {{ $perfectTableWidth }}px; margin-bottom: 20px; border-collapse: collapse;">
                     <thead>
                         <tr>
-                            <th style="width: 305px; text-align: left; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Item Details</th>
+                            <th style="width: 305px; text-align: left; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 16px; font-weight: bold; color: #ff0000;">*** NEXORA *** Item Details</th>
                             <th style="width: 65px; text-align: center; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Qty</th>
-                            <th style="width: 87px; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Unit Price</th>
-                            <th style="width: 88px; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Total</th>
+                            <th style="width: 87px; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Unit Price(LKR)</th>
+                            <th style="width: 88px; text-align: right; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; font-size: 13px;">Total(LKR)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -392,34 +423,60 @@
                                 @endif
                             </td>
                             <td style="text-align: center; padding: 8px; vertical-align: middle;">{{ $item->quantity }}</td>
-                            <td style="text-align: right; padding: 8px; vertical-align: middle;">LKR {{ number_format($item->unitcost / 100, 2) }}</td>
-                            <td style="text-align: right; padding: 8px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; vertical-align: middle;">{{ number_format($item->unitcost, 2, '.', ',') }}</td>
+                            <td style="text-align: right; padding: 8px; vertical-align: middle; font-weight: bold;">{{ number_format($item->total, 2, '.', ',') }}</td>
                         </tr>
                         @endforeach
 
                         {{-- Payment Summary Rows --}}
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 10px; font-weight: bold; font-size: 13px;">Subtotal:</td>
-                            <td style="text-align: right; padding: 10px; font-weight: bold; font-size: 13px;">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 10px; font-weight: bold; font-size: 13px;">LKR {{ number_format($order->sub_total, 2, '.', ',') }}</td>
                         </tr>
                         @if($order->discount_amount > 0)
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; font-size: 12px;">Discount:</td>
-                            <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc3545; font-size: 12px;">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; color: #dc3545; font-size: 12px;">-LKR {{ number_format($order->discount_amount, 2, '.', ',') }}</td>
                         </tr>
                         @endif
                         @if($order->service_charges > 0)
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; font-size: 12px;">Service Charges:</td>
-                            <td style="text-align: right; padding: 8px; font-weight: bold; font-size: 12px;">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; font-size: 12px;">LKR {{ number_format($order->service_charges, 2, '.', ',') }}</td>
+                        </tr>
+                        @endif
+                        @if($order->vat > 0)
+                        <tr>
+                            <td colspan="3" style="text-align: right; padding: 8px; font-weight: bold; font-size: 12px;">VAT/Tax:</td>
+                            <td style="text-align: right; padding: 8px; font-weight: bold; font-size: 12px;">LKR {{ number_format($order->vat, 2, '.', ',') }}</td>
                         </tr>
                         @endif
                         <tr>
                             <td colspan="3" style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px;">GRAND TOTAL:</td>
-                            <td style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px;">LKR {{ number_format($order->total / 100, 2) }}</td>
+                            <td style="text-align: right; padding: 12px; font-weight: bold; font-size: 16px;">LKR {{ number_format($order->total, 2, '.', ',') }}</td>
                         </tr>
                     </tbody>
                 </table>
+                </div>
+
+                <!-- Payment Information Section -->
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 5px;">
+                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px; color: #2d3748;">PAYMENT INFORMATION</div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 5px;"><strong>Payment Method:</strong> {{ $order->payment_type ?? 'N/A' }}</div>
+                            <div style="margin-bottom: 5px;"><strong>Order Status:</strong> {{ $order->order_status->value ?? 'N/A' }}</div>
+                            <div><strong>Total Products:</strong> {{ $order->total_products ?? 0 }}</div>
+                        </div>
+                        <div style="flex: 1; text-align: right;">
+                            @if($order->pay > 0)
+                            <div style="margin-bottom: 5px;"><strong>Amount Paid:</strong> LKR {{ number_format($order->pay, 2, '.', ',') }}</div>
+                            @endif
+                            @if($order->due > 0)
+                            <div style="color: #dc3545;"><strong>Amount Due:</strong> LKR {{ number_format($order->due, 2, '.', ',') }}</div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Warranty Section -->

@@ -26,7 +26,17 @@
 }
 
 /* Override any remaining gray hex colors for text elements */
-body, p, span, div, td, th, label, button, input, textarea, select {
+body, p, span, div, td, th, label, button, input, textarea, select, h1, h2, h3, h4, h5, h6 {
+    color: #000 !important;
+}
+
+/* Specific overrides for auth pages */
+.text-center, .form-check-label, .card-body h2, .card-body p {
+    color: #000 !important;
+}
+
+/* Override gray text colors in auth pages */
+.text-gray-500, .text-gray-600, .text-gray-700 {
     color: #000 !important;
 }
 

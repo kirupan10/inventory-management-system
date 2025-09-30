@@ -1,11 +1,12 @@
 {
+    "name": "nexora",
     "private": true,
     "scripts": {
         "dev": "vite",
         "build": "vite build"
     },
     "devDependencies": {
-        "@tabler/core": "^1.0.0-beta24",
+        "@nexora/core": "^1.0.0-beta24",
         "autoprefixer": "^10.4.20",
         "axios": "^1.7.9",
         "laravel-vite-plugin": "^1.1.1",

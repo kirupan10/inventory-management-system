@@ -1,4 +1,4 @@
-# ✨ Inventory Management System
+# ✨ Nexora
 
 A robust Inventory Management System built with **Laravel 10** and **MySQL**, designed to streamline your inventory tracking, sales, and purchasing processes.
 
@@ -28,13 +28,13 @@ Follow these steps to set up the project locally:
 1. **Clone the repository:**
 
     ```bash
-    git clone https://github.com/fajarghifar/inventory-management-system
+    git clone https://github.com/fajarghifar/nexora
     ```
 
 2. **Navigate to the project folder:**
 
     ```bash
-    cd inventory-management-system
+    cd nexora
     ```
 
 3. **Install PHP dependencies:**

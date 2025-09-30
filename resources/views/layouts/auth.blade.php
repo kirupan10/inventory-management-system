@@ -7,14 +7,26 @@
     <title>{{ config('app.name') }}</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
     <!-- CSS files -->
-    <link href="{{ asset('dist/css/tabler.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('dist/css/nexora.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('css/custom-colors.css') }}" rel="stylesheet"/>
     <style>
         @import url('https://rsms.me/inter/inter.css');
         :root {
-            --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+            --nexora-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
         }
         body {
             font-feature-settings: "cv03", "cv04", "cv11";
+            color: #000 !important;
+        }
+
+        /* Ensure all text is black for better visibility */
+        * {
+            color: #000 !important;
+        }
+
+        /* Exception for colored elements */
+        .text-blue-500, .text-blue-700, .btn-primary {
+            color: #3b82f6 !important;
         }
     </style>
 
@@ -27,7 +39,7 @@
         <div class="container container-tight py-4">
             <div class="text-center mb-4">
                 <a href="{{ url('/') }}" class="navbar-brand navbar-brand-autodark">
-                    <img src="{{ asset('static/logo.svg') }}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+                    <img src="{{ asset('static/logo.svg') }}" width="110" height="32" alt="Nexora" class="navbar-brand-image">
                 </a>
             </div>
 
@@ -38,7 +50,7 @@
     </div>
 
     <!-- Libs JS -->
-    <script src="{{ asset('dist/js/tabler.min.js') }}" defer></script>
+    <script src="{{ asset('dist/js/nexora.min.js') }}" defer></script>
 
     <!-- Custom JS for specific page.  -->
     @stack('page-scripts')

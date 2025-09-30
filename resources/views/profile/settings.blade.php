@@ -1,4 +1,4 @@
-@extends('layouts.tabler')
+@extends('layouts.nexora')
 
 @section('content')
 <div class="container-xl px-4 mt-4">

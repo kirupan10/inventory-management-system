@@ -10,12 +10,12 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 
     <!-- CSS files -->
-    <link href="{{ asset('dist/css/tabler.min.css') }}" rel="stylesheet"/>
+    <link href="{{ asset('dist/css/nexora.min.css') }}" rel="stylesheet"/>
     <link href="{{ asset('css/custom-colors.css') }}" rel="stylesheet"/>
     <style>
         @import url('https://rsms.me/inter/inter.css');
         :root {
-            --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+            --nexora-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
         }
         body {
             font-feature-settings: "cv03", "cv04", "cv11";
@@ -43,8 +43,8 @@
             </div>
         </div>
 
-        <!-- Tabler Core -->
-        <script src="{{ asset('dist/js/tabler.min.js') }}" defer></script>
+        <!-- Nexora Core -->
+        <script src="{{ asset('dist/js/nexora.min.js') }}" defer></script>
         {{--- Page Scripts ---}}
         @stack('page-scripts')
 

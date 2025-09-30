@@ -13,6 +13,8 @@ use App\Http\Controllers\Product\ProductController;
 use App\Http\Controllers\Dashboards\DashboardController;
 use App\Http\Controllers\Product\ProductExportController;
 use App\Http\Controllers\Product\ProductImportController;
+use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,3 +107,74 @@ Route::post('simple-test', function(\Illuminate\Http\Request $request) {
 
     return response('<h1>SUCCESS!</h1><pre>' . json_encode($request->all(), JSON_PRETTY_PRINT) . '</pre>');
 })->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+
+// Price debug route
+Route::get('/price-debug', function() {
+    return view('price-debug');
+})->name('price.debug');
+
+// Debug route for PDF testing - Direct approach
+Route::get('/test-pdf', function () {
+    $order = \App\Models\Order::with(['customer', 'details.product'])->first();
+    if (!$order) {
+        return response('No orders found. Create an order first.', 404);
+    }
+
+    $pdf = PDF::loadView('orders.pdf-bill', [
+        'order' => $order,
+        'letterheadConfig' => [],
+    ]);
+    return $pdf->stream('test-invoice-' . $order->invoice_no . '.pdf');
+});
+
+// Debug route that mimics OrderController exactly
+Route::get('/test-order-controller/{id?}', function ($id = null) {
+    $order = $id ? \App\Models\Order::findOrFail($id) : \App\Models\Order::with(['customer', 'details.product'])->first();
+    if (!$order) {
+        return response('No orders found. Create an order first.', 404);
+    }
+
+    // Load the order with its relationships (exactly like OrderController)
+    $order->loadMissing(['customer', 'details.product']);
+
+    // Get letterhead config (exactly like OrderController)
+    $letterheadConfig = [];
+    if (file_exists(storage_path('app/letterhead_config.json'))) {
+        $letterheadConfig = json_decode(file_get_contents(storage_path('app/letterhead_config.json')), true) ?? [];
+    }
+
+    // Generate PDF using DomPDF (exactly like OrderController generateStandardPdf)
+    $pdf = PDF::loadView('orders.pdf-bill', [
+        'order' => $order,
+        'letterheadConfig' => $letterheadConfig,
+    ]);
+
+    // Set paper size to A4 and orientation to portrait (exactly like OrderController)
+    $pdf->setPaper('A4', 'portrait');
+
+    // Set options for better rendering (exactly like OrderController)
+    $pdf->setOptions([
+        'dpi' => 72, // Match the positioning canvas DPI
+        'defaultFont' => 'Arial',
+        'isHtml5ParserEnabled' => true,
+        'isPhpEnabled' => true,
+        'isRemoteEnabled' => true,
+    ]);
+
+    return $pdf->stream('controller-test-' . $order->invoice_no . '.pdf');
+});
+
+// Debug calculation route
+Route::get('/debug-calculations/{order?}', function($orderId = null) {
+    if ($orderId) {
+        $order = Order::with(['details.product', 'customer'])->find($orderId);
+        if (!$order) {
+            return view('debug-calculations')->with('error', 'Order not found');
+        }
+        return view('debug-calculations', compact('order'));
+    }
+
+    // Show latest order if no ID provided
+    $order = Order::with(['details.product', 'customer'])->latest()->first();
+    return view('debug-calculations', compact('order'));
+})->name('debug.calculations');
