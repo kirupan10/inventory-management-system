@@ -24,8 +24,8 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 12px;
-            line-height: 1.2;
+            font-size: 10px; /* Default font size for printable elements */
+            line-height: 1.3;
             color: #000;
             background: transparent; /* Transparent background for overlay */
         }
@@ -47,22 +47,39 @@
 
         .items-table {
             border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 15px;
         }
 
         .items-table th {
-            background: rgba(245, 245, 245, 0.9); /* Semi-transparent background */
-            border: 1px solid #ddd;
-            padding: 10px;
+            background: rgba(245, 245, 245, 0.95);
+            border: 1px solid #333;
+            padding: 8px 6px;
             text-align: left;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 10px;
+            line-height: 1.2;
         }
 
         .items-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            font-size: 12px;
-            background: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+            border: 1px solid #333;
+            padding: 6px;
+            font-size: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            vertical-align: top;
+            line-height: 1.2;
+        }
+
+        .item-name {
+            font-weight: bold;
+            margin-bottom: 2px;
+            font-size: 10px;
+        }
+
+        .item-details {
+            font-size: 8px;
+            color: #555;
+            margin-bottom: 1px;
         }
 
         .text-right {
@@ -73,24 +90,65 @@
             text-align: center;
         }
 
-        .total-row {
-            margin-bottom: 5px;
-        }
-
-        .total-final {
-            font-weight: bold;
-            font-size: 13px;
-            border-top: 2px solid #000;
-            padding-top: 5px;
+        .payment-table {
+            border-collapse: collapse;
+            width: 100%;
             margin-top: 10px;
         }
 
-        .warranty-text {
+        .payment-table td {
+            padding: 4px 8px;
+            font-size: 10px;
+            border-bottom: 1px solid #ddd;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .payment-table .label {
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .payment-table .amount {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .payment-table .total-row td {
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            padding: 6px 8px;
+            font-weight: bold;
             font-size: 11px;
-            line-height: 1.4;
+        }
+
+        .discount-amount {
+            color: #dc3545;
+        }
+
+        .warranty-text {
+            font-size: 9px;
+            line-height: 1.3;
             width: 500px;
-            /* background removed for better positioning */ /* Semi-transparent background for readability */
-            padding: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .warranty-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 10px;
+        }
+
+        .warranty-duration {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 9px;
+        }
+
+        .warranty-clause {
+            margin-bottom: 3px;
+            line-height: 1.2;
         }
 
         @media print {
@@ -104,63 +162,23 @@
     <div class="page">
         {{-- Content overlay for PDF letterhead --}}
 
-        {{-- Company Name --}}
-        @if(isset($positionMap['company_name']))
-        <div class="positioned-element" style="
-            left: {{ $positionMap['company_name']['x'] ?? 50 }}px;
-            top: {{ $positionMap['company_name']['y'] ?? 50 }}px;
-            font-size: {{ $positionMap['company_name']['font_size'] ?? 18 }}px;
-            font-weight: {{ $positionMap['company_name']['font_weight'] ?? 'bold' }};
-            /* background removed for better positioning */
 
-        ">
-            AURA PC FACTORY (PVT) LTD
-        </div>
-        @endif
 
-        {{-- Company Address --}}
-        @if(isset($positionMap['company_address']))
-        <div class="positioned-element" style="
-            left: {{ $positionMap['company_address']['x'] ?? 50 }}px;
-            top: {{ $positionMap['company_address']['y'] ?? 80 }}px;
-            font-size: {{ $positionMap['company_address']['font_size'] ?? 14 }}px;
-            font-weight: {{ $positionMap['company_address']['font_weight'] ?? 'normal' }};
-            line-height: 1.3;
-            /* background removed for better positioning */
 
-        ">
-            KALANCHIYAM THODDAM,<br>
-            KARAVEDDY EAST, KARAVEDDY,<br>
-            NORTHERN PROVINCE 40,000<br>
-            SRI LANKA
-        </div>
-        @endif
 
-        {{-- Company Contact --}}
-        @if(isset($positionMap['company_contact']))
-        <div class="positioned-element" style="
-            left: {{ $positionMap['company_contact']['x'] ?? 50 }}px;
-            top: {{ $positionMap['company_contact']['y'] ?? 110 }}px;
-            font-size: {{ $positionMap['company_contact']['font_size'] ?? 12 }}px;
-            font-weight: {{ $positionMap['company_contact']['font_weight'] ?? 'normal' }};
-            /* background removed for better positioning */
 
-        ">
-            📧 AuraPCFactory@gmail.com &nbsp;&nbsp; 📞 +94 77 022 1046
-        </div>
-        @endif
 
         {{-- Invoice Number --}}
         @if(isset($positionMap['invoice_no']))
         <div class="positioned-element" style="
             left: {{ $positionMap['invoice_no']['x'] ?? 400 }}px;
             top: {{ $positionMap['invoice_no']['y'] ?? 50 }}px;
-            font-size: {{ $positionMap['invoice_no']['font_size'] ?? 14 }}px;
+            font-size: {{ $positionMap['invoice_no']['font_size'] ?? 12 }}px;
             font-weight: {{ $positionMap['invoice_no']['font_weight'] ?? 'bold' }};
             /* background removed for better positioning */
 
         ">
-            {{ $order->invoice_no }}
+            INVOICE: {{ $order->invoice_no }}
         </div>
         @endif
 
@@ -169,12 +187,12 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['invoice_date']['x'] ?? 400 }}px;
             top: {{ $positionMap['invoice_date']['y'] ?? 70 }}px;
-            font-size: {{ $positionMap['invoice_date']['font_size'] ?? 14 }}px;
+            font-size: {{ $positionMap['invoice_date']['font_size'] ?? 10 }}px;
             font-weight: {{ $positionMap['invoice_date']['font_weight'] ?? 'normal' }};
             /* background removed for better positioning */
 
         ">
-            {{ $order->order_date->format('d/m/Y') }}
+            DATE: {{ $order->order_date->format('d/m/Y') }}
         </div>
         @endif
 
@@ -183,7 +201,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_name']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_name']['y'] ?? 150 }}px;
-            font-size: {{ $positionMap['customer_name']['font_size'] ?? 14 }}px;
+            font-size: {{ $positionMap['customer_name']['font_size'] ?? 10 }}px;
             font-weight: {{ $positionMap['customer_name']['font_weight'] ?? 'bold' }};
             /* background removed for better positioning */
 
@@ -197,7 +215,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_phone']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_phone']['y'] ?? 170 }}px;
-            font-size: {{ $positionMap['customer_phone']['font_size'] ?? 13 }}px;
+            font-size: {{ $positionMap['customer_phone']['font_size'] ?? 10 }}px;
             font-weight: {{ $positionMap['customer_phone']['font_weight'] ?? 'normal' }};
             /* background removed for better positioning */
 
@@ -211,7 +229,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_address']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_address']['y'] ?? 190 }}px;
-            font-size: {{ $positionMap['customer_address']['font_size'] ?? 13 }}px;
+            font-size: {{ $positionMap['customer_address']['font_size'] ?? 10 }}px;
             font-weight: {{ $positionMap['customer_address']['font_weight'] ?? 'normal' }};
             line-height: 1.3;
             /* background removed for better positioning */
@@ -226,7 +244,7 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_email']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_email']['y'] ?? 210 }}px;
-            font-size: {{ $positionMap['customer_email']['font_size'] ?? 13 }}px;
+            font-size: {{ $positionMap['customer_email']['font_size'] ?? 10 }}px;
             font-weight: {{ $positionMap['customer_email']['font_weight'] ?? 'normal' }};
             /* background removed for better positioning */
 
@@ -240,32 +258,32 @@
         <div class="positioned-element" style="
             left: {{ $positionMap['items_table']['x'] ?? 50 }}px;
             top: {{ $positionMap['items_table']['y'] ?? 240 }}px;
-            font-size: {{ $positionMap['items_table']['font_size'] ?? 13 }}px;
+            width: 500px;
         ">
-            <table class="items-table" style="width: 500px;">
+            <table class="items-table">
                 <thead>
                     <tr>
-                        <th style="width: 280px; text-align: left; padding: 8px; background: rgba(248, 249, 250, 0.95);">Product Name & Details</th>
-                        <th style="width: 60px; text-align: center; padding: 8px; background: rgba(248, 249, 250, 0.95);">Qty</th>
-                        <th style="width: 80px; text-align: right; padding: 8px; background: rgba(248, 249, 250, 0.95);">Unit Amount</th>
-                        <th style="width: 80px; text-align: right; padding: 8px; background: rgba(248, 249, 250, 0.95);">Total Amount</th>
+                        <th style="width: 60%; text-align: left;">Item Details</th>
+                        <th style="width: 10%; text-align: center;">Qty</th>
+                        <th style="width: 15%; text-align: right;">Unit Price</th>
+                        <th style="width: 15%; text-align: right;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($order->details as $item)
                     <tr>
-                        <td style="text-align: left; padding: 6px; vertical-align: top;">
-                            <div style="font-weight: bold; margin-bottom: 2px;">{{ $item->product->name }}</div>
+                        <td style="text-align: left;">
+                            <div class="item-name">{{ $item->product->name }}</div>
                             @if($item->serial_number)
-                                <div style="font-size: 9px; color: #666; margin-bottom: 1px;">S/N: {{ $item->serial_number }}</div>
+                                <div class="item-details">S/N: {{ $item->serial_number }}</div>
                             @endif
                             @if($item->warranty_years)
-                                <div style="font-size: 9px; color: #666;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
+                                <div class="item-details">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
                             @endif
                         </td>
-                        <td style="text-align: center; padding: 6px; vertical-align: middle; font-weight: bold;">{{ $item->quantity }}</td>
-                        <td style="text-align: right; padding: 6px; vertical-align: middle;">LKR {{ number_format($item->unitcost, 2) }}</td>
-                        <td style="text-align: right; padding: 6px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total, 2) }}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{ $item->quantity }}</td>
+                        <td style="text-align: right; vertical-align: middle;">LKR {{ number_format($item->unitcost / 100, 2) }}</td>
+                        <td style="text-align: right; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -273,59 +291,59 @@
         </div>
         @endif
 
-        {{-- Total Section --}}
+        {{-- Payment Details Section --}}
         @if(isset($positionMap['total_section']))
         <div class="positioned-element" style="
             left: {{ $positionMap['total_section']['x'] ?? 350 }}px;
             top: {{ $positionMap['total_section']['y'] ?? 520 }}px;
-            font-size: {{ $positionMap['total_section']['font_size'] ?? 14 }}px;
             width: 200px;
         ">
-            <table style="width: 100%; border-collapse: collapse;">
+            <table class="payment-table">
                 <tr>
-                    <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee; background: rgba(255, 255, 255, 0.9);">Subtotal:</td>
-                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->sub_total, 2) }}</td>
+                    <td class="label">Subtotal:</td>
+                    <td class="amount">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
                 </tr>
                 @if($order->discount_amount > 0)
                 <tr>
-                    <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee; background: rgba(255, 255, 255, 0.9);">Discount:</td>
-                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; color: #dc3545; background: rgba(255, 255, 255, 0.9);">-LKR {{ number_format($order->discount_amount, 2) }}</td>
+                    <td class="label">Discount:</td>
+                    <td class="amount discount-amount">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
                 </tr>
                 @endif
                 @if($order->service_charges > 0)
                 <tr>
-                    <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee; background: rgba(255, 255, 255, 0.9);">Service Charges:</td>
-                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->service_charges, 2) }}</td>
+                    <td class="label">Service Charges:</td>
+                    <td class="amount">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
                 </tr>
                 @endif
+                @if($order->vat > 0)
                 <tr>
-                    <td style="text-align: left; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.9);">GRAND TOTAL:</td>
-                    <td style="text-align: right; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->total, 2) }}</td>
+                    <td class="label">VAT/Tax:</td>
+                    <td class="amount">LKR {{ number_format($order->vat / 100, 2) }}</td>
                 </tr>
+                @endif
+                <tr class="total-row">
+                    <td class="label">GRAND TOTAL:</td>
+                    <td class="amount">LKR {{ number_format($order->total / 100, 2) }}</td>
+                </tr>
+                @if($order->pay > 0)
+                <tr>
+                    <td class="label">Amount Paid:</td>
+                    <td class="amount">LKR {{ number_format($order->pay / 100, 2) }}</td>
+                </tr>
+                @endif
+                @if($order->due > 0)
+                <tr>
+                    <td class="label">Amount Due:</td>
+                    <td class="amount" style="color: #dc3545;">LKR {{ number_format($order->due / 100, 2) }}</td>
+                </tr>
+                @endif
+                @if(isset($order->payment_type))
+                <tr>
+                    <td class="label">Payment Method:</td>
+                    <td class="amount">{{ $order->payment_type }}</td>
+                </tr>
+                @endif
             </table>
-        </div>
-        @endif
-
-        {{-- Payment Details Section --}}
-        @if(isset($positionMap['payment_details']))
-        <div class="positioned-element" style="
-            left: {{ $positionMap['payment_details']['x'] ?? 50 }}px;
-            top: {{ $positionMap['payment_details']['y'] ?? 580 }}px;
-            font-size: {{ $positionMap['payment_details']['font_size'] ?? 13 }}px;
-            width: 250px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 8px;
-            border: 1px solid #ddd;
-        ">
-            <div style="font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;">PAYMENT DETAILS</div>
-            <div style="margin-bottom: 3px;"><strong>Payment Method:</strong> {{ ucfirst($order->payment_type) }}</div>
-            <div style="margin-bottom: 3px;"><strong>Amount Paid:</strong> LKR {{ number_format($order->pay, 2) }}</div>
-            @if($order->due > 0)
-                <div style="margin-bottom: 3px; color: #dc3545;"><strong>Amount Due:</strong> LKR {{ number_format($order->due, 2) }}</div>
-                <div style="font-size: 11px; color: #dc3545; font-style: italic;">Payment pending</div>
-            @else
-                <div style="color: #28a745; font-weight: bold; font-size: 11px;">✓ FULLY PAID</div>
-            @endif
         </div>
         @endif
 
@@ -334,15 +352,16 @@
         <div class="positioned-element warranty-text" style="
             left: {{ $positionMap['warranty_section']['x'] ?? 50 }}px;
             top: {{ $positionMap['warranty_section']['y'] ?? 600 }}px;
-            font-size: {{ $positionMap['warranty_section']['font_size'] ?? 11 }}px;
+            font-size: {{ $positionMap['warranty_section']['font_size'] ?? 9 }}px;
             font-weight: {{ $positionMap['warranty_section']['font_weight'] ?? 'normal' }};
         ">
-            <div style="font-weight: bold; margin-bottom: 5px;">WARRANTY TERMS & CONDITION</div>
-            <div style="font-weight: bold; margin-bottom: 5px;">(6Month Days , 1Y=350 Days , 2Y=700 Days , 3Y=1050 Days , N/W= No Warranty)</div>
-            <div style="margin-bottom: 3px;">Defect part will be repaired within 14 days time period. No warranty for chip burnt,physical damage, corroded , misuse,negligence or improper operations.Printers are included with demonstration cartridges and toners. warranty void if refill or compatible cartridges are used. Replacement warranty for laptop , Only Repair Warranty,Goods sold once not returnable.Warranty Covers for monitor and Laptop LCD or LED Panel for over seven Death Pixels.</div>
-            <div style="font-weight: bold; margin-bottom: 3px;">Submit this invoice for warranty Claim.</div>
-            <div style="margin-bottom: 3px;">Cheques to the drawn in favour of "AURA PC FACTORY (PVT) LTD" and crossed ACCOUNT PAYEE ONLY</div>
-            <div style="font-weight: bold;">This is a computer-generated invoice and does not require a signature.</div>
+            <div class="warranty-title">WARRANTY TERMS & CONDITIONS</div>
+            <div class="warranty-duration">(6 Months, 1Y=350 Days, 2Y=700 Days, 3Y=1050 Days, N/W=No Warranty)</div>
+            <div class="warranty-clause">Defect parts will be repaired within 14 days. No warranty for chip burn, physical damage, corrosion, misuse, negligence or improper operations. Printers include demonstration cartridges and toners. Warranty void if refill or compatible cartridges are used.</div>
+            <div class="warranty-clause">Replacement warranty for laptops - Repair warranty only. Goods sold once not returnable. Warranty covers monitors and laptop LCD/LED panels for over seven dead pixels.</div>
+            <div class="warranty-clause" style="font-weight: bold;">Submit this invoice for warranty claims.</div>
+            <div class="warranty-clause">Cheques should be crossed ACCOUNT PAYEE ONLY.</div>
+            <div class="warranty-clause" style="font-weight: bold;">This is a computer-generated invoice and does not require a signature.</div>
         </div>
         @endif
     </div>

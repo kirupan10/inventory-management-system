@@ -39,7 +39,7 @@ class LetterheadController extends Controller
             $previewImage = null;
             if (strtolower($extension) === 'pdf') {
                 $previewImage = $this->createPdfPreviewImage(public_path('letterheads/' . $filename));
-                
+
                 // If preview generation failed, log it but continue (positioning still works)
                 if (!$previewImage) {
                     \Log::warning('PDF preview generation failed during upload - positioning canvas will work without preview');
@@ -89,7 +89,7 @@ class LetterheadController extends Controller
     public function regeneratePreview()
     {
         $config = $this->getLetterheadConfig();
-        
+
         if (!isset($config['letterhead_file']) || $config['letterhead_type'] !== 'pdf') {
             return response()->json(['success' => false, 'message' => 'No PDF letterhead found']);
         }
@@ -100,12 +100,12 @@ class LetterheadController extends Controller
         }
 
         $previewImage = $this->createPdfPreviewImage($pdfPath);
-        
+
         if ($previewImage) {
             $config['preview_image'] = $previewImage;
             $config['updated_at'] = now()->toISOString();
             $this->saveLetterheadConfig($config);
-            
+
             return response()->json(['success' => true, 'preview_image' => $previewImage]);
         } else {
             return response()->json(['success' => false, 'message' => 'Failed to generate preview']);
@@ -151,7 +151,7 @@ class LetterheadController extends Controller
 
             // Use ImageMagick command to create preview
             $command = sprintf(
-                '%s -density 150 -quality 95 "%s[0]" -resize 595x842! -background white -alpha remove "%s" 2>&1',
+                '%s -density 150 -quality 95 %s[0] -resize 595x842! -background white -alpha remove %s 2>&1',
                 escapeshellcmd($magickPath),
                 escapeshellarg($pdfPath),
                 escapeshellarg($previewPath)
@@ -163,7 +163,15 @@ class LetterheadController extends Controller
                 \Log::info('PDF preview created successfully using command line: ' . $previewFilename);
                 return $previewFilename;
             } else {
-                \Log::warning('Failed to create PDF preview using command line. Output: ' . $output);
+                // More detailed error logging
+                $errorMsg = 'Failed to create PDF preview using command line.';
+                if (!empty($output)) {
+                    $errorMsg .= ' Output: ' . $output;
+                }
+                if (strpos($output, 'no decode delegate') !== false) {
+                    $errorMsg .= ' - This usually means Ghostscript is not properly installed or configured with ImageMagick.';
+                }
+                \Log::warning($errorMsg);
                 return null;
             }
         } catch (\Exception $e) {
@@ -184,6 +192,35 @@ class LetterheadController extends Controller
         if (File::isDirectory($letterheadDir)) {
             File::cleanDirectory($letterheadDir);
         }
+    }
+
+    private function checkPdfProcessingCapability()
+    {
+        // Check if Imagick extension is available
+        if (extension_loaded('imagick')) {
+            try {
+                $imagick = new Imagick();
+                $formats = $imagick->queryFormats('PDF');
+                $imagick->destroy();
+                if (!empty($formats)) {
+                    return ['status' => true, 'method' => 'php_imagick'];
+                }
+            } catch (\Exception $e) {
+                // Fall through to command line check
+            }
+        }
+
+        // Check command line ImageMagick
+        $magickPath = trim(shell_exec('which magick'));
+        if (empty($magickPath)) {
+            $magickPath = trim(shell_exec('which convert'));
+        }
+
+        if (!empty($magickPath)) {
+            return ['status' => true, 'method' => 'command_line'];
+        }
+
+        return ['status' => false, 'method' => 'none'];
     }
 
     private function createPdfPreviewImage($pdfPath)
@@ -247,7 +284,11 @@ class LetterheadController extends Controller
                 return null;
             }
         } catch (\Exception $e) {
-            \Log::error('Failed to create PDF preview: ' . $e->getMessage());
+            $errorMsg = 'Failed to create PDF preview using PHP Imagick: ' . $e->getMessage();
+            if (strpos($e->getMessage(), 'no decode delegate') !== false) {
+                $errorMsg .= ' - This usually means Ghostscript is not properly installed or configured with ImageMagick.';
+            }
+            \Log::error($errorMsg);
             return null;
         }
     }    private function getDefaultConfig()
@@ -257,19 +298,16 @@ class LetterheadController extends Controller
             'letterhead_type' => 'image',
             'preview_image' => null,
             'positions' => [
-                ['field' => 'company_name', 'x' => 50, 'y' => 50, 'font_size' => 18, 'font_weight' => 'bold'],
-                ['field' => 'company_address', 'x' => 50, 'y' => 80, 'font_size' => 14, 'font_weight' => 'normal'],
-                ['field' => 'company_contact', 'x' => 50, 'y' => 110, 'font_size' => 12, 'font_weight' => 'normal'],
-                ['field' => 'invoice_no', 'x' => 400, 'y' => 50, 'font_size' => 14, 'font_weight' => 'bold'],
-                ['field' => 'invoice_date', 'x' => 400, 'y' => 70, 'font_size' => 14, 'font_weight' => 'normal'],
-                ['field' => 'product_name', 'x' => 50, 'y' => 130, 'font_size' => 13, 'font_weight' => 'bold'],
-                ['field' => 'customer_name', 'x' => 50, 'y' => 150, 'font_size' => 14, 'font_weight' => 'bold'],
-                ['field' => 'customer_phone', 'x' => 50, 'y' => 170, 'font_size' => 13, 'font_weight' => 'normal'],
-                ['field' => 'customer_address', 'x' => 50, 'y' => 190, 'font_size' => 13, 'font_weight' => 'normal'],
-                ['field' => 'customer_email', 'x' => 50, 'y' => 210, 'font_size' => 13, 'font_weight' => 'normal'],
-                ['field' => 'items_table', 'x' => 50, 'y' => 240, 'font_size' => 13, 'font_weight' => 'normal'],
-                ['field' => 'total_section', 'x' => 350, 'y' => 520, 'font_size' => 14, 'font_weight' => 'normal'],
-                ['field' => 'warranty_section', 'x' => 50, 'y' => 620, 'font_size' => 11, 'font_weight' => 'normal'],
+                ['field' => 'invoice_no', 'x' => 400, 'y' => 50, 'font_size' => 12, 'font_weight' => 'bold'],
+                ['field' => 'invoice_date', 'x' => 400, 'y' => 70, 'font_size' => 10, 'font_weight' => 'normal'],
+                ['field' => 'product_name', 'x' => 50, 'y' => 130, 'font_size' => 10, 'font_weight' => 'bold'],
+                ['field' => 'customer_name', 'x' => 50, 'y' => 150, 'font_size' => 10, 'font_weight' => 'bold'],
+                ['field' => 'customer_phone', 'x' => 50, 'y' => 170, 'font_size' => 10, 'font_weight' => 'normal'],
+                ['field' => 'customer_address', 'x' => 50, 'y' => 190, 'font_size' => 10, 'font_weight' => 'normal'],
+                ['field' => 'customer_email', 'x' => 50, 'y' => 210, 'font_size' => 10, 'font_weight' => 'normal'],
+                ['field' => 'items_table', 'x' => 50, 'y' => 240, 'font_size' => 10, 'font_weight' => 'normal'],
+                ['field' => 'total_section', 'x' => 350, 'y' => 520, 'font_size' => 10, 'font_weight' => 'normal'],
+                ['field' => 'warranty_section', 'x' => 50, 'y' => 620, 'font_size' => 9, 'font_weight' => 'normal'],
             ]
         ];
     }
