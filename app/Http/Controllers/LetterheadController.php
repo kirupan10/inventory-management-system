@@ -86,6 +86,42 @@ class LetterheadController extends Controller
         return response()->json($config['positions'] ?? []);
     }
 
+    public function saveToggles(Request $request)
+    {
+        $toggles = $request->validate([
+            'toggles' => 'required|array',
+            'toggles.*' => 'boolean',
+        ]);
+
+        $config = $this->getLetterheadConfig();
+        $config['element_toggles'] = $toggles['toggles'];
+        $this->saveLetterheadConfig($config);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function getToggles()
+    {
+        $config = $this->getLetterheadConfig();
+        return response()->json($config['element_toggles'] ?? []);
+    }
+
+    public function saveItemsAlignment(Request $request)
+    {
+        $alignment = $request->validate([
+            'alignment' => 'required|array',
+            'alignment.start_x' => 'required|numeric|min:0|max:400',
+            'alignment.end_x' => 'required|numeric|min:200|max:595',
+            'alignment.width' => 'required|numeric|min:300|max:555',
+        ]);
+
+        $config = $this->getLetterheadConfig();
+        $config['items_alignment'] = $alignment['alignment'];
+        $this->saveLetterheadConfig($config);
+
+        return response()->json(['success' => true, 'message' => 'Items alignment saved successfully']);
+    }
+
     public function regeneratePreview()
     {
         $config = $this->getLetterheadConfig();
@@ -306,6 +342,12 @@ class LetterheadController extends Controller
                 ['field' => 'items_table', 'x' => 50, 'y' => 240, 'font_size' => 10, 'font_weight' => 'normal'],
                 ['field' => 'total_section', 'x' => 350, 'y' => 520, 'font_size' => 10, 'font_weight' => 'normal'],
                 ['field' => 'warranty_section', 'x' => 50, 'y' => 620, 'font_size' => 9, 'font_weight' => 'normal'],
+            ],
+            'element_toggles' => [
+                'customer_name' => true,
+                'customer_phone' => true,
+                'customer_address' => true,
+                'customer_email' => true,
             ]
         ];
     }

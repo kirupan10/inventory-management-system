@@ -1,426 +1,459 @@
 @extends('layouts.tabler')
 
 @section('content')
-<div class="page-body">
-    <div class="container-fluid">
-        <x-alert/>
+    <div class="page-body">
+        <div class="container-fluid">
+            <x-alert />
 
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <h6>Please fix the following errors:</h6>
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <h6>Please fix the following errors:</h6>
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-        <!-- POS Header -->
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h1 class="page-title">
-                        {{ __('Point of Sale') }}
-                    </h1>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('letterhead.index') }}" class="btn btn-info">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
-                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>
-                                <path d="M12 11l0 6"/>
-                                <path d="M9 14l3 -3l3 3"/>
-                            </svg>
-                            📄 Letterhead Setup
-                        </a>
-                        <a href="{{ route('orders.download-pdf-bill', 61) }}" class="btn btn-success" target="_blank">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M14 3v4a1 1 0 0 0 1 1h4"/>
-                                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/>
-                                <path d="M9 9l1 0"/>
-                                <path d="M9 13l6 0"/>
-                                <path d="M9 17l6 0"/>
-                            </svg>
-                            Test PDF (Order #61)
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M9 14l-4 -4l4 -4"/>
-                                <path d="M5 10h11a4 4 0 1 1 0 8h-1"/>
-                            </svg>
-                            Back to Dashboard
-                        </a>
+            <!-- POS Header -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            {{ __('Point of Sale') }}
+                        </h1>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M9 14l-4 -4l4 -4" />
+                                    <path d="M5 10h11a4 4 0 1 1 0 8h-1" />
+                                </svg>
+                                Back to Dashboard
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <form id="order-form" action="{{ route('orders.store') }}" method="POST">
-            @csrf
-            <!-- Hidden date field with current date -->
-            <input name="date" id="date" type="hidden" value="{{ now()->format('Y-m-d') }}">
-            <!-- Hidden reference field with default value -->
-            <input name="reference" type="hidden" value="ORDR">
+            <form id="order-form" action="{{ route('orders.store') }}" method="POST">
+                @csrf
+                <!-- Hidden date field with current date -->
+                <input name="date" id="date" type="hidden" value="{{ now()->format('Y-m-d') }}">
+                <!-- Hidden reference field with default value -->
+                <input name="reference" type="hidden" value="ORDR">
 
-            <div class="row" style="min-height: calc(100vh - 200px);">
-                <!-- LEFT SECTION: Product Search (60%) -->
-                <div class="col-lg-7 col-xl-7">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h3 class="card-title mb-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M4 7v-1a2 2 0 0 1 2 -2h2"/>
-                                            <path d="M4 17v1a2 2 0 0 0 2 2h2"/>
-                                            <path d="M16 4h2a2 2 0 0 1 2 2v1"/>
-                                            <path d="M16 20h2a2 2 0 0 0 2 -2v-1"/>
-                                            <path d="M8 11l0 .01"/>
-                                            <path d="M12 11l0 .01"/>
-                                            <path d="M16 11l0 .01"/>
-                                            <path d="M8 15l0 .01"/>
-                                            <path d="M12 15l0 .01"/>
-                                            <path d="M16 15l0 .01"/>
-                                        </svg>
-                                        Product Search
-                                    </h3>
-                                </div>
-                                <div class="text-muted">
+                <div class="row" style="min-height: calc(100vh - 200px);">
+                    <!-- LEFT SECTION: Product Search (60%) -->
+                    <div class="col-lg-7 col-xl-7">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="card-title mb-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                                height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                                                <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                                                <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                                                <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                                                <path d="M8 11l0 .01" />
+                                                <path d="M12 11l0 .01" />
+                                                <path d="M16 11l0 .01" />
+                                                <path d="M8 15l0 .01" />
+                                                <path d="M12 15l0 .01" />
+                                                <path d="M16 15l0 .01" />
+                                            </svg>
+                                            Product Search
+                                        </h3>
+                                    </div>
+                                    <div class="text-muted">
 
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <!-- Product Search Section -->
-                            <div class="mb-4">
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <input type="text" class="form-control form-control-lg" placeholder="Search products by name, SKU, or scan barcode..." autocomplete="off">
                                     </div>
                                 </div>
                             </div>
+                            <div class="card-body d-flex flex-column">
+                                <!-- Product Search Section -->
+                                <div class="mb-4">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <input type="text" class="form-control form-control-lg"
+                                                placeholder="Search products by name, SKU, or scan barcode..."
+                                                autocomplete="off">
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <!-- Products Grid -->
-                            <div class="flex-1" style="overflow-y: auto; overflow-x: hidden; max-height: 500px;">
-                                <h4 class="mb-3">Products ({{ $products->count() }} items)</h4>
-                                <div class="row g-2" style="margin: 0;">
-                                    @foreach($products as $product)
-                                    <div class="col-md-6 col-lg-4" style="padding: 0.25rem;">
-                                        <div class="card product-card {{ $product->quantity <= 0 ? 'out-of-stock' : 'cursor-pointer hover-shadow' }}"
-                                             data-product-id="{{ $product->id }}"
-                                             data-stock="{{ $product->quantity }}"
-                                             style="border: {{ $product->quantity <= 0 ? '2px solid #ef4444' : '1px solid #e9ecef' }};
+                                <!-- Products Grid -->
+                                <div class="flex-1" style="overflow-y: auto; overflow-x: hidden; max-height: 500px;">
+                                    <h4 class="mb-3">Products ({{ $products->count() }} items)</h4>
+                                    <div class="row g-2" style="margin: 0;">
+                                        @foreach ($products as $product)
+                                            <div class="col-md-6 col-lg-4" style="padding: 0.25rem;">
+                                                <div class="card product-card {{ $product->quantity <= 0 ? 'out-of-stock' : 'cursor-pointer hover-shadow' }}"
+                                                    data-product-id="{{ $product->id }}"
+                                                    data-stock="{{ $product->quantity }}"
+                                                    style="border: {{ $product->quantity <= 0 ? '2px solid #ef4444' : '1px solid #e9ecef' }};
                                                     border-radius: 8px;
                                                     min-height: 50px;
                                                     width: 100%;
                                                     {{ $product->quantity <= 0 ? 'opacity: 0.6; cursor: not-allowed;' : '' }}">
-                                            <div class="card-body p-3">
-                                                <div class="text-start">
-                                                    <div class="fw-bold {{ $product->quantity <= 0 ? 'text-muted' : 'text-dark' }} mb-1" style="font-size: 14px; line-height: 1.2; word-wrap: break-word;">
-                                                        {{ Str::limit($product->name, 25) }}
-                                                        @if($product->quantity <= 0)
-                                                            <small class="text-danger ms-1">(Out of Stock)</small>
-                                                        @endif
+                                                    <div class="card-body p-3">
+                                                        <div class="text-start">
+                                                            <div class="fw-bold {{ $product->quantity <= 0 ? 'text-muted' : 'text-dark' }} mb-1"
+                                                                style="font-size: 14px; line-height: 1.2; word-wrap: break-word;">
+                                                                {{ Str::limit($product->name, 25) }}
+                                                                @if ($product->quantity <= 0)
+                                                                    <small class="text-danger ms-1">(Out of Stock)</small>
+                                                                @endif
+                                                            </div>
+                                                            <div class="text-muted small mb-2" style="font-size: 11px;">
+                                                                PRD-{{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between align-items-center"
+                                                            style="flex-wrap: wrap;">
+                                                            <span
+                                                                class="fw-bold {{ $product->quantity <= 0 ? 'text-muted' : 'text-success' }}"
+                                                                style="font-size: 14px; white-space: nowrap;">LKR
+                                                                {{ number_format($product->selling_price, 0) }}</span>
+                                                            @if ($product->quantity > 0)
+                                                                <span class="badge rounded-pill"
+                                                                    style="background-color: #3b82f6; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Stock:
+                                                                    {{ $product->quantity }}</span>
+                                                            @else
+                                                                <span class="badge rounded-pill"
+                                                                    style="background-color: #ef4444; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Out
+                                                                    of Stock</span>
+                                                            @endif
+                                                        </div>
                                                     </div>
-                                                    <div class="text-muted small mb-2" style="font-size: 11px;">
-                                                        PRD-{{ str_pad($product->id, 6, '0', STR_PAD_LEFT) }}
-                                                    </div>
-                                                </div>
-                                                <div class="d-flex justify-content-between align-items-center" style="flex-wrap: wrap;">
-                                                    <span class="fw-bold {{ $product->quantity <= 0 ? 'text-muted' : 'text-success' }}" style="font-size: 14px; white-space: nowrap;">LKR {{ number_format($product->selling_price, 0) }}</span>
-                                                    @if($product->quantity > 0)
-                                                        <span class="badge rounded-pill" style="background-color: #3b82f6; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Stock: {{ $product->quantity }}</span>
-                                                    @else
-                                                        <span class="badge rounded-pill" style="background-color: #ef4444; color: white; font-size: 10px; padding: 4px 8px; white-space: nowrap;">Out of Stock</span>
-                                                    @endif
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endforeach
                                     </div>
-                                    @endforeach
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- RIGHT SECTION: Cart & Customer (40%) -->
-                <div class="col-lg-5 col-xl-5">
-                    <div class="card h-100">
-                        <div class="card-header">
-                            <h3 class="card-title" id="cart-title">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                                    <path d="M17 17h-11v-14h-2"/>
-                                    <path d="M6 5l14 1l-1 7h-13"/>
-                                </svg>
-                                Cart (<span id="cart-count">0</span>)
-                            </h3>
-                            <div class="card-actions">
-                                <button type="button" class="btn btn-outline-secondary btn-sm">Clear</button>
-                            </div>
-                        </div>
-                        <div class="card-body d-flex flex-column p-3">
-                            <!-- Customer Selection -->
-                            <div class="mb-4">
-                                <div class="input-group">
-                                    <select id="customer_id" name="customer_id"
-                                            class="form-select @error('customer_id') is-invalid @enderror">
-                                        <option value="">Walk-In Customer</option>
-                                        @foreach($customers as $customer)
-                                            <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>
-                                                {{ $customer->name }}@if($customer->phone) - {{ $customer->phone }}@endif
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <a href="{{ route('customers.create') }}" class="btn btn-primary btn-icon" title="Add New Customer" target="_blank">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                            <path d="M12 5l0 14"/>
-                                            <path d="M5 12l14 0"/>
-                                        </svg>
-                                    </a>
-                                </div>
-                                @error('customer_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            <!-- Cart Items -->
-                            <div class="mb-4" style="height: auto; min-height: 350px;">
-                                <div class="text-center py-5" id="empty-cart">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-muted mb-3" width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                                        <path d="M17 17h-11v-14h-2"/>
-                                        <path d="M6 5l14 1l-1 7h-13"/>
+                    <!-- RIGHT SECTION: Cart & Customer (40%) -->
+                    <div class="col-lg-5 col-xl-5">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h3 class="card-title" id="cart-title">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
+                                        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                        <path d="M17 17h-11v-14h-2" />
+                                        <path d="M6 5l14 1l-1 7h-13" />
                                     </svg>
-                                    <p class="text-muted">Cart is empty</p>
-                                </div>
-                                <!-- Cart items will be dynamically added here -->
-                                <div id="cart-items" style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
-                                    <!-- Dynamic cart items -->
-                                </div>
-                            </div>
-
-                            <!-- Discount and Service Charges (shown only when cart has items) -->
-                            <div id="cart-adjustments" class="mb-3" style="display: none;">
-                                <div class="row g-2 mb-2">
-                                    <div class="col">
-                                        <label class="form-label small">Discount (LKR)</label>
-                                        <input type="number" id="discount-amount" class="form-control form-control-sm" step="0.01" min="0" value="0" placeholder="0.00" name="discount_amount">
-                                    </div>
-                                    <div class="col">
-                                        <label class="form-label small">Service Charges (LKR)</label>
-                                        <input type="number" id="service-charges" class="form-control form-control-sm" step="0.01" min="0" value="0" placeholder="0.00" name="service_charges">
-                                    </div>
+                                    Cart (<span id="cart-count">0</span>)
+                                </h3>
+                                <div class="card-actions">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm">Clear</button>
                                 </div>
                             </div>
-
-                            <!-- Order Summary -->
-                            <div class="border-top pt-3">
-                                <div class="row mb-2">
-                                    <div class="col">Subtotal:</div>
-                                    <div class="col-auto fw-bold" id="subtotal-amount">LKR 0.00</div>
+                            <div class="card-body d-flex flex-column p-3">
+                                <!-- Customer Selection -->
+                                <div class="mb-4">
+                                    <div class="input-group">
+                                        <select id="customer_id" name="customer_id"
+                                            class="form-select @error('customer_id') is-invalid @enderror">
+                                            <option value="">Walk-In Customer</option>
+                                            @foreach ($customers as $customer)
+                                                <option value="{{ $customer->id }}" @selected(old('customer_id') == $customer->id)>
+                                                    {{ $customer->name }}@if ($customer->phone)
+                                                        - {{ $customer->phone }}
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <a href="{{ route('customers.create') }}" class="btn btn-primary btn-icon"
+                                            title="Add New Customer" target="_blank">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                stroke="currentColor" fill="none" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M12 5l0 14" />
+                                                <path d="M5 12l14 0" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                    @error('customer_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
                                 </div>
-                                <div class="row mb-2" id="discount-row" style="display: none;">
-                                    <div class="col text-danger">Discount:</div>
-                                    <div class="col-auto fw-bold text-danger" id="discount-display">-LKR 0.00</div>
+
+                                <!-- Cart Items -->
+                                <div class="mb-4" style="height: auto; min-height: 350px;">
+                                    <div class="text-center py-5" id="empty-cart">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-lg text-muted mb-3"
+                                            width="48" height="48" viewBox="0 0 24 24" stroke-width="1.5"
+                                            stroke="currentColor" fill="none" stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                                            <path d="M17 17h-11v-14h-2" />
+                                            <path d="M6 5l14 1l-1 7h-13" />
+                                        </svg>
+                                        <p class="text-muted">Cart is empty</p>
+                                    </div>
+                                    <!-- Cart items will be dynamically added here -->
+                                    <div id="cart-items"
+                                        style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
+                                        <!-- Dynamic cart items -->
+                                    </div>
                                 </div>
-                                <div class="row mb-2" id="service-row" style="display: none;">
-                                    <div class="col text-info">Service Charges:</div>
-                                    <div class="col-auto fw-bold text-info" id="service-display">+LKR 0.00</div>
+
+                                <!-- Discount and Service Charges (shown only when cart has items) -->
+                                <div id="cart-adjustments" class="mb-3" style="display: none;">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col">
+                                            <label class="form-label small">Discount (LKR)</label>
+                                            <input type="number" id="discount-amount"
+                                                class="form-control form-control-sm" step="0.01" min="0"
+                                                value="0" placeholder="0.00" name="discount_amount">
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label small">Service Charges (LKR)</label>
+                                            <input type="number" id="service-charges"
+                                                class="form-control form-control-sm" step="0.01" min="0"
+                                                value="0" placeholder="0.00" name="service_charges">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col"><strong>Total:</strong></div>
-                                    <div class="col-auto"><strong id="total-amount" class="h4 text-primary">LKR 0.00</strong></div>
-                                </div>
 
-                                <!-- Payment Method -->
-                                <div class="mb-3">
-                                    <label class="form-label">Payment Method</label>
-                                    <select class="form-select" name="payment_type">
-                                        <option value="Cash">Cash</option>
-                                        <option value="Card">Card</option>
-                                        <option value="Bank Transfer">Bank Transfer</option>
-                                    </select>
-                                </div>
+                                <!-- Order Summary -->
+                                <div class="border-top pt-3">
+                                    <div class="row mb-2">
+                                        <div class="col">Subtotal:</div>
+                                        <div class="col-auto fw-bold" id="subtotal-amount">LKR 0.00</div>
+                                    </div>
+                                    <div class="row mb-2" id="discount-row" style="display: none;">
+                                        <div class="col text-danger">Discount:</div>
+                                        <div class="col-auto fw-bold text-danger" id="discount-display">-LKR 0.00</div>
+                                    </div>
+                                    <div class="row mb-2" id="service-row" style="display: none;">
+                                        <div class="col text-info">Service Charges:</div>
+                                        <div class="col-auto fw-bold text-info" id="service-display">+LKR 0.00</div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col"><strong>Total:</strong></div>
+                                        <div class="col-auto"><strong id="total-amount" class="h4 text-primary">LKR
+                                                0.00</strong></div>
+                                    </div>
 
-                                <script>
-                                    // Show/hide amount received field based on payment method
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        const paymentTypeSelect = document.querySelector('select[name="payment_type"]');
-                                        const paymentAmountSection = document.getElementById('payment-amount-section');
-                                        const paymentAmountInput = document.getElementById('payment-amount-input');
-                                        const completeBtn = document.getElementById('complete-payment-btn');
+                                    <!-- Payment Method -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Payment Method</label>
+                                        <select class="form-select" name="payment_type">
+                                            <option value="Cash">Cash</option>
+                                            <option value="Card">Card</option>
+                                            <option value="Bank Transfer">Bank Transfer</option>
+                                        </select>
+                                    </div>
 
-                                        // Create feedback element for balance/shortage
-                                        let balanceFeedback = document.getElementById('balance-feedback');
-                                        if (!balanceFeedback) {
-                                            balanceFeedback = document.createElement('div');
-                                            balanceFeedback.id = 'balance-feedback';
-                                            balanceFeedback.style.marginTop = '0.5rem';
-                                            paymentAmountInput && paymentAmountInput.parentNode.appendChild(balanceFeedback);
-                                        }
+                                    <script>
+                                        // Show/hide amount received field based on payment method
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const paymentTypeSelect = document.querySelector('select[name="payment_type"]');
+                                            const paymentAmountSection = document.getElementById('payment-amount-section');
+                                            const paymentAmountInput = document.getElementById('payment-amount-input');
+                                            const completeBtn = document.getElementById('complete-payment-btn');
 
-                                        function sanitizeAmount(text) {
-                                            if (!text) return 0;
-                                            return parseFloat(String(text).replace(/[^0-9.]/g, '')) || 0;
-                                        }
-
-                                        function updateBalanceFeedback() {
-                                            if (!paymentAmountInput) return;
-                                            const enteredAmount = parseFloat(paymentAmountInput.value) || 0;
-                                            const totalText = document.getElementById('total-amount')?.textContent || '';
-                                            const totalAmount = sanitizeAmount(totalText);
-                                            const diff = enteredAmount - totalAmount;
-
-                                            // Reset visual state
-                                            paymentAmountInput.classList.remove('is-invalid');
-                                            paymentAmountInput.classList.remove('is-valid');
-                                            paymentAmountInput.classList.remove('border-danger');
-                                            paymentAmountInput.classList.remove('border-info');
-
-                                            // Default: disable when no amount or zero
-                                            if (!enteredAmount) {
-                                                balanceFeedback.innerHTML = '';
-                                                if (completeBtn) completeBtn.disabled = true;
-                                                return;
+                                            // Create feedback element for balance/shortage
+                                            let balanceFeedback = document.getElementById('balance-feedback');
+                                            if (!balanceFeedback) {
+                                                balanceFeedback = document.createElement('div');
+                                                balanceFeedback.id = 'balance-feedback';
+                                                balanceFeedback.style.marginTop = '0.5rem';
+                                                paymentAmountInput && paymentAmountInput.parentNode.appendChild(balanceFeedback);
                                             }
 
-                                            if (diff < 0) {
-                                                // Not enough
-                                                balanceFeedback.innerHTML = `<span style="color: #dc2626; font-weight: 500;">Insufficient amount: LKR ${Math.abs(diff).toFixed(2)}</span>`;
-                                                paymentAmountInput.classList.add('is-invalid');
-                                                paymentAmountInput.classList.add('border-danger');
-                                                if (completeBtn) completeBtn.disabled = true;
-                                            } else if (diff === 0) {
-                                                // Exact amount
-                                                balanceFeedback.innerHTML = '';
-                                                paymentAmountInput.classList.add('is-valid');
-                                                if (completeBtn) completeBtn.disabled = false;
-                                            } else {
-                                                // Change to give
-                                                balanceFeedback.innerHTML = `<span style="color: #2563eb; font-weight: 500;">Change to give: LKR ${diff.toFixed(2)}</span>`;
-                                                paymentAmountInput.classList.add('border-info');
-                                                if (completeBtn) completeBtn.disabled = false;
+                                            function sanitizeAmount(text) {
+                                                if (!text) return 0;
+                                                return parseFloat(String(text).replace(/[^0-9.]/g, '')) || 0;
                                             }
-                                        }
 
-                                        if (paymentAmountInput) {
-                                            paymentAmountInput.addEventListener('input', updateBalanceFeedback);
-                                        }
+                                            function updateBalanceFeedback() {
+                                                if (!paymentAmountInput) return;
+                                                const enteredAmount = parseFloat(paymentAmountInput.value) || 0;
+                                                const totalText = document.getElementById('total-amount')?.textContent || '';
+                                                const totalAmount = sanitizeAmount(totalText);
+                                                const diff = enteredAmount - totalAmount;
 
-                                        if (paymentTypeSelect) {
-                                            paymentTypeSelect.addEventListener('change', function() {
-                                                if (this.value === 'Cash') {
+                                                // Reset visual state
+                                                paymentAmountInput.classList.remove('is-invalid');
+                                                paymentAmountInput.classList.remove('is-valid');
+                                                paymentAmountInput.classList.remove('border-danger');
+                                                paymentAmountInput.classList.remove('border-info');
+
+                                                // Default: disable when no amount or zero
+                                                if (!enteredAmount) {
+                                                    balanceFeedback.innerHTML = '';
+                                                    if (completeBtn) completeBtn.disabled = true;
+                                                    return;
+                                                }
+
+                                                if (diff < 0) {
+                                                    // Not enough
+                                                    balanceFeedback.innerHTML =
+                                                        `<span style="color: #dc2626; font-weight: 500;">Insufficient amount: LKR ${Math.abs(diff).toFixed(2)}</span>`;
+                                                    paymentAmountInput.classList.add('is-invalid');
+                                                    paymentAmountInput.classList.add('border-danger');
+                                                    if (completeBtn) completeBtn.disabled = true;
+                                                } else if (diff === 0) {
+                                                    // Exact amount
+                                                    balanceFeedback.innerHTML = '';
+                                                    paymentAmountInput.classList.add('is-valid');
+                                                    if (completeBtn) completeBtn.disabled = false;
+                                                } else {
+                                                    // Change to give
+                                                    balanceFeedback.innerHTML =
+                                                        `<span style="color: #2563eb; font-weight: 500;">Change to give: LKR ${diff.toFixed(2)}</span>`;
+                                                    paymentAmountInput.classList.add('border-info');
+                                                    if (completeBtn) completeBtn.disabled = false;
+                                                }
+                                            }
+
+                                            if (paymentAmountInput) {
+                                                paymentAmountInput.addEventListener('input', updateBalanceFeedback);
+                                            }
+
+                                            if (paymentTypeSelect) {
+                                                paymentTypeSelect.addEventListener('change', function() {
+                                                    if (this.value === 'Cash') {
+                                                        paymentAmountSection.style.display = 'block';
+                                                        if (completeBtn) completeBtn.disabled = true; // wait for valid amount
+                                                        updateBalanceFeedback();
+                                                    } else {
+                                                        paymentAmountSection.style.display = 'none';
+                                                        if (balanceFeedback) balanceFeedback.innerHTML = '';
+                                                        if (paymentAmountInput) {
+                                                            paymentAmountInput.value = '';
+                                                            paymentAmountInput.classList.remove('is-invalid', 'is-valid', 'border-danger',
+                                                                'border-info');
+                                                        }
+                                                        if (completeBtn) completeBtn.disabled = false; // card/bank: allow
+                                                    }
+                                                });
+                                                // Trigger change on load
+                                                if (paymentTypeSelect.value === 'Cash') {
                                                     paymentAmountSection.style.display = 'block';
-                                                    if (completeBtn) completeBtn.disabled = true; // wait for valid amount
+                                                    if (completeBtn) completeBtn.disabled = true;
                                                     updateBalanceFeedback();
                                                 } else {
                                                     paymentAmountSection.style.display = 'none';
                                                     if (balanceFeedback) balanceFeedback.innerHTML = '';
-                                                    if (paymentAmountInput) {
-                                                        paymentAmountInput.value = '';
-                                                        paymentAmountInput.classList.remove('is-invalid','is-valid','border-danger','border-info');
-                                                    }
-                                                    if (completeBtn) completeBtn.disabled = false; // card/bank: allow
+                                                    if (completeBtn) completeBtn.disabled = false;
                                                 }
-                                            });
-                                            // Trigger change on load
-                                            if (paymentTypeSelect.value === 'Cash') {
-                                                paymentAmountSection.style.display = 'block';
-                                                if (completeBtn) completeBtn.disabled = true;
-                                                updateBalanceFeedback();
-                                            } else {
-                                                paymentAmountSection.style.display = 'none';
-                                                if (balanceFeedback) balanceFeedback.innerHTML = '';
-                                                if (completeBtn) completeBtn.disabled = false;
                                             }
-                                        }
-                                    });
-                                </script>
+                                        });
+                                    </script>
 
-                                <!-- Amount Received (Initially Hidden) -->
-                                <div class="row g-2 mb-3" id="payment-amount-section" style="display: none;">
-                                    <div class="col">
-                                        <label class="form-label fw-bold text-primary">Amount (LKR)</label>
-                                        <input type="number" id="payment-amount-input" class="form-control form-control-lg" step="0.01" min="0" placeholder="0.00" name="pay">
+                                    <!-- Amount Received (Initially Hidden) -->
+                                    <div class="row g-2 mb-3" id="payment-amount-section" style="display: none;">
+                                        <div class="col">
+                                            <label class="form-label fw-bold text-primary">Amount (LKR)</label>
+                                            <input type="number" id="payment-amount-input"
+                                                class="form-control form-control-lg" step="0.01" min="0"
+                                                placeholder="0.00" name="pay">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Action Buttons -->
-                                <div class="row g-2">
-                                    <div class="col">
-                                        <button type="button" id="complete-payment-btn" class="btn btn-primary w-100 btn-lg" onclick="submitOrder()">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                                <path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2"/>
-                                                <path d="M16 19h6"/>
-                                                <path d="M19 16v6"/>
-                                            </svg>
-                                            Complete Payment
-                                        </button>
+                                    <!-- Action Buttons -->
+                                    <div class="row g-2">
+                                        <div class="col">
+                                            <button type="button" id="complete-payment-btn"
+                                                class="btn btn-primary w-100 btn-lg" onclick="submitOrder()">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24"
+                                                    height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                    stroke="currentColor" fill="none" stroke-linecap="round"
+                                                    stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path
+                                                        d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2" />
+                                                    <path d="M16 19h6" />
+                                                    <path d="M19 16v6" />
+                                                </svg>
+                                                Complete Payment
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Hidden cart data -->
-            <input type="hidden" name="cart_items" id="cart-items-input" value="">
-        </form>
+                <!-- Hidden cart data -->
+                <input type="hidden" name="cart_items" id="cart-items-input" value="">
+            </form>
+        </div>
     </div>
-</div>
 
-<!-- Payment Modal -->
-<div class="modal modal-lg fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="paymentModalLabel">Process Payment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div id="payment-processor-container">
-                    <!-- Payment processor will be loaded here -->
-                    <livewire:payment.payment-processor />
+    <!-- Payment Modal -->
+    <div class="modal modal-lg fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Process Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="payment-processor-container">
+                        <!-- Payment processor will be loaded here -->
+                        <livewire:payment.payment-processor />
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- POS Receipt Modal -->
-<div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
-            <div class="modal-body p-0">
-                <div class="receipt-container" id="receipt-content">
-                    <!-- Receipt content will be loaded here dynamically -->
+    <!-- POS Receipt Modal -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true"
+        data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+            <div class="modal-content"
+                style="border-radius: 12px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div class="modal-body p-0">
+                    <div class="receipt-container" id="receipt-content">
+                        <!-- Receipt content will be loaded here dynamically -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 @endsection
 
 @push('page-styles')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
     <style>
-        .cursor-pointer { cursor: pointer; }
-        .hover-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; }
-        .product-card:hover { transform: translateY(-2px); transition: all 0.2s ease-in-out; }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .hover-shadow:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .product-card:hover {
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
+        }
 
         /* Out of stock product styles */
         .out-of-stock {
@@ -436,6 +469,7 @@
         .product-card:not(.out-of-stock):hover {
             border-color: #3b82f6 !important;
         }
+
         .cart-item {
             border-bottom: 1px solid #e9ecef;
             padding: 12px;
@@ -451,8 +485,18 @@
             border: 1px solid #dee2e6;
             position: relative;
         }
-        .cart-item:last-child { border-bottom: none; margin-bottom: 0; }
-        .quantity-btn { width: 32px; height: 32px; padding: 0; font-size: 14px; }
+
+        .cart-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .quantity-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            font-size: 14px;
+        }
 
         /* Ensure cart items don't overlap */
         #cart-items .cart-item:not(:last-child) {
@@ -471,10 +515,24 @@
             border-color: #86b7fe;
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
         }
-        .card { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); }
-        .overflow-auto { max-height: 400px; }
-        .flex-1 { flex: 1; }
-        .btn-icon { display: inline-flex; align-items: center; justify-content: center; }
+
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .overflow-auto {
+            max-height: 400px;
+        }
+
+        .flex-1 {
+            flex: 1;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* Prevent horizontal scrollbar in product section */
         .product-card {
@@ -489,7 +547,9 @@
 
         /* Make the POS layout responsive */
         @media (max-width: 991px) {
-            .col-lg-7, .col-lg-5 {
+
+            .col-lg-7,
+            .col-lg-5 {
                 margin-bottom: 1rem;
             }
         }
@@ -785,7 +845,8 @@
                 visibility: hidden;
             }
 
-            #receiptModal, #receiptModal * {
+            #receiptModal,
+            #receiptModal * {
                 visibility: visible;
             }
 
@@ -886,10 +947,10 @@
                     return '<div class="p-2">' +
                         '<div class="fw-bold text-dark">' + escape(name) + '</div>' +
                         (phone ? '<div class="small text-muted mt-1">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="14" height="14" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
-                        '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
-                        '<path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"/>' +
-                        '</svg>' + escape(phone) + '</div>' : '') +
+                            '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm me-1" width="14" height="14" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+                            '<path stroke="none" d="M0 0h24v24H0z" fill="none"/>' +
+                            '<path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"/>' +
+                            '</svg>' + escape(phone) + '</div>' : '') +
                         '</div>';
                 },
                 item: function(data, escape) {
@@ -911,10 +972,12 @@
                 // Check if product is out of stock
                 if (this.classList.contains('out-of-stock')) {
                     // Show a more user-friendly message for out of stock products
-                    const productName = this.querySelector('.fw-bold').textContent.replace('(Out of Stock)', '').trim();
+                    const productName = this.querySelector('.fw-bold').textContent.replace('(Out of Stock)',
+                        '').trim();
 
                     // Create and show a toast notification instead of alert
-                    showToast(`"${productName}" is currently out of stock and cannot be added to cart.`, 'error');
+                    showToast(`"${productName}" is currently out of stock and cannot be added to cart.`,
+                        'error');
                     return;
                 }
 
@@ -954,9 +1017,9 @@
 
             // Get product price - try multiple selectors to be more robust
             let priceElement = productElement.querySelector('.fw-bold.text-success') ||
-                              productElement.querySelector('.fw-bold.text-muted') ||
-                              productElement.querySelector('.text-success') ||
-                              productElement.querySelector('.text-muted');
+                productElement.querySelector('.fw-bold.text-muted') ||
+                productElement.querySelector('.text-success') ||
+                productElement.querySelector('.text-muted');
 
             let productPrice = 0;
             if (priceElement) {
@@ -1014,7 +1077,8 @@
                 }
             } else {
                 // Create new cart item
-                const lineId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+                const lineId = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : (Date.now()
+                    .toString(36) + Math.random().toString(36).slice(2));
                 cart.push({
                     lineId: lineId,
                     id: productId,
@@ -1162,7 +1226,8 @@
 
             // Create toast element
             const toast = document.createElement('div');
-            toast.className = `custom-toast alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
+            toast.className =
+                `custom-toast alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} alert-dismissible fade show`;
             toast.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -1235,7 +1300,8 @@
             productCards.forEach(card => {
                 // Handle both in-stock (.text-dark) and out-of-stock (.text-muted) products
                 const productNameElement = card.querySelector('.fw-bold');
-                const productName = productNameElement.textContent.toLowerCase().replace('(out of stock)', '').trim();
+                const productName = productNameElement.textContent.toLowerCase().replace('(out of stock)', '')
+                .trim();
 
                 if (productName.includes(searchTerm)) {
                     card.parentElement.style.display = 'block';
@@ -1261,8 +1327,8 @@
         }
 
         // Listen for payment completion events
-        document.addEventListener('livewire:load', function () {
-            Livewire.on('payment-completed', function (data) {
+        document.addEventListener('livewire:load', function() {
+            Livewire.on('payment-completed', function(data) {
                 // Hide the payment modal
                 const paymentModalElement = document.getElementById('paymentModal');
                 if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -1295,7 +1361,8 @@
         function showSuccessNotification(message) {
             // Create a nice success notification
             const notification = document.createElement('div');
-            notification.className = 'alert alert-success alert-dismissible position-fixed top-0 start-50 translate-middle-x';
+            notification.className =
+                'alert alert-success alert-dismissible position-fixed top-0 start-50 translate-middle-x';
             notification.style.zIndex = '9999';
             notification.style.marginTop = '20px';
             notification.innerHTML = `
@@ -1328,7 +1395,7 @@
 
         // Reset payment processor when modal is closed
         if (paymentModal) {
-            paymentModal.addEventListener('hidden.bs.modal', function () {
+            paymentModal.addEventListener('hidden.bs.modal', function() {
                 if (window.Livewire) {
                     Livewire.emit('reset-payment');
                 }
@@ -1387,19 +1454,19 @@
                     </div>
 
                     ${items.map((item, index) => `
-                        <div class="item-row">
-                            <div class="item-details">
-                                <div class="item-name">${index + 1}. ${item.name}</div>
-                                <div class="item-meta">
-                                    ${item.serial_number ? `S/N: ${item.serial_number}<br>` : ''}
-                                    ${item.warranty_years && Number(item.warranty_years) > 0 ? `<span class="warranty">Warranty: ${item.warranty_years} ${Number(item.warranty_years) === 1 ? 'year' : 'years'}</span>` : ''}
+                            <div class="item-row">
+                                <div class="item-details">
+                                    <div class="item-name">${index + 1}. ${item.name}</div>
+                                    <div class="item-meta">
+                                        ${item.serial_number ? `S/N: ${item.serial_number}<br>` : ''}
+                                        ${item.warranty_years && Number(item.warranty_years) > 0 ? `<span class="warranty">Warranty: ${item.warranty_years} ${Number(item.warranty_years) === 1 ? 'year' : 'years'}</span>` : ''}
+                                    </div>
                                 </div>
+                                <div style="text-align: center;">${item.quantity}</div>
+                                <div style="text-align: right;">LKR ${item.price.toLocaleString()}</div>
+                                <div style="text-align: right;">LKR ${item.total.toLocaleString()}</div>
                             </div>
-                            <div style="text-align: center;">${item.quantity}</div>
-                            <div style="text-align: right;">LKR ${item.price.toLocaleString()}</div>
-                            <div style="text-align: right;">LKR ${item.total.toLocaleString()}</div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
 
                 <div class="totals-section">
                     <div class="total-row">
@@ -1407,17 +1474,17 @@
                         <span>LKR ${subtotal.toLocaleString()}</span>
                     </div>
                     ${orderData.discount && orderData.discount > 0 ? `
-                        <div class="total-row">
-                            <span>Discount:</span>
-                            <span>-LKR ${orderData.discount.toLocaleString()}</span>
-                        </div>
-                    ` : ''}
+                            <div class="total-row">
+                                <span>Discount:</span>
+                                <span>-LKR ${orderData.discount.toLocaleString()}</span>
+                            </div>
+                        ` : ''}
                     ${orderData.service_charges && orderData.service_charges > 0 ? `
-                        <div class="total-row">
-                            <span>Service Charges:</span>
-                            <span>+LKR ${orderData.service_charges.toLocaleString()}</span>
-                        </div>
-                    ` : ''}
+                            <div class="total-row">
+                                <span>Service Charges:</span>
+                                <span>+LKR ${orderData.service_charges.toLocaleString()}</span>
+                            </div>
+                        ` : ''}
                     <div class="total-row final">
                         <span>TOTAL:</span>
                         <span>LKR ${total.toLocaleString()}</span>
@@ -1570,7 +1637,8 @@
             if (event.key === 'Escape') {
                 const receiptModalElement = document.getElementById('receiptModal');
                 // Check if modal is visible (has show class or display block)
-                if (receiptModalElement.classList.contains('show') || receiptModalElement.style.display === 'block') {
+                if (receiptModalElement.classList.contains('show') || receiptModalElement.style.display ===
+                    'block') {
                     closeReceiptModal();
                 }
             }
@@ -1646,82 +1714,83 @@
             console.log('🚀 Final target URL:', targetUrl);
 
             fetch(targetUrl, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || document.querySelector('input[name="_token"]')?.value
-                }
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers);
-                return response.text(); // Get raw text first
-            })
-            .then(data => {
-                console.log('Raw response:', data);
-
-                // Try to parse as JSON first (from OrderController)
-                try {
-                    const jsonResponse = JSON.parse(data);
-                    console.log('✅ JSON RESPONSE RECEIVED!');
-                    console.log('� Server response:', jsonResponse);
-
-                    if (jsonResponse.success) {
-                        // Update stock display with sold items
-                        if (jsonResponse.soldItems && jsonResponse.soldItems.length > 0) {
-                            updateStockDisplay(jsonResponse.soldItems);
-                        }
-
-                        // Clear cart and reset UI
-                        const cartItemsBeforeClear = [...cart]; // Store cart items for potential stock update
-                        cart = [];
-                        updateCartDisplay();
-                        const payInput = document.getElementById('payment-amount-input');
-                        const feedback = document.getElementById('balance-feedback');
-                        if (payInput) {
-                            payInput.value = '';
-                            payInput.classList.remove('is-invalid','is-valid','border-danger','border-info');
-                        }
-                        if (feedback) feedback.innerHTML = '';
-                        document.getElementById('cart-items-input').value = '[]';
-
-                        // If server doesn't provide soldItems, use cart data as fallback
-                        if (!jsonResponse.soldItems && cartItemsBeforeClear.length > 0) {
-                            const fallbackSoldItems = cartItemsBeforeClear.map(item => ({
-                                product_id: item.id,
-                                product_name: item.name,
-                                quantity: item.quantity
-                            }));
-                            updateStockDisplay(fallbackSoldItems);
-                        }
-
-                        // Show success message briefly, then show receipt modal
-                        showSuccessNotification('Order created successfully!');
-                        setTimeout(() => {
-                            showReceiptModal(jsonResponse.order);
-                        }, 800);
-                    } else {
-                        alert('❌ Order creation failed: ' + (jsonResponse.message || 'Unknown error'));
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                            document.querySelector('input[name="_token"]')?.value
                     }
-                } catch (e) {
-                    // Fallback for HTML responses (like our debug route)
-                    console.log('Response is not JSON, checking for SUCCESS marker');
-                    if (data.includes('SUCCESS!')) {
-                        console.log('✅ DEBUG SUCCESS RESPONSE!');
-                        alert('✅ SUCCESS! Check console for details.');
-                        const newWindow = window.open();
-                        newWindow.document.write(data);
-                    } else {
-                        console.log('❌ Unexpected response:', data);
-                        alert('❌ Got unexpected response. Check console for details.');
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    return response.text(); // Get raw text first
+                })
+                .then(data => {
+                    console.log('Raw response:', data);
+
+                    // Try to parse as JSON first (from OrderController)
+                    try {
+                        const jsonResponse = JSON.parse(data);
+                        console.log('✅ JSON RESPONSE RECEIVED!');
+                        console.log('� Server response:', jsonResponse);
+
+                        if (jsonResponse.success) {
+                            // Update stock display with sold items
+                            if (jsonResponse.soldItems && jsonResponse.soldItems.length > 0) {
+                                updateStockDisplay(jsonResponse.soldItems);
+                            }
+
+                            // Clear cart and reset UI
+                            const cartItemsBeforeClear = [...cart]; // Store cart items for potential stock update
+                            cart = [];
+                            updateCartDisplay();
+                            const payInput = document.getElementById('payment-amount-input');
+                            const feedback = document.getElementById('balance-feedback');
+                            if (payInput) {
+                                payInput.value = '';
+                                payInput.classList.remove('is-invalid', 'is-valid', 'border-danger', 'border-info');
+                            }
+                            if (feedback) feedback.innerHTML = '';
+                            document.getElementById('cart-items-input').value = '[]';
+
+                            // If server doesn't provide soldItems, use cart data as fallback
+                            if (!jsonResponse.soldItems && cartItemsBeforeClear.length > 0) {
+                                const fallbackSoldItems = cartItemsBeforeClear.map(item => ({
+                                    product_id: item.id,
+                                    product_name: item.name,
+                                    quantity: item.quantity
+                                }));
+                                updateStockDisplay(fallbackSoldItems);
+                            }
+
+                            // Show success message briefly, then show receipt modal
+                            showSuccessNotification('Order created successfully!');
+                            setTimeout(() => {
+                                showReceiptModal(jsonResponse.order);
+                            }, 800);
+                        } else {
+                            alert('❌ Order creation failed: ' + (jsonResponse.message || 'Unknown error'));
+                        }
+                    } catch (e) {
+                        // Fallback for HTML responses (like our debug route)
+                        console.log('Response is not JSON, checking for SUCCESS marker');
+                        if (data.includes('SUCCESS!')) {
+                            console.log('✅ DEBUG SUCCESS RESPONSE!');
+                            alert('✅ SUCCESS! Check console for details.');
+                            const newWindow = window.open();
+                            newWindow.document.write(data);
+                        } else {
+                            console.log('❌ Unexpected response:', data);
+                            alert('❌ Got unexpected response. Check console for details.');
+                        }
                     }
-                }
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-                alert('Network error: ' + error.message);
-            });
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Network error: ' + error.message);
+                });
         }
     </script>
 @endpush

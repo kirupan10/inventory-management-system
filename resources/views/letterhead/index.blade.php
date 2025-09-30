@@ -94,10 +94,70 @@
 
                         <hr>
 
+                        <!-- Toggle Section -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h4>3. Customer Details Toggle</h4>
+                                <p class="text-muted mb-3">Enable or disable customer details elements on your letterhead.</p>
+
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input element-toggle" type="checkbox" id="toggle_customer_name" data-field="customer_name" {{ ($config['element_toggles']['customer_name'] ?? true) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="toggle_customer_name">
+                                                        Customer Name
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input element-toggle" type="checkbox" id="toggle_customer_phone" data-field="customer_phone" {{ ($config['element_toggles']['customer_phone'] ?? true) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="toggle_customer_phone">
+                                                        Customer Phone
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input element-toggle" type="checkbox" id="toggle_customer_address" data-field="customer_address" {{ ($config['element_toggles']['customer_address'] ?? true) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="toggle_customer_address">
+                                                        Customer Address
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input element-toggle" type="checkbox" id="toggle_customer_email" data-field="customer_email" {{ ($config['element_toggles']['customer_email'] ?? true) ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="toggle_customer_email">
+                                                        Customer Email
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-primary" id="saveToggles">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2"/>
+                                                    <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                                    <path d="M14 4l0 4l-6 0l0 -4"/>
+                                                </svg>
+                                                Save Toggle Settings
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
                         <!-- Positioning Section -->
                         <div class="row">
                             <div class="col-12">
-                                <h4>3. Position Text Elements</h4>
+                                <h4>4. Position Text Elements</h4>
                                 <p class="text-muted mb-3">Click and drag the elements on the preview to position them precisely on your letterhead.</p>
 
                                 @if(isset($config['letterhead_file']) && $config['letterhead_file'])
@@ -260,6 +320,96 @@
                                                         </svg>
                                                         Save Positions
                                                     </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Items Table Alignment Controls -->
+                                            <div class="card mt-3">
+                                                <div class="card-header">
+                                                    <h5>📋 Items Table Alignment</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="text-muted small mb-3">Control the horizontal positioning and width of the items table for balanced alignment.</p>
+                                                    
+                                                    <div class="row mb-3">
+                                                        <div class="col-6">
+                                                            <label class="form-label">Start Position (X)</label>
+                                                            <input type="number" class="form-control" id="itemsStartX" 
+                                                                   value="{{ $config['items_alignment']['start_x'] ?? 40 }}" 
+                                                                   min="0" max="400" placeholder="40">
+                                                            <small class="text-muted">Left margin (0-400px)</small>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label class="form-label">End Position (X)</label>
+                                                            <input type="number" class="form-control" id="itemsEndX" 
+                                                                   value="{{ $config['items_alignment']['end_x'] ?? 555 }}" 
+                                                                   min="200" max="595" placeholder="555">
+                                                            <small class="text-muted">Right margin (200-595px)</small>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Table Width</label>
+                                                        <input type="number" class="form-control" id="itemsWidth" 
+                                                               value="{{ $config['items_alignment']['width'] ?? 515 }}" 
+                                                               min="300" max="555" readonly>
+                                                        <small class="text-muted">Auto-calculated: <span id="calculatedWidth">515</span>px</small>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <h6>Quick Alignment Presets (Equal Spacing):</h6>
+                                                        <div class="row">
+                                                            <div class="col-6 mb-2">
+                                                                <button type="button" class="btn btn-outline-primary btn-sm alignment-preset w-100" data-preset="left">
+                                                                    <i class="fas fa-align-left"></i> Left<br><small>45px margins</small>
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-6 mb-2">
+                                                                <button type="button" class="btn btn-outline-success btn-sm alignment-preset w-100" data-preset="center">
+                                                                    <i class="fas fa-align-center"></i> Center<br><small>48px margins</small>
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-6 mb-2">
+                                                                <button type="button" class="btn btn-outline-warning btn-sm alignment-preset w-100" data-preset="right">
+                                                                    <i class="fas fa-align-right"></i> Right<br><small>50px margins</small>
+                                                                </button>
+                                                            </div>
+                                                            <div class="col-6 mb-2">
+                                                                <button type="button" class="btn btn-success btn-sm alignment-preset w-100 active" data-preset="balanced">
+                                                                    <i class="fas fa-balance-scale"></i> Balanced ⭐<br><small>40px equal margins</small>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <button type="button" class="btn btn-primary w-100" id="applyItemsAlignment">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <rect x="3" y="5" width="18" height="14" rx="2"/>
+                                                            <path d="M7 15v-6"/>
+                                                            <path d="M11 15v-6"/>
+                                                            <path d="M15 15v-6"/>
+                                                            <path d="M19 15v-6"/>
+                                                        </svg>
+                                                        Apply Items Alignment
+                                                    </button>
+
+                                                    <div class="alert alert-success mt-2 small">
+                                                        <strong>✅ Perfect Equal Spacing:</strong>
+                                                        <div class="mt-2 p-2" style="background: #f8f9fa; border-radius: 4px; border: 1px solid #dee2e6;">
+                                                            <div style="display: flex; align-items: center; font-family: monospace; font-size: 11px;">
+                                                                <span style="color: #dc3545; font-weight: bold;">|40px|</span>
+                                                                <span style="flex: 1; background: #007bff; color: white; text-align: center; padding: 2px;">── ITEMS TABLE (515px) ──</span>
+                                                                <span style="color: #dc3545; font-weight: bold;">|40px|</span>
+                                                            </div>
+                                                            <small class="text-muted mt-1 d-block">🎯 <strong>Balanced Preset</strong> = Perfect equal margins (40px each side)</small>
+                                                        </div>
+                                                        <ul class="mb-0 mt-2">
+                                                            <li><strong>Left:</strong> 45px margins both sides (505px width)</li>
+                                                            <li><strong>Center:</strong> 48px margins both sides (499px width)</li>
+                                                            <li><strong>Right:</strong> 50px margins both sides (495px width)</li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -520,6 +670,34 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     z-index: 1003;
 }
+
+/* Items Alignment Controls Styling */
+.alignment-preset {
+    transition: all 0.3s ease;
+}
+
+.alignment-preset:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.alignment-preset.active {
+    background-color: var(--bs-primary) !important;
+    color: white !important;
+    border-color: var(--bs-primary) !important;
+}
+
+#calculatedWidth {
+    font-weight: bold;
+    color: #28a745;
+}
+
+.card-header h5 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 </style>
 
 <script>
@@ -688,9 +866,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         console.log('Elements to create:', elementsToCreate);
 
+        // Get current toggle states
+        const currentToggles = @json($config['element_toggles'] ?? []);
+
         elementsToCreate.forEach((pos, index) => {
             console.log(`Creating element ${index + 1}:`, pos);
-            createDraggableElement(pos, editor, container);
+            const element = createDraggableElement(pos, editor, container);
+
+            // Apply toggle state if this is a customer detail element
+            if (currentToggles.hasOwnProperty(pos.field)) {
+                const isVisible = currentToggles[pos.field];
+                if (element) {
+                    element.style.display = isVisible ? 'block' : 'none';
+                }
+            }
         });
 
         console.log('Finished creating all draggable elements');
@@ -758,6 +947,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Container:', container);
         container.appendChild(element);
         console.log('Element successfully appended to container');
+
+        return element;
     }
 
     function getFieldLabel(field) {
@@ -1021,6 +1212,100 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Real-time toggle change listeners
+    document.querySelectorAll('.element-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const field = this.dataset.field;
+            const isVisible = this.checked;
+
+            // Immediately update element visibility
+            const element = document.querySelector(`[data-field="${field}"]`);
+            if (element) {
+                element.style.display = isVisible ? 'block' : 'none';
+                if (!isVisible) {
+                    element.classList.remove('selected');
+                    if (selectedElement === element) {
+                        selectedElement = null;
+                        document.getElementById('elementProperties').innerHTML = '<p class="text-muted">Select an element to edit its properties</p>';
+                    }
+                }
+            }
+        });
+    });
+
+    // Toggle functionality for customer details
+    document.getElementById('saveToggles')?.addEventListener('click', function() {
+        const toggles = {};
+        document.querySelectorAll('.element-toggle').forEach(toggle => {
+            toggles[toggle.dataset.field] = toggle.checked;
+        });
+
+        console.log('Saving toggles:', toggles);
+
+        fetch('{{ route("letterhead.save-toggles") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ toggles: toggles })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Toggle settings saved successfully!', 'success');
+                // Update draggable elements visibility
+                updateElementVisibility(toggles);
+            } else {
+                showToast('Error saving toggle settings: ' + (data.message || 'Unknown error'), 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error saving toggle settings', 'error');
+        });
+    });
+
+    // Update element visibility based on toggles
+    function updateElementVisibility(toggles) {
+        Object.keys(toggles).forEach(field => {
+            const element = document.querySelector(`[data-field="${field}"]`);
+            if (element) {
+                element.style.display = toggles[field] ? 'block' : 'none';
+                if (!toggles[field]) {
+                    element.classList.remove('selected');
+                    if (selectedElement === element) {
+                        selectedElement = null;
+                        document.getElementById('elementProperties').innerHTML = '<p class="text-muted">Select an element to edit its properties</p>';
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize toggle states on page load
+    function initializeToggleStates() {
+        // Apply current toggle states from config
+        const currentToggles = @json($config['element_toggles'] ?? []);
+
+        // Update checkbox states
+        Object.keys(currentToggles).forEach(field => {
+            const checkbox = document.querySelector(`[data-field="${field}"]`);
+            const element = document.querySelector(`.draggable-element[data-field="${field}"]`);
+
+            if (checkbox && checkbox.type === 'checkbox') {
+                checkbox.checked = currentToggles[field];
+            }
+
+            if (element) {
+                element.style.display = currentToggles[field] ? 'block' : 'none';
+            }
+        });
+    }
+
+    // Call initialization after elements are created
+    setTimeout(initializeToggleStates, 500);
+
     // Grid and Ruler Toggle Controls
     document.getElementById('toggleGrid')?.addEventListener('click', function() {
         const grid = document.getElementById('positioningGrid');
@@ -1074,10 +1359,10 @@ document.addEventListener('DOMContentLoaded', function() {
         regenerateButton.addEventListener('click', function() {
             const button = this;
             const originalText = button.innerHTML;
-            
+
             button.disabled = true;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
-            
+
             fetch('{{ route("letterhead.regenerate-preview") }}', {
                 method: 'POST',
                 headers: {
@@ -1125,6 +1410,136 @@ document.addEventListener('DOMContentLoaded', function() {
             toast.remove();
         }, 5000);
     }
+
+    // Items Table Alignment Functionality
+    function initializeItemsAlignment() {
+        const startXInput = document.getElementById('itemsStartX');
+        const endXInput = document.getElementById('itemsEndX');
+        const widthInput = document.getElementById('itemsWidth');
+        const calculatedWidthSpan = document.getElementById('calculatedWidth');
+        const applyButton = document.getElementById('applyItemsAlignment');
+        const presetButtons = document.querySelectorAll('.alignment-preset');
+
+        // Update width calculation when start or end position changes
+        function updateCalculatedWidth() {
+            const startX = parseInt(startXInput.value) || 50;
+            const endX = parseInt(endXInput.value) || 550;
+            const width = Math.max(300, endX - startX);
+            
+            widthInput.value = width;
+            calculatedWidthSpan.textContent = width;
+        }
+
+        // Event listeners for input changes
+        startXInput?.addEventListener('input', updateCalculatedWidth);
+        endXInput?.addEventListener('input', updateCalculatedWidth);
+
+        // Preset alignment buttons
+        presetButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const preset = this.dataset.preset;
+                
+                // Remove active state from all buttons
+                presetButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Apply preset values for equal spacing on both sides
+                // A4 width is 595px, so we calculate equal margins
+                switch(preset) {
+                    case 'left':
+                        // Left aligned with 45px left margin, 45px right margin
+                        startXInput.value = 45;
+                        endXInput.value = 550; // 595 - 45 = 550
+                        break;
+                    case 'center':
+                        // Perfect center with 47.5px margins on both sides
+                        startXInput.value = 48;
+                        endXInput.value = 547; // 595 - 48 = 547 (499px width)
+                        break;
+                    case 'right':
+                        // Right aligned with 45px margins but slight right emphasis
+                        startXInput.value = 50;
+                        endXInput.value = 545; // Equal 50px right margin
+                        break;
+                    case 'balanced':
+                        // Perfect balance - exactly equal margins (40px each side)
+                        startXInput.value = 40;
+                        endXInput.value = 555; // 595 - 40 = 555 (515px width)
+                        break;
+                }
+                
+                updateCalculatedWidth();
+                showToast(`Applied ${preset} alignment preset!`, 'success');
+            });
+        });
+
+        // Apply alignment button
+        applyButton?.addEventListener('click', function() {
+            const startX = parseInt(startXInput.value) || 50;
+            const endX = parseInt(endXInput.value) || 550;
+            const width = parseInt(widthInput.value) || 500;
+            
+            // Find and update items table element
+            const itemsTableElement = document.querySelector('[data-field="items_table"]');
+            if (itemsTableElement) {
+                // Update position
+                itemsTableElement.style.left = startX + 'px';
+                
+                // Update coordinates display
+                const coordsElement = itemsTableElement.querySelector('.position-coordinates');
+                if (coordsElement) {
+                    const currentY = parseFloat(itemsTableElement.style.top) || 240;
+                    coordsElement.textContent = `${startX}, ${currentY}`;
+                }
+
+                // Visual feedback
+                itemsTableElement.style.boxShadow = '0 0 15px rgba(0, 123, 255, 0.6)';
+                setTimeout(() => {
+                    itemsTableElement.style.boxShadow = '';
+                }, 1500);
+            }
+
+            // Save alignment settings
+            saveItemsAlignment(startX, endX, width);
+            
+            showToast('Items table alignment updated! Width: ' + width + 'px', 'success');
+        });
+
+        // Initialize calculated width
+        updateCalculatedWidth();
+    }
+
+    // Save items alignment settings
+    function saveItemsAlignment(startX, endX, width) {
+        const alignmentData = {
+            start_x: startX,
+            end_x: endX,
+            width: width
+        };
+
+        fetch('{{ route("letterhead.save-items-alignment") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ alignment: alignmentData })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Items alignment saved successfully');
+            } else {
+                console.error('Error saving items alignment:', data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Initialize items alignment controls after page load
+    setTimeout(initializeItemsAlignment, 1000);
 });
 </script>
 @endsection

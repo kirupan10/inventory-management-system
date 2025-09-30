@@ -347,9 +347,13 @@ class OrderController extends Controller
 
     private function generateStandardPdf(Order $order)
     {
+        // Get letterhead configuration for toggles
+        $letterheadConfig = $this->getLetterheadConfig();
+
         // Generate PDF using DomPDF (standard approach)
         $pdf = PDF::loadView('orders.pdf-bill', [
             'order' => $order,
+            'letterheadConfig' => $letterheadConfig,
         ]);
 
         // Set paper size to A4 and orientation to portrait
@@ -374,9 +378,15 @@ class OrderController extends Controller
     private function generatePdfWithPdfLetterhead(Order $order, $letterheadFile)
     {
         try {
+            // Get letterhead configuration for toggles and positioning
+            $letterheadConfig = $this->getLetterheadConfig();
+
             // First, generate the content PDF without letterhead background
             $contentPdf = PDF::loadView('orders.pdf-bill-overlay', [
                 'order' => $order,
+                'letterheadConfig' => $letterheadConfig,
+                'positionMap' => $this->buildPositionMap($letterheadConfig['positions'] ?? []),
+                'elementToggles' => $letterheadConfig['element_toggles'] ?? [],
             ]);
 
             $contentPdf->setPaper('A4', 'portrait');
@@ -454,6 +464,15 @@ class OrderController extends Controller
             return json_decode(File::get($configPath), true);
         }
         return [];
+    }
+
+    private function buildPositionMap($positions)
+    {
+        $map = [];
+        foreach ($positions as $position) {
+            $map[$position['field']] = $position;
+        }
+        return $map;
     }
 
     public function showReceipt(Order $order)

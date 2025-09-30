@@ -77,6 +77,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/letterhead/upload', [App\Http\Controllers\LetterheadController::class, 'uploadLetterhead'])->name('letterhead.upload');
     Route::post('/letterhead/save-positions', [App\Http\Controllers\LetterheadController::class, 'savePositions'])->name('letterhead.save-positions');
     Route::get('/letterhead/positions', [App\Http\Controllers\LetterheadController::class, 'getPositions'])->name('letterhead.get-positions');
+    Route::post('/letterhead/save-toggles', [App\Http\Controllers\LetterheadController::class, 'saveToggles'])->name('letterhead.save-toggles');
+    Route::get('/letterhead/toggles', [App\Http\Controllers\LetterheadController::class, 'getToggles'])->name('letterhead.get-toggles');
+    Route::post('/letterhead/save-items-alignment', [App\Http\Controllers\LetterheadController::class, 'saveItemsAlignment'])->name('letterhead.save-items-alignment');
     Route::post('/letterhead/regenerate-preview', [App\Http\Controllers\LetterheadController::class, 'regeneratePreview'])->name('letterhead.regenerate-preview');
 
 });

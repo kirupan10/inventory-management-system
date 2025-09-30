@@ -78,7 +78,7 @@
 
         .item-details {
             font-size: 8px;
-            color: #555;
+            color: #000;
             margin-bottom: 1px;
         }
 
@@ -197,7 +197,7 @@
         @endif
 
         {{-- Customer Name --}}
-        @if(isset($positionMap['customer_name']))
+        @if(isset($positionMap['customer_name']) && (!isset($elementToggles['customer_name']) || $elementToggles['customer_name']))
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_name']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_name']['y'] ?? 150 }}px;
@@ -211,7 +211,7 @@
         @endif
 
         {{-- Customer Phone --}}
-        @if(isset($positionMap['customer_phone']))
+        @if(isset($positionMap['customer_phone']) && (!isset($elementToggles['customer_phone']) || $elementToggles['customer_phone']))
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_phone']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_phone']['y'] ?? 170 }}px;
@@ -225,7 +225,7 @@
         @endif
 
         {{-- Customer Address --}}
-        @if(isset($positionMap['customer_address']))
+        @if(isset($positionMap['customer_address']) && (!isset($elementToggles['customer_address']) || $elementToggles['customer_address']))
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_address']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_address']['y'] ?? 190 }}px;
@@ -240,7 +240,7 @@
         @endif
 
         {{-- Customer Email --}}
-        @if(isset($positionMap['customer_email']))
+        @if(isset($positionMap['customer_email']) && (!isset($elementToggles['customer_email']) || $elementToggles['customer_email']))
         <div class="positioned-element" style="
             left: {{ $positionMap['customer_email']['x'] ?? 50 }}px;
             top: {{ $positionMap['customer_email']['y'] ?? 210 }}px;

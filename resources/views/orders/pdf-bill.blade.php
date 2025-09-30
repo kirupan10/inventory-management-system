@@ -27,7 +27,7 @@
             font-family: 'Arial', sans-serif;
             font-size: 14px;
             line-height: 1.4;
-            color: #333;
+            color: #000;
             background: white;
         }
 
@@ -224,18 +224,23 @@
 
             {{-- Items Table --}}
             @if(isset($positionMap['items_table']))
+            @php
+                $itemsAlignment = $letterheadConfig['items_alignment'] ?? [];
+                $startX = $itemsAlignment['start_x'] ?? ($positionMap['items_table']['x'] ?? 40);
+                $tableWidth = $itemsAlignment['width'] ?? 515;
+            @endphp
             <div class="positioned-element" style="
-                left: {{ $positionMap['items_table']['x'] ?? 50 }}px;
+                left: {{ $startX }}px;
                 top: {{ $positionMap['items_table']['y'] ?? 240 }}px;
                 font-size: {{ $positionMap['items_table']['font_size'] ?? 13 }}px;
             ">
-                <table class="items-table" style="width: 500px;">
+                <table class="items-table" style="width: {{ $tableWidth }}px;">
                     <thead>
                         <tr>
-                            <th style="width: 280px; text-align: left; padding: 8px;">Item Details</th>
-                            <th style="width: 60px; text-align: center; padding: 8px;">Qty</th>
-                            <th style="width: 80px; text-align: right; padding: 8px;">Unit Price</th>
-                            <th style="width: 80px; text-align: right; padding: 8px;">Total</th>
+                            <th style="width: {{ $tableWidth * 0.56 }}px; text-align: left; padding: 8px;">Item Details</th>
+                            <th style="width: {{ $tableWidth * 0.12 }}px; text-align: center; padding: 8px;">Qty</th>
+                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px;">Unit Price</th>
+                            <th style="width: {{ $tableWidth * 0.16 }}px; text-align: right; padding: 8px;">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -244,10 +249,10 @@
                             <td style="text-align: left; padding: 6px; vertical-align: top;">
                                 <div style="font-weight: bold; margin-bottom: 2px;">{{ $item->product->name }}</div>
                                 @if($item->serial_number)
-                                    <div style="font-size: 11px; color: #666; margin-bottom: 1px;">S/N: {{ $item->serial_number }}</div>
+                                    <div style="font-size: 11px; color: #000; margin-bottom: 1px;">S/N: {{ $item->serial_number }}</div>
                                 @endif
                                 @if($item->warranty_years)
-                                    <div style="font-size: 9px; color: #666;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
+                                    <div style="font-size: 9px; color: #000;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
                                 @endif
                             </td>
                             <td style="text-align: center; padding: 6px; vertical-align: middle;">{{ $item->quantity }}</td>
@@ -360,10 +365,10 @@
                             <td style="text-align: left; padding: 8px; border: 1px solid #ddd; vertical-align: top;">
                                 <div style="font-weight: bold; margin-bottom: 3px;">{{ $item->product->name }}</div>
                                 @if($item->serial_number)
-                                    <div style="font-size: 11px; color: #666; margin-bottom: 2px;">S/N: {{ $item->serial_number }}</div>
+                                    <div style="font-size: 11px; color: #000; margin-bottom: 2px;">S/N: {{ $item->serial_number }}</div>
                                 @endif
                                 @if($item->warranty_years)
-                                    <div style="font-size: 9px; color: #666;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
+                                    <div style="font-size: 9px; color: #000;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
                                 @endif
                             </td>
                             <td style="text-align: center; padding: 8px; border: 1px solid #ddd; vertical-align: middle;">{{ $item->quantity }}</td>

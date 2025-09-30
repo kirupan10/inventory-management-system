@@ -1,0 +1,532 @@
+/* Black Theme Override for Inventory Management System */
+
+/* CSS Variables for Black Theme */
+:root {
+    /* Main Black Theme Colors */
+    --black-primary: #000000;
+    --black-secondary: #1a1a1a;
+    --black-tertiary: #2d2d2d;
+    --black-quaternary: #404040;
+    --black-light: #666666;
+    --black-lighter: #808080;
+    --black-lightest: #b3b3b3;
+    
+    /* Text Colors */
+    --text-on-black: #ffffff;
+    --text-on-black-secondary: #e0e0e0;
+    --text-on-black-muted: #cccccc;
+    
+    /* Accent Colors (keeping some contrast) */
+    --accent-danger: #ff4444;
+    --accent-success: #00cc44;
+    --accent-warning: #ffaa00;
+    --accent-info: #0088cc;
+    
+    /* Override Bootstrap/Tabler Variables */
+    --tblr-primary: var(--black-primary);
+    --tblr-secondary: var(--black-secondary);
+    --tblr-dark: var(--black-primary);
+    --tblr-light: var(--black-lightest);
+    --tblr-body-bg: var(--black-primary);
+    --tblr-body-color: var(--text-on-black);
+    
+    /* Bootstrap Variable Overrides */
+    --bs-primary: var(--black-primary);
+    --bs-secondary: var(--black-secondary);
+    --bs-dark: var(--black-primary);
+    --bs-light: var(--black-lightest);
+    --bs-body-bg: var(--black-primary);
+    --bs-body-color: var(--text-on-black);
+    --bs-border-color: var(--black-tertiary);
+}
+
+/* Global Body and HTML */
+html, body {
+    background-color: var(--black-primary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Page Wrapper */
+.page, .page-wrapper {
+    background-color: var(--black-primary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Header and Navigation */
+.navbar {
+    background-color: var(--black-secondary) !important;
+    border-bottom: 1px solid var(--black-tertiary) !important;
+}
+
+.navbar-brand, .navbar-brand:hover, .navbar-brand:focus {
+    color: var(--text-on-black) !important;
+}
+
+.nav-link {
+    color: var(--text-on-black-secondary) !important;
+}
+
+.nav-link:hover, .nav-link:focus {
+    color: var(--text-on-black) !important;
+}
+
+.nav-item.active .nav-link {
+    color: var(--text-on-black) !important;
+    background-color: var(--black-tertiary) !important;
+}
+
+/* Dropdown Menus */
+.dropdown-menu {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+}
+
+.dropdown-item {
+    color: var(--text-on-black-secondary) !important;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+    background-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Cards */
+.card {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.card-header {
+    background-color: var(--black-tertiary) !important;
+    border-bottom: 1px solid var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.card-body {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.card-footer {
+    background-color: var(--black-tertiary) !important;
+    border-top: 1px solid var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--black-primary) !important;
+    border-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--black-tertiary) !important;
+    border-color: var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.btn-outline-primary {
+    color: var(--text-on-black) !important;
+    border-color: var(--black-tertiary) !important;
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--black-primary) !important;
+    border-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.btn-secondary {
+    background-color: var(--black-secondary) !important;
+    border-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+    background-color: var(--black-tertiary) !important;
+    border-color: var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Forms */
+.form-control {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.form-control:focus {
+    background-color: var(--black-secondary) !important;
+    border-color: var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important;
+}
+
+.form-control::placeholder {
+    color: var(--text-on-black-muted) !important;
+}
+
+.form-label, .form-text {
+    color: var(--text-on-black-secondary) !important;
+}
+
+.form-select {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.form-select:focus {
+    background-color: var(--black-secondary) !important;
+    border-color: var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Tables */
+.table {
+    color: var(--text-on-black) !important;
+}
+
+.table thead th {
+    background-color: var(--black-tertiary) !important;
+    border-bottom: 1px solid var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.table tbody tr {
+    background-color: var(--black-secondary) !important;
+    border-bottom: 1px solid var(--black-tertiary) !important;
+}
+
+.table tbody tr:hover {
+    background-color: var(--black-tertiary) !important;
+}
+
+.table tbody td {
+    color: var(--text-on-black) !important;
+    border-color: var(--black-tertiary) !important;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: var(--black-secondary) !important;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+    background-color: var(--black-tertiary) !important;
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+}
+
+.modal-header {
+    background-color: var(--black-tertiary) !important;
+    border-bottom: 1px solid var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.modal-body {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.modal-footer {
+    background-color: var(--black-tertiary) !important;
+    border-top: 1px solid var(--black-quaternary) !important;
+}
+
+.modal-title {
+    color: var(--text-on-black) !important;
+}
+
+.btn-close {
+    filter: invert(1) !important;
+}
+
+/* Alerts */
+.alert {
+    border: 1px solid var(--black-tertiary) !important;
+}
+
+.alert-primary {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+    border-color: var(--black-tertiary) !important;
+}
+
+.alert-secondary {
+    background-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+    border-color: var(--black-quaternary) !important;
+}
+
+.alert-success {
+    background-color: rgba(0, 204, 68, 0.1) !important;
+    color: var(--accent-success) !important;
+    border-color: var(--accent-success) !important;
+}
+
+.alert-danger {
+    background-color: rgba(255, 68, 68, 0.1) !important;
+    color: var(--accent-danger) !important;
+    border-color: var(--accent-danger) !important;
+}
+
+.alert-warning {
+    background-color: rgba(255, 170, 0, 0.1) !important;
+    color: var(--accent-warning) !important;
+    border-color: var(--accent-warning) !important;
+}
+
+.alert-info {
+    background-color: rgba(0, 136, 204, 0.1) !important;
+    color: var(--accent-info) !important;
+    border-color: var(--accent-info) !important;
+}
+
+/* Badges */
+.badge {
+    background-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.badge-primary {
+    background-color: var(--black-primary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Text Colors */
+.text-primary {
+    color: var(--text-on-black) !important;
+}
+
+.text-secondary {
+    color: var(--text-on-black-secondary) !important;
+}
+
+.text-muted {
+    color: var(--text-on-black-muted) !important;
+}
+
+.text-success {
+    color: var(--accent-success) !important;
+}
+
+.text-danger {
+    color: var(--accent-danger) !important;
+}
+
+.text-warning {
+    color: var(--accent-warning) !important;
+}
+
+.text-info {
+    color: var(--accent-info) !important;
+}
+
+/* Background Colors */
+.bg-primary {
+    background-color: var(--black-primary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.bg-secondary {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.bg-dark {
+    background-color: var(--black-primary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.bg-light {
+    background-color: var(--black-lightest) !important;
+    color: var(--black-primary) !important;
+}
+
+/* Border Colors */
+.border {
+    border-color: var(--black-tertiary) !important;
+}
+
+.border-primary {
+    border-color: var(--black-primary) !important;
+}
+
+.border-secondary {
+    border-color: var(--black-secondary) !important;
+}
+
+/* List Groups */
+.list-group-item {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.list-group-item:hover {
+    background-color: var(--black-tertiary) !important;
+}
+
+.list-group-item.active {
+    background-color: var(--black-primary) !important;
+    border-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+    background-color: var(--black-secondary) !important;
+}
+
+.breadcrumb-item a {
+    color: var(--text-on-black-secondary) !important;
+}
+
+.breadcrumb-item.active {
+    color: var(--text-on-black) !important;
+}
+
+/* Pagination */
+.page-link {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.page-link:hover, .page-link:focus {
+    background-color: var(--black-tertiary) !important;
+    border-color: var(--black-quaternary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.page-item.active .page-link {
+    background-color: var(--black-primary) !important;
+    border-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.page-item.disabled .page-link {
+    background-color: var(--black-secondary) !important;
+    border-color: var(--black-tertiary) !important;
+    color: var(--text-on-black-muted) !important;
+}
+
+/* Accordion */
+.accordion-item {
+    background-color: var(--black-secondary) !important;
+    border: 1px solid var(--black-tertiary) !important;
+}
+
+.accordion-button {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--black-tertiary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.accordion-body {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--black-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--black-quaternary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--black-light);
+}
+
+/* Special Elements */
+.icon {
+    color: var(--text-on-black-secondary) !important;
+}
+
+.avatar {
+    border: 2px solid var(--black-tertiary) !important;
+}
+
+/* Footer */
+.footer {
+    background-color: var(--black-secondary) !important;
+    border-top: 1px solid var(--black-tertiary) !important;
+    color: var(--text-on-black-secondary) !important;
+}
+
+/* Specific to this inventory system */
+.invoice-content, .invoice-1, .invoice-2, .invoice-3, .invoice-4, 
+.invoice-5, .invoice-6, .invoice-7, .invoice-8, .invoice-9, 
+.invoice-10, .invoice-11, .invoice-12, .invoice-13, .invoice-14, 
+.invoice-15, .invoice-16, .invoice-17 {
+    background-color: var(--black-primary) !important;
+    color: var(--text-on-black) !important;
+}
+
+.invoice-content .inv-header-1,
+.invoice-content .inv-header-2,
+.invoice-content .inv-title-1 {
+    color: var(--text-on-black) !important;
+}
+
+/* POS and Receipt styles */
+.receipt-container {
+    background-color: var(--black-secondary) !important;
+    color: var(--text-on-black) !important;
+}
+
+/* Letterhead positioning elements */
+.draggable-element {
+    background: linear-gradient(135deg, var(--black-tertiary) 0%, var(--black-quaternary) 100%) !important;
+    border: 2px solid var(--black-light) !important;
+    color: var(--text-on-black) !important;
+}
+
+.draggable-element.selected {
+    border-color: var(--accent-danger) !important;
+    background: rgba(255, 68, 68, 0.15) !important;
+}
+
+/* Chart and graph containers */
+.chart-container, .apexcharts-canvas {
+    background-color: var(--black-secondary) !important;
+}
+
+/* Override any remaining white backgrounds */
+* {
+    scrollbar-color: var(--black-quaternary) var(--black-secondary);
+}
+
+/* Media Queries for Print */
+@media print {
+    body, .page, .page-wrapper {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    .card, .table, .btn {
+        background-color: white !important;
+        color: black !important;
+        border-color: #ccc !important;
+    }
+}
