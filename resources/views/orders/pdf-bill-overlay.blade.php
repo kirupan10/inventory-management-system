@@ -24,9 +24,9 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            font-size: 14px;
-            line-height: 1.4;
-            color: #333;
+            font-size: 12px;
+            line-height: 1.2;
+            color: #000;
             background: transparent; /* Transparent background for overlay */
         }
 
@@ -41,6 +41,8 @@
         .positioned-element {
             position: absolute;
             font-family: Arial, sans-serif;
+            color: #000;
+            line-height: 1;
         }
 
         .items-table {
@@ -87,7 +89,7 @@
             font-size: 11px;
             line-height: 1.4;
             width: 500px;
-            background: rgba(255, 255, 255, 0.8); /* Semi-transparent background for readability */
+            /* background removed for better positioning */ /* Semi-transparent background for readability */
             padding: 5px;
         }
 
@@ -109,8 +111,8 @@
             top: {{ $positionMap['company_name']['y'] ?? 50 }}px;
             font-size: {{ $positionMap['company_name']['font_size'] ?? 18 }}px;
             font-weight: {{ $positionMap['company_name']['font_weight'] ?? 'bold' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             AURA PC FACTORY (PVT) LTD
         </div>
@@ -124,8 +126,8 @@
             font-size: {{ $positionMap['company_address']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['company_address']['font_weight'] ?? 'normal' }};
             line-height: 1.3;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             KALANCHIYAM THODDAM,<br>
             KARAVEDDY EAST, KARAVEDDY,<br>
@@ -141,8 +143,8 @@
             top: {{ $positionMap['company_contact']['y'] ?? 110 }}px;
             font-size: {{ $positionMap['company_contact']['font_size'] ?? 12 }}px;
             font-weight: {{ $positionMap['company_contact']['font_weight'] ?? 'normal' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             📧 AuraPCFactory@gmail.com &nbsp;&nbsp; 📞 +94 77 022 1046
         </div>
@@ -155,10 +157,10 @@
             top: {{ $positionMap['invoice_no']['y'] ?? 50 }}px;
             font-size: {{ $positionMap['invoice_no']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['invoice_no']['font_weight'] ?? 'bold' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
-            INVOICE: {{ $order->invoice_no }}
+            {{ $order->invoice_no }}
         </div>
         @endif
 
@@ -169,10 +171,10 @@
             top: {{ $positionMap['invoice_date']['y'] ?? 70 }}px;
             font-size: {{ $positionMap['invoice_date']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['invoice_date']['font_weight'] ?? 'normal' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
-            DATE: {{ $order->order_date->format('d/m/Y') }}
+            {{ $order->order_date->format('d/m/Y') }}
         </div>
         @endif
 
@@ -183,8 +185,8 @@
             top: {{ $positionMap['customer_name']['y'] ?? 150 }}px;
             font-size: {{ $positionMap['customer_name']['font_size'] ?? 14 }}px;
             font-weight: {{ $positionMap['customer_name']['font_weight'] ?? 'bold' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             Customer: {{ $order->customer->name }}
         </div>
@@ -197,8 +199,8 @@
             top: {{ $positionMap['customer_phone']['y'] ?? 170 }}px;
             font-size: {{ $positionMap['customer_phone']['font_size'] ?? 13 }}px;
             font-weight: {{ $positionMap['customer_phone']['font_weight'] ?? 'normal' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             Phone: {{ $order->customer->phone ?? 'N/A' }}
         </div>
@@ -212,8 +214,8 @@
             font-size: {{ $positionMap['customer_address']['font_size'] ?? 13 }}px;
             font-weight: {{ $positionMap['customer_address']['font_weight'] ?? 'normal' }};
             line-height: 1.3;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             Address: {{ $order->customer->address ?? 'N/A' }}
         </div>
@@ -226,8 +228,8 @@
             top: {{ $positionMap['customer_email']['y'] ?? 210 }}px;
             font-size: {{ $positionMap['customer_email']['font_size'] ?? 13 }}px;
             font-weight: {{ $positionMap['customer_email']['font_weight'] ?? 'normal' }};
-            background: rgba(255, 255, 255, 0.8);
-            padding: 2px 4px;
+            /* background removed for better positioning */
+
         ">
             Email: {{ $order->customer->email ?? 'N/A' }}
         </div>

@@ -127,7 +127,7 @@ class LetterheadController extends Controller
             );
 
             $output = shell_exec($command);
-            
+
             if (file_exists($previewPath) && filesize($previewPath) > 0) {
                 \Log::info('PDF preview created successfully using command line: ' . $previewFilename);
                 return $previewFilename;

@@ -357,7 +357,7 @@ class OrderController extends Controller
 
         // Set options for better rendering
         $pdf->setOptions([
-            'dpi' => 150,
+            'dpi' => 72, // Match the positioning canvas DPI
             'defaultFont' => 'Arial',
             'isHtml5ParserEnabled' => true,
             'isPhpEnabled' => true,
@@ -381,7 +381,7 @@ class OrderController extends Controller
 
             $contentPdf->setPaper('A4', 'portrait');
             $contentPdf->setOptions([
-                'dpi' => 150,
+                'dpi' => 72, // Match the positioning canvas DPI
                 'defaultFont' => 'Arial',
                 'isHtml5ParserEnabled' => true,
                 'isPhpEnabled' => true,
