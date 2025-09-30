@@ -39,6 +39,11 @@ class LetterheadController extends Controller
             $previewImage = null;
             if (strtolower($extension) === 'pdf') {
                 $previewImage = $this->createPdfPreviewImage(public_path('letterheads/' . $filename));
+                
+                // If preview generation failed, log it but continue (positioning still works)
+                if (!$previewImage) {
+                    \Log::warning('PDF preview generation failed during upload - positioning canvas will work without preview');
+                }
             }
 
             // Save letterhead info to config
@@ -79,6 +84,32 @@ class LetterheadController extends Controller
     {
         $config = $this->getLetterheadConfig();
         return response()->json($config['positions'] ?? []);
+    }
+
+    public function regeneratePreview()
+    {
+        $config = $this->getLetterheadConfig();
+        
+        if (!isset($config['letterhead_file']) || $config['letterhead_type'] !== 'pdf') {
+            return response()->json(['success' => false, 'message' => 'No PDF letterhead found']);
+        }
+
+        $pdfPath = public_path('letterheads/' . $config['letterhead_file']);
+        if (!file_exists($pdfPath)) {
+            return response()->json(['success' => false, 'message' => 'PDF file not found']);
+        }
+
+        $previewImage = $this->createPdfPreviewImage($pdfPath);
+        
+        if ($previewImage) {
+            $config['preview_image'] = $previewImage;
+            $config['updated_at'] = now()->toISOString();
+            $this->saveLetterheadConfig($config);
+            
+            return response()->json(['success' => true, 'preview_image' => $previewImage]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Failed to generate preview']);
+        }
     }
 
     private function getLetterheadConfig()

@@ -189,7 +189,10 @@
                                         Your uploaded {{ $letterheadType === 'pdf' ? 'PDF' : 'image' }} is displayed as the positioning canvas.
                                         Elements positioned here will appear in identical locations on the final PDF invoice.
                                         @if($letterheadType === 'pdf' && !$previewImage)
-                                            <br><small class="text-info">ℹ️ PDF preview generation requires ImageMagick extension. Canvas positioning still works perfectly - your final invoices will use the PDF background correctly.</small>
+                                            <br><small class="text-warning">⚠️ PDF preview generation failed. Canvas positioning still works perfectly - your final invoices will use the PDF background correctly.</small>
+                                            <br><button type="button" class="btn btn-sm btn-outline-primary mt-2" id="regeneratePreview">
+                                                <i class="fas fa-sync"></i> Regenerate PDF Preview
+                                            </button>
                                         @endif
                                     </div>
                                                 @else
@@ -669,7 +672,8 @@ document.addEventListener('DOMContentLoaded', function() {
             {field: 'invoice_date', x: 400, y: 80, font_size: 14, font_weight: 'normal'},
             {field: 'product_name', x: 50, y: 130, font_size: 13, font_weight: 'bold'},
             {field: 'customer_name', x: 50, y: 150, font_size: 14, font_weight: 'bold'},
-            {field: 'customer_phone', x: 50, y: 170, font_size: 13, font_weight: 'normal'}
+            {field: 'customer_phone', x: 50, y: 170, font_size: 13, font_weight: 'normal'},
+            {field: 'payment_details', x: 50, y: 580, font_size: 13, font_weight: 'normal'}
         ];
 
         let elementsToCreate = positions && positions.length > 0 ? positions : essentialElements;
@@ -718,7 +722,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'invoice_date': 'linear-gradient(135deg, rgba(40, 167, 69, 0.95), rgba(32, 134, 55, 0.9))',
             'product_name': 'linear-gradient(135deg, rgba(255, 87, 34, 0.95), rgba(204, 69, 27, 0.9))',
             'customer_name': 'linear-gradient(135deg, rgba(255, 193, 7, 0.95), rgba(204, 154, 6, 0.9))',
-            'customer_phone': 'linear-gradient(135deg, rgba(23, 162, 184, 0.95), rgba(18, 130, 147, 0.9))'
+            'customer_phone': 'linear-gradient(135deg, rgba(23, 162, 184, 0.95), rgba(18, 130, 147, 0.9))',
+            'payment_details': 'linear-gradient(135deg, rgba(108, 117, 125, 0.95), rgba(86, 94, 100, 0.9))'
         };
 
         if (fieldColors[position.field]) {
@@ -766,7 +771,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'customer_email': 'EMAIL',
             'company_name': 'COMPANY',
             'company_address': 'ADDRESS',
-            'company_contact': 'CONTACT'
+            'company_contact': 'CONTACT',
+            'payment_details': 'PAYMENT'
         };
         return labels[field] || field.replace('_', ' ').toUpperCase();
     }
@@ -783,6 +789,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'customer_phone': '+94 77 123 4567',
             'customer_address': '123 Main Street, Colombo 01',
             'customer_email': 'john.doe@email.com',
+            'payment_details': 'Cash | LKR 50,000 | PAID',
             'items_table': '[ITEMS TABLE]',
             'total_section': 'LKR 25,000.00',
             'warranty_section': '[WARRANTY TEXT]'
@@ -1060,6 +1067,45 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('elementProperties').innerHTML = '<p class="text-muted">Select an element to edit its properties</p>';
         }
     });
+
+    // Regenerate Preview Button
+    const regenerateButton = document.getElementById('regeneratePreview');
+    if (regenerateButton) {
+        regenerateButton.addEventListener('click', function() {
+            const button = this;
+            const originalText = button.innerHTML;
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            
+            fetch('{{ route("letterhead.regenerate-preview") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('PDF preview generated successfully! Refreshing page...', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showToast('Failed to generate preview: ' + (data.message || 'Unknown error'), 'error');
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error generating preview', 'error');
+                button.disabled = false;
+                button.innerHTML = originalText;
+            });
+        });
+    }
 
     function showToast(message, type = 'info') {
         // Create toast notification

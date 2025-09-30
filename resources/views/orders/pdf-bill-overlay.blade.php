@@ -245,10 +245,10 @@
             <table class="items-table" style="width: 500px;">
                 <thead>
                     <tr>
-                        <th style="width: 280px; text-align: left; padding: 8px;">Item Details</th>
-                        <th style="width: 60px; text-align: center; padding: 8px;">Qty</th>
-                        <th style="width: 80px; text-align: right; padding: 8px;">Unit Price</th>
-                        <th style="width: 80px; text-align: right; padding: 8px;">Total</th>
+                        <th style="width: 280px; text-align: left; padding: 8px; background: rgba(248, 249, 250, 0.95);">Product Name & Details</th>
+                        <th style="width: 60px; text-align: center; padding: 8px; background: rgba(248, 249, 250, 0.95);">Qty</th>
+                        <th style="width: 80px; text-align: right; padding: 8px; background: rgba(248, 249, 250, 0.95);">Unit Amount</th>
+                        <th style="width: 80px; text-align: right; padding: 8px; background: rgba(248, 249, 250, 0.95);">Total Amount</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -263,9 +263,9 @@
                                 <div style="font-size: 9px; color: #666;">Warranty: {{ $item->warranty_years }} {{ $item->warranty_years == 1 ? 'year' : 'years' }}</div>
                             @endif
                         </td>
-                        <td style="text-align: center; padding: 6px; vertical-align: middle;">{{ $item->quantity }}</td>
-                        <td style="text-align: right; padding: 6px; vertical-align: middle;">LKR {{ number_format($item->unitcost / 100, 2) }}</td>
-                        <td style="text-align: right; padding: 6px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total / 100, 2) }}</td>
+                        <td style="text-align: center; padding: 6px; vertical-align: middle; font-weight: bold;">{{ $item->quantity }}</td>
+                        <td style="text-align: right; padding: 6px; vertical-align: middle;">LKR {{ number_format($item->unitcost, 2) }}</td>
+                        <td style="text-align: right; padding: 6px; vertical-align: middle; font-weight: bold;">LKR {{ number_format($item->total, 2) }}</td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -284,25 +284,48 @@
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee; background: rgba(255, 255, 255, 0.9);">Subtotal:</td>
-                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->sub_total / 100, 2) }}</td>
+                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->sub_total, 2) }}</td>
                 </tr>
                 @if($order->discount_amount > 0)
                 <tr>
                     <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee; background: rgba(255, 255, 255, 0.9);">Discount:</td>
-                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; color: #dc3545; background: rgba(255, 255, 255, 0.9);">-LKR {{ number_format($order->discount_amount / 100, 2) }}</td>
+                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; color: #dc3545; background: rgba(255, 255, 255, 0.9);">-LKR {{ number_format($order->discount_amount, 2) }}</td>
                 </tr>
                 @endif
                 @if($order->service_charges > 0)
                 <tr>
                     <td style="text-align: left; padding: 3px 0; border-bottom: 1px solid #eee; background: rgba(255, 255, 255, 0.9);">Service Charges:</td>
-                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->service_charges / 100, 2) }}</td>
+                    <td style="text-align: right; padding: 3px 0; border-bottom: 1px solid #eee; font-weight: bold; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->service_charges, 2) }}</td>
                 </tr>
                 @endif
                 <tr>
                     <td style="text-align: left; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.9);">GRAND TOTAL:</td>
-                    <td style="text-align: right; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->total / 100, 2) }}</td>
+                    <td style="text-align: right; padding: 8px 0; border-top: 2px solid #000; font-weight: bold; font-size: 14px; background: rgba(255, 255, 255, 0.9);">LKR {{ number_format($order->total, 2) }}</td>
                 </tr>
             </table>
+        </div>
+        @endif
+
+        {{-- Payment Details Section --}}
+        @if(isset($positionMap['payment_details']))
+        <div class="positioned-element" style="
+            left: {{ $positionMap['payment_details']['x'] ?? 50 }}px;
+            top: {{ $positionMap['payment_details']['y'] ?? 580 }}px;
+            font-size: {{ $positionMap['payment_details']['font_size'] ?? 13 }}px;
+            width: 250px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px;
+            border: 1px solid #ddd;
+        ">
+            <div style="font-weight: bold; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;">PAYMENT DETAILS</div>
+            <div style="margin-bottom: 3px;"><strong>Payment Method:</strong> {{ ucfirst($order->payment_type) }}</div>
+            <div style="margin-bottom: 3px;"><strong>Amount Paid:</strong> LKR {{ number_format($order->pay, 2) }}</div>
+            @if($order->due > 0)
+                <div style="margin-bottom: 3px; color: #dc3545;"><strong>Amount Due:</strong> LKR {{ number_format($order->due, 2) }}</div>
+                <div style="font-size: 11px; color: #dc3545; font-style: italic;">Payment pending</div>
+            @else
+                <div style="color: #28a745; font-weight: bold; font-size: 11px;">✓ FULLY PAID</div>
+            @endif
         </div>
         @endif
 
